@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+  db:
+    hostname: db.tsa.local
+    environment:
+      SA_PASSWORD: "rIMdEnfnHj395cFO"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+
+  identity:
+    hostname: identity.tsa.local
+    command: --CREATE_DB true --DB_SEED_SOURCE system --DB_SEED_SOURCE_LOCATION /data/identityserverseeddata.json
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "https://+:44301"
+      APSNETCORE_HTTPS_PORT: "44301"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/identityServerCertificate.pfx"
+      ConnectionStrings:TsaIdentityServer: "Server=db.tsa.local;Database=tsa-identity-server;User=sa;Password=rIMdEnfnHj395cFO;"
+    expose:
+      - "8001"
+      - "44301"
+    ports:
+      - "44301:44301"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ./docker/certs:/https:ro
+
+  rabbitmq:
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  webapi:
+    hostname: api.tsa.local
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "https://+:44300"
+      APSNETCORE_HTTPS_PORT: "44300"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/apiCertificate.pfx"
+      DOCKER_CONTAINER: "Y"
+      ConnectionStrings__SubmissionsContext: "Server=db.tsa.local;Database=tsa-coding-submissions;User=sa;Password=rIMdEnfnHj395cFO;"
+      IdentityServer__Uri: "https://identity.tsa.local:44301"
+    expose:
+      - "44300"
+    ports:
+      - "44300:44300"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ./docker/certs:/https:ro
+      - type: bind
+        source: ./docker/certs/publicRootCaCertificate.crt
+        target: /usr/local/share/ca-certificates/publicRootCaCertificate.crt
