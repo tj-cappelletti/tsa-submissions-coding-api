@@ -71,7 +71,7 @@ jobs:
       - name: Run Unit Tests
         working-directory: ./src
         run: |
-          dotnet test ./Tsa.Coding.Submissions.Tests/Tsa.Coding.Submissions.Tests.csproj \
+          dotnet test ./Tsa.Submissions.Coding.Tests/Tsa.Submissions.Coding.Tests.csproj \
             --configuration Release \
             --no-build \
             --verbosity normal \
