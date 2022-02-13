@@ -43,7 +43,7 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/apiCertificate.pfx"
       DOCKER_CONTAINER: "Y"
       ConnectionStrings__SubmissionsContext: "Server=db.tsa.local;Database=tsa-coding-submissions;User=sa;Password=rIMdEnfnHj395cFO;"
-      IdentityServer__Uri: "https://identity.tsa.local:44301"
+      Authentication__Authority: "https://identity.tsa.local:44301"
     expose:
       - "44300"
     ports:
