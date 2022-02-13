@@ -1,0 +1,88 @@
+
+name: ci-cd-workflow
+
+# Build on every push (regardless of branch) for code changes
+# Build on PR to ensure the merge is good for code changes
+# Allow manual builds
+on:
+  push:
+    paths:
+    - '.github/workflows/**'
+    - 'src/**'
+
+  pull_request:
+    paths:
+    - '.github/workflows/**'
+    - 'src/**'
+
+  workflow_dispatch:
+
+jobs:
+  gitVersionJob:
+    name: Run GitVersion to Generate SemVer
+    runs-on: ubuntu-latest
+    outputs:
+      major: ${{ steps.execute-gitversion-step.outputs.major }}
+      minor: ${{ steps.execute-gitversion-step.outputs.minor }}
+      patch: ${{ steps.execute-gitversion-step.outputs.patch }}
+      majorMinor: ${{ steps.execute-gitversion-step.outputs.major }}.${{ steps.execute-gitversion-step.outputs.minor }}
+      releaseLabel: ${{ steps.execute-gitversion-step.outputs.major }}.${{ steps.execute-gitversion-step.outputs.minor }}.${{ steps.execute-gitversion-step.outputs.patch }}${{ steps.execute-gitversion-step.outputs.prereleaselabelwithdash }}
+      majorMinorReleaseLabel: ${{ steps.execute-gitversion-step.outputs.major }}.${{ steps.execute-gitversion-step.outputs.minor }}${{ steps.execute-gitversion-step.outputs.prereleaselabelwithdash }}
+      majorReleaseLabel: ${{ steps.execute-gitversion-step.outputs.major }}${{ steps.execute-gitversion-step.outputs.prereleaselabelwithdash }}
+      semVer: ${{ steps.execute-gitversion-step.outputs.semver }}
+      shorSha: ${{ steps.execute-gitversion-step.outputs.shortSha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        id: install-gitversion-step
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+        
+      - name: Execute GitVersion
+        id: execute-gitversion-step
+        uses: gittools/actions/gitversion/execute@v0.9.7
+
+  buildApplicationJob:
+    name: Build .NET Applciations
+    needs: gitVersionJob
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Build Projects
+        working-directory: ./src
+        run: |
+          dotnet build ./Tsa.Submissions.Coding.sln \
+            --configuration Release \
+            --nologo \
+            /p:Version=${{ needs.semver.outputs.semVer }}
+
+      - name: Run Unit Tests
+        working-directory: ./src
+        run: |
+          dotnet test ./Tsa.Coding.Submissions.Tests/Tsa.Coding.Submissions.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --filter "TestCategory=UnitTest" \
+            --nologo
+      
+      - name: Publish Web API
+        working-directory: ./src
+        run: |
+          dotnet publish ./Tsa.Submissions.Coding.WebApi/Tsa.Submissions.Coding.WebApi.csproj \
+            --configuration Release \
+            --no-build \
+            --output ${{ runner.temp }}/Tsa.Coding.Submissions.WebApi \
+            --nologo
