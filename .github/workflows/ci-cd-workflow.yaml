@@ -19,7 +19,7 @@ on:
 
 jobs:
   gitVersionJob:
-    name: Run GitVersion to Generate SemVer
+    name: Run GitVersion
     runs-on: ubuntu-latest
     outputs:
       major: ${{ steps.execute-gitversion-step.outputs.major }}
