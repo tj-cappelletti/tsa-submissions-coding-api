@@ -77,11 +77,12 @@ jobs:
             --verbosity normal \
             --filter "TestCategory=UnitTest" \
             --nologo \
-            /p:CollectCoverage=true
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=opencover
 
       - uses: codecov/codecov-action@v2
         with:
-          files: ./src/Tsa.Submissions.Coding.Tests/coverage.json
+          files: ./src/Tsa.Submissions.Coding.Tests/coverage.opencover.xml
 
       - name: Publish Web API
         working-directory: ./src
