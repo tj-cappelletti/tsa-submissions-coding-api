@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Tsa.Submissions.Coding.WebApi.Configuration;
+using Tsa.Submissions.Coding.WebApi.Services;
 
 namespace Tsa.Submissions.Coding.WebApi;
 
@@ -66,6 +68,10 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.Configure<SubmissionsDatabase>(Configuration.GetSection("SubmissionsDatabase"));
+
+        services.AddSingleton<ITeamsService, TeamsService>();
+
         var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .Build();

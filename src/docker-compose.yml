@@ -1,15 +1,6 @@
 version: '3.9'
 
 services:
-  webapi:
-    image: ${DOCKER_REGISTRY-}tsa-submissions-coding-webapi
-    build:
-      context: .
-      dockerfile: Tsa.Submissions.Coding.WebApi/Dockerfile
-    depends_on:
-    - identity
-    - rabbity-mq
-
   db:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
@@ -21,3 +12,21 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
+
+  mongodb:
+    image: mongo
+
+  mongo-express:
+    image: mongo-express
+    depends_on:
+    - mongodb
+
+  webapi:
+    image: ${DOCKER_REGISTRY-}tsa-submissions-coding-webapi
+    build:
+      context: .
+      dockerfile: Tsa.Submissions.Coding.WebApi/Dockerfile
+    depends_on:
+    - identity
+    - rabbity-mq
+    - mongodb
