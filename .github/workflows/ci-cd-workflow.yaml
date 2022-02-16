@@ -76,9 +76,12 @@ jobs:
             --no-build \
             --verbosity normal \
             --filter "TestCategory=UnitTest" \
-            --nologo
+            --nologo \
+            /p:CollectCoverage=true
 
       - uses: codecov/codecov-action@v2
+        with:
+          files: ./src/Tsa.Submissions.Coding.Tests/coverage.json
 
       - name: Publish Web API
         working-directory: ./src
