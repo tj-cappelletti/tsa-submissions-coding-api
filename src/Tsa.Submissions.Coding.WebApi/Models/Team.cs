@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Swashbuckle.AspNetCore.Annotations;
@@ -24,4 +25,6 @@ public class Team
     {
         Participants = new List<Participant>();
     }
+
+    public override string ToString() => TeamId;
 }

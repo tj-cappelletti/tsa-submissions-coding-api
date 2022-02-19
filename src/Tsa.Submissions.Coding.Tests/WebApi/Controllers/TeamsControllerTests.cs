@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using Tsa.Submissions.Coding.Tests.Data;
 using Tsa.Submissions.Coding.WebApi.Controllers;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
@@ -14,6 +18,26 @@ namespace Tsa.Submissions.Coding.Tests.WebApi.Controllers;
 //TODO: Add for testing participants
 public class TeamsControllerTests
 {
+    [Theory]
+    [ClassData(typeof(InvalidTeamTestData))]
+    [Trait("AppLayer", "API")]
+    [Trait("TestCategory", "UnitTest")]
+    public async void TeamsController_Post_Should_Return_Bad_Request(Team newTeam)
+    {
+        var mockedTeamsService = new Mock<ITeamsService>();
+
+        mockedTeamsService.Setup(m => m.CreateAsync(It.IsAny<Team>()))
+            .Callback((Team team) => team.Id = string.Empty);
+
+        var teamsController = new TeamsController(mockedTeamsService.Object);
+
+        // Act
+        var actionResult = await teamsController.Post(newTeam);
+
+        Assert.NotNull(actionResult);
+        Assert.IsType<BadRequestResult>(actionResult.Result);
+    }
+
     [Fact]
     [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
@@ -88,12 +112,26 @@ public class TeamsControllerTests
             TeamNumber = "901"
         };
 
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
         var mockedTeamsService = new Mock<ITeamsService>();
 
         mockedTeamsService.Setup(m => m.GetAsync(It.Is<string>(s => s == expectedId)))
             .Returns(Task.FromResult(expectedTeam));
 
-        var teamsController = new TeamsController(mockedTeamsService.Object);
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
 
         // Act
         var actionResult = await teamsController.Get(expectedId);
@@ -112,17 +150,84 @@ public class TeamsControllerTests
     [Fact]
     [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
+    public async void TeamsController_Get_By_Id_Should_Return_Not_Authorized()
+    {
+        // Arrange
+        const string id = "1234567890";
+
+        var team = new Team
+        {
+            Id = id,
+            SchoolNumber = "9999",
+            TeamNumber = "901",
+            Participants = new List<Participant>
+            {
+                new() { ParticipantNumber = "100", SchoolNumber = "9999" }
+            }
+        };
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns("8888-100");
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+
+        mockedTeamsService.Setup(m => m.GetAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult(team));
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await teamsController.Get(id);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.NotNull(actionResult.Result);
+        Assert.IsType<UnauthorizedResult>(actionResult.Result);
+    }
+
+    [Fact]
+    [Trait("AppLayer", "API")]
+    [Trait("TestCategory", "UnitTest")]
     public async void TeamsController_Get_By_Id_Should_Return_Not_Found()
     {
         // Arrange
         Team? nullTeam = null;
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
         mockedTeamsService.Setup(m => m.GetAsync(It.IsAny<string>()))
             .Returns(Task.FromResult(nullTeam));
 
-        var teamsController = new TeamsController(mockedTeamsService.Object);
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
 
         // Act
         var actionResult = await teamsController.Get("1234567890");

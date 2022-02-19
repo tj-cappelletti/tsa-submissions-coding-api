@@ -99,7 +99,12 @@ public class Startup
             {
                 options.Authority = Configuration["Authentication:Authority"];
 
-                options.TokenValidationParameters = new TokenValidationParameters { ValidateAudience = false };
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    //TODO: Find what static property this could pull from (likely in IdentityServer's libraries)
+                    NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+                    ValidateAudience = false
+                };
             });
 
         services.AddAuthorization(configuration => { configuration.AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role)); });
@@ -124,9 +129,10 @@ public class Startup
                         TokenUrl = new Uri($"{Configuration["Authentication:Authority"]}/connect/token"),
                         Scopes = new Dictionary<string, string>
                         {
-                            { "role", "Role in Submissions" },
-                            { "profile", "Your profile in Submissions" },
+                            { "name", "" },
                             { "openid", "" },
+                            { "profile", "Your profile in Submissions" },
+                            { "role", "Role in Submissions" },
                             { "tsa.coding.submissions.read", "Display/read coding submissions" },
                             { "tsa.coding.submissions.create", "Create coding submissions" }
                         }
