@@ -109,6 +109,8 @@ public class Startup
         services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "Tsa.Submissions.Coding.WebApi", Version = "v1" });
+            
+            options.EnableAnnotations();
 
             //TODO: Make a special "Swagger" API client for this
             options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
