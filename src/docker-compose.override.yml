@@ -19,6 +19,7 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/identityServerCertificate.pfx"
       ConnectionStrings:TsaIdentityServer: "Server=db.tsa.local;Database=tsa-identity-server;User=sa;Password=rIMdEnfnHj395cFO;"
+      DOCKER_CONTAINER: "Y"
     expose:
       - "8001"
       - "44301"
@@ -60,6 +61,7 @@ services:
       DOCKER_CONTAINER: "Y"
       ConnectionStrings__SubmissionsContext: "Server=db.tsa.local;Database=tsa-coding-submissions;User=sa;Password=rIMdEnfnHj395cFO;"
       Authentication__Authority: "https://identity.tsa.local:44301"
+      Authentication__ClientSecret: "a673bbae-71e4-4962-a623-665689c4dd34"
     expose:
       - "44300"
     ports:

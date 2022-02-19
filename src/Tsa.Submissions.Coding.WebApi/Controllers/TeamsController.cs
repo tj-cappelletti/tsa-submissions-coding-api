@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
@@ -45,6 +46,7 @@ public class TeamsController : ControllerBase
             : team;
     }
 
+    [Authorize(Roles = "judge")]
     [HttpPost]
     public async Task<ActionResult<Team>> Post(Team newTeam)
     {
