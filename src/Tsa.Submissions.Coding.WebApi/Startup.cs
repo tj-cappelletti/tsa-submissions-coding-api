@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +12,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Tsa.Submissions.Coding.WebApi.Configuration;
+using Tsa.Submissions.Coding.WebApi.Middleware;
+using Tsa.Submissions.Coding.WebApi.Services;
 
 namespace Tsa.Submissions.Coding.WebApi;
 
@@ -25,14 +31,24 @@ public class Startup
     {
         if (env.IsDevelopment())
         {
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Tsa.Submissions.Coding.WebApi v1"));
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Tsa.Submissions.Coding.WebApi v1");
+
+                options.OAuthClientId("tsa.coding.submissions.web");
+                options.OAuthAppName("TSA Coding Submissions Web UI");
+                options.OAuthClientSecret(Configuration["Authentication:ClientSecret"]);
+                options.OAuthUsePkce();
+            });
 
             // In a development setting, all containers use the ASP.NET development certificate
             // Since this is a self signed certificate, the root CA must be trusted
             // The Docker Compose mounts a volume in the container for the root CA certificate
-            // This code block undates the trusted root CA so ASP.NET development certificates work
+            // This code block updates the trusted root CA so ASP.NET development certificates work
             var dockerContainer = Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y";
 
             if (dockerContainer)
@@ -66,6 +82,13 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.Configure<SubmissionsDatabase>(Configuration.GetSection("SubmissionsDatabase"));
+
+        if (Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y")
+            services.AddCors();
+
+        services.AddSingleton<ITeamsService, TeamsService>();
+
         var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .Build();
@@ -76,11 +99,48 @@ public class Startup
             {
                 options.Authority = Configuration["Authentication:Authority"];
 
-                options.TokenValidationParameters = new TokenValidationParameters { ValidateAudience = false };
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    //TODO: Find what static property this could pull from (likely in IdentityServer's libraries)
+                    NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+                    ValidateAudience = false
+                };
             });
+
+        services.AddAuthorization(configuration => { configuration.AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role)); });
 
         services.AddControllers(configure => { configure.Filters.Add(new AuthorizeFilter(requireAuthenticatedUserPolicy)); });
 
-        services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Tsa.Submissions.Coding.WebApi", Version = "v1" }); });
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Tsa.Submissions.Coding.WebApi", Version = "v1" });
+            
+            options.EnableAnnotations();
+
+            //TODO: Make a special "Swagger" API client for this
+            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.OAuth2,
+                Flows = new OpenApiOAuthFlows
+                {
+                    AuthorizationCode = new OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = new Uri($"{Configuration["Authentication:Authority"]}/connect/authorize"),
+                        TokenUrl = new Uri($"{Configuration["Authentication:Authority"]}/connect/token"),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            { "name", "" },
+                            { "openid", "" },
+                            { "profile", "Your profile in Submissions" },
+                            { "role", "Role in Submissions" },
+                            { "tsa.coding.submissions.read", "Display/read coding submissions" },
+                            { "tsa.coding.submissions.create", "Create coding submissions" }
+                        }
+                    }
+                }
+            });
+
+            options.OperationFilter<AuthorizeCheckOperationFilter>();
+        });
     }
 }

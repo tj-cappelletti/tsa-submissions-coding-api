@@ -79,17 +79,11 @@ For this reason, there is a Docker Compose project that is set as the default to
 *TODO: Write instructions for CLI*
 
 ### Making Your First Call
-Making your first API call can be a bit of challenge if you are unfamiliar with how to get a JWT from an identity provider.
-This API uses the [TSA Identity Server][tsa-identity-server] as the identity provider which is built on IdentityServer4.
-Further details on this solution can be found by navigating to the repo that houses the solution.
-
-First step is to ensure you have the [TSA Identity Server][tsa-identity-server] container running, either via `docker run` or `docker-compose up`. If you are running from Visual Studio 2019 or later, lauching the `docker-compose` project will handle this.
-
-Next, you must retrieve a JWT from the identity provider.
-The easiest way to achieve this is by using Postman.
-Details of how this can be achieved can be found in their documentation [Authorizing requests][postman-auth].
-
-Since the values used by Postman to retrieve your JWT are dependant upon the configuration of the [TSA Identity Server][tsa-identity-server], refer to its documenation for the specific values to use. 
+This project has been setup with Swagger and Swagger UI to allow.
+The Swagger UI has been configured to make use of OAuth2 authentication against the TSA IdentityServer container.
+Simply launch the Docker Compose and navigate to the Swagger API endpoint (as defined in the `src\Tsa.Submissions.Coding.WebApi\Startup.cs` file).
+Simply click the "Authorize" button and select all scopes before logging in.
+When prompted, enter credientials that are provided by the TSA IdentityServer or by adding your own.
 
 # Contributing
 We welcome anyone that would like to volunteer their time and contribute to this project.
