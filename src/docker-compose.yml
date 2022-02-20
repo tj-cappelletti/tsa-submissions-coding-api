@@ -1,6 +1,26 @@
 version: '3.9'
 
 services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  identity:
+    image: ghcr.io/tj-cappelletti/tsa/coding/submissions/identity:0
+    hostname: identity
+    depends_on:
+    - db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+
+  mongodb:
+    image: mongo
+
+  mongo-express:
+    image: mongo-express
+    depends_on:
+    - mongodb
+
   webapi:
     image: ${DOCKER_REGISTRY-}tsa-submissions-coding-webapi
     build:
@@ -9,15 +29,4 @@ services:
     depends_on:
     - identity
     - rabbity-mq
-
-  db:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-
-  identity:
-    image: webstorm.azurecr.io/tsa/coding/submissions/identity:0
-    hostname: identity
-    depends_on:
-    - db
-
-  rabbitmq:
-    image: rabbitmq:3-management
+    - mongodb

@@ -19,6 +19,7 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/identityServerCertificate.pfx"
       ConnectionStrings:TsaIdentityServer: "Server=db.tsa.local;Database=tsa-identity-server;User=sa;Password=rIMdEnfnHj395cFO;"
+      DOCKER_CONTAINER: "Y"
     expose:
       - "8001"
       - "44301"
@@ -33,6 +34,22 @@ services:
       - "15672:15672"
       - "5672:5672"
 
+  mongodb:
+    hostname: mongodb.tsa.local
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rIMdEnfnHj395cFO
+    ports:
+      - 27017:27017
+
+  mongo-express:
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: rIMdEnfnHj395cFO
+      ME_CONFIG_MONGODB_SERVER: mongodb.tsa.local
+    ports:
+      - 8081:8081
+
   webapi:
     hostname: api.tsa.local
     environment:
@@ -44,6 +61,7 @@ services:
       DOCKER_CONTAINER: "Y"
       ConnectionStrings__SubmissionsContext: "Server=db.tsa.local;Database=tsa-coding-submissions;User=sa;Password=rIMdEnfnHj395cFO;"
       Authentication__Authority: "https://identity.tsa.local:44301"
+      Authentication__ClientSecret: "a673bbae-71e4-4962-a623-665689c4dd34"
     expose:
       - "44300"
     ports:
