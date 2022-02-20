@@ -23,6 +23,7 @@ public class TeamsController : ControllerBase
         _teamsService = teamsService;
     }
 
+    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpDelete("{id:length(24)}")]
     public async Task<IActionResult> Delete(string id)
     {
@@ -85,12 +86,15 @@ public class TeamsController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = newTeam.Id }, newTeam);
     }
 
+    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPut("{id:length(24)}")]
     public async Task<IActionResult> Put(string id, Team updatedTeam)
     {
         var team = await _teamsService.GetAsync(id);
 
         if (team == null) return NotFound();
+
+        if (!IsTeamValid(updatedTeam)) return BadRequest();
 
         updatedTeam.Id = team.Id;
 
