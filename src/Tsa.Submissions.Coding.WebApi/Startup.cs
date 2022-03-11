@@ -39,7 +39,7 @@ public class Startup
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "Tsa.Submissions.Coding.WebApi v1");
 
-                options.OAuthClientId("tsa.coding.submissions.web");
+                options.OAuthClientId("tsa.submissions.coding.web");
                 options.OAuthAppName("TSA Coding Submissions Web UI");
                 options.OAuthClientSecret(Configuration["Authentication:ClientSecret"]);
                 options.OAuthUsePkce();
@@ -129,12 +129,8 @@ public class Startup
                         TokenUrl = new Uri($"{Configuration["Authentication:Authority"]}/connect/token"),
                         Scopes = new Dictionary<string, string>
                         {
-                            { "name", "" },
-                            { "openid", "" },
-                            { "profile", "Your profile in Submissions" },
-                            { "role", "Role in Submissions" },
-                            { "tsa.coding.submissions.read", "Display/read coding submissions" },
-                            { "tsa.coding.submissions.create", "Create coding submissions" }
+                            { "tsa.submissions.coding.read", "Display/read coding submissions" },
+                            { "tsa.submissions.coding.create", "Create coding submissions" }
                         }
                     }
                 }
