@@ -100,9 +100,9 @@ jobs:
           path: ${{ runner.temp }}/Tsa.Submissions.Coding.WebApi
           if-no-files-found: error
 
-  buildDockerContainers:
+  buildDockerContainersJob:
     name: Build Docker Containers
-    needs: [semver, buildApplciations]
+    needs: [gitVersionJob, buildApplicationJob]
     runs-on: ubuntu-latest
     strategy:
       matrix:
