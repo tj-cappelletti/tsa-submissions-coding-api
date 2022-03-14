@@ -90,5 +90,12 @@ jobs:
           dotnet publish ./Tsa.Submissions.Coding.WebApi/Tsa.Submissions.Coding.WebApi.csproj \
             --configuration Release \
             --no-build \
-            --output ${{ runner.temp }}/Tsa.Coding.Submissions.WebApi \
+            --output ${{ runner.temp }}/Tsa.Submissions.Coding.WebApi \
             --nologo
+
+      - uses: actions/upload-artifact@v2
+        name: Upload Published Web API App
+        with:
+          name: web-api
+          path: ${{ runner.temp }}/Tsa.Submissions.Coding.WebApi
+          if-no-files-found: error
