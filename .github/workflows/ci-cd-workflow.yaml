@@ -99,3 +99,43 @@ jobs:
           name: web-api
           path: ${{ runner.temp }}/Tsa.Submissions.Coding.WebApi
           if-no-files-found: error
+
+  buildDockerContainers:
+    name: Build Docker Containers
+    needs: [semver, buildApplciations]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [webapi]
+        include:
+          - image: webapi
+            dockerContext: src/
+            dockerfile: src/Tsa.Submissions.Coding.WebApi/Dockerfile
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build tsa/submissions/coding/${{ matrix.image }} Image
+        run: |
+          docker build \
+            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.semVer }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.releaseLabel }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.majorMinorReleaseLabel }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.majorReleaseLabel }} \
+            --file ${{ matrix.dockerfile }} \
+            ${{ matrix.dockerContext }}
+      
+      - name: Docker Login to GHCR
+        uses: docker/login-action@v1
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Push tsa/submissions/coding/${{ matrix.image }} Image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.semVer }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.releaseLabel }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.majorMinorReleaseLabel }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.majorReleaseLabel }}
