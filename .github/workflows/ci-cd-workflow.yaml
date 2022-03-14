@@ -117,10 +117,10 @@ jobs:
       - name: Build tsa/submissions/coding/${{ matrix.image }} Image
         run: |
           docker build \
-            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.semVer }} \
-            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.releaseLabel }} \
-            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.majorMinorReleaseLabel }} \
-            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.majorReleaseLabel }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.semVer }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.releaseLabel }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorReleaseLabel }} \
             --file ${{ matrix.dockerfile }} \
             ${{ matrix.dockerContext }}
       
@@ -135,7 +135,7 @@ jobs:
       - name: Push tsa/submissions/coding/${{ matrix.image }} Image
         if: github.event_name != 'pull_request'
         run: |
-          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.semVer }}
-          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.releaseLabel }}
-          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.majorMinorReleaseLabel }}
-          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.semver.outputs.majorReleaseLabel }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.semVer }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.releaseLabel }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorReleaseLabel }}
