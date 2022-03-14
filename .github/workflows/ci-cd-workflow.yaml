@@ -17,6 +17,9 @@ on:
 
   workflow_dispatch:
 
+env:
+  DOCKER_REPO: ghcr.io/${{ github.actor }}
+
 jobs:
   gitVersionJob:
     name: Run GitVersion
