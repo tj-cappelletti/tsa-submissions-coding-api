@@ -15,4 +15,6 @@ public interface ITeamsService
     Task RemoveAsync(string id);
 
     Task UpdateAsync(string id, Team updatedTeam);
+
+    Task<bool> Ping();
 }
