@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: coding-api-service
+  labels:
+    app: coding
+    tier: api
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    name: http
+  - port: 443
+    name: https
+  selector:
+    app: coding
+    tier: api
+status:
+  loadBalancer:
+    ingress:
+    - ip: 172.16.0.70
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coding-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: coding
+      tier: api
+  template:
+    metadata:
+      labels:
+        app: coding
+        tier: api
+    spec:
+      containers:
+      - name: coding-api
+        image: ghcr.io/tj-cappelletti/tsa/submissions/coding/webapi:0
+        env:
+        - name: SubmissionsDatabase__DatabaseName
+          valueFrom:
+            configMapKeyRef:
+              name: coding-configmap
+              key: submissions.database.name
+        - name: SubmissionsDatabase__Host
+          valueFrom:
+            configMapKeyRef:
+              name: coding-configmap
+              key: submissions.database.host
+        - name: SubmissionsDatabase__Port
+          valueFrom:
+            configMapKeyRef:
+              name: coding-configmap
+              key: submissions.database.port
+        - name: SubmissionsDatabase__User
+          valueFrom:
+            configMapKeyRef:
+              name: coding-configmap
+              key: submissions.database.user
+        - name: SubmissionsDatabase__Password
+          valueFrom:
+            secretKeyRef:
+              name: coding-secret
+              key: password
+        - name: SubmissionsDatabase__TeamsCollectionName
+          valueFrom:
+            configMapKeyRef:
+              name: coding-configmap
+              key: submissions.database.teamsCollection
+        resources:
+          limits:
+            memory: "500Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+          name: api-http-svc
+        - containerPort: 443
+          name: api-https-svc
+        livenessProbe:
+          httpGet:
+            path: /api/status
+            port: api-http-svc
+        readinessProbe:
+          httpGet:
+            path: /api/status
+            port: api-http-svc
+          initialDelaySeconds: 5
+          timeoutSeconds: 15

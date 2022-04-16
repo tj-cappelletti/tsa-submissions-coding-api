@@ -14,7 +14,7 @@ services:
     image: rabbitmq:3-management
 
   mongodb:
-    image: mongo
+    image: mongo:4.4.13
 
   mongo-express:
     image: mongo-express
