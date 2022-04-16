@@ -15,6 +15,8 @@ spec:
   selector:
     app: coding
     tier: api
+# This is to assign a static IP
+# This will need to be changed for production use
 status:
   loadBalancer:
     ingress:
