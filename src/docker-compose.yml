@@ -28,5 +28,5 @@ services:
       dockerfile: Tsa.Submissions.Coding.WebApi/Dockerfile
     depends_on:
     - identity
-    - rabbitymq
+    - rabbitmq
     - mongodb
