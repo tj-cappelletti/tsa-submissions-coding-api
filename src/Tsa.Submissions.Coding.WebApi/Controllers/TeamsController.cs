@@ -36,11 +36,15 @@ public class TeamsController : ControllerBase
         return NoContent();
     }
 
-    [Authorize(Roles = SubmissionRoles.Judge)]
+    [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet]
     public async Task<IEnumerable<Team>> Get()
     {
-        return await _teamsService.GetAsync();
+        var teams = await _teamsService.GetAsync();
+
+        return User.IsInRole(SubmissionRoles.Participant)
+            ? teams.Where(t => t.Participants.Any(p => p.ParticipantId == User!.Identity!.Name))
+            : teams;
     }
 
     [Authorize(Roles = SubmissionRoles.All)]
