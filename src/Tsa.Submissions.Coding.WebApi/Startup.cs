@@ -39,9 +39,8 @@ public class Startup
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "Tsa.Submissions.Coding.WebApi v1");
 
-                options.OAuthClientId("tsa.submissions.coding.web");
+                options.OAuthClientId("tsa.submissions.coding.api.swagger");
                 options.OAuthAppName("TSA Coding Submissions Web UI");
-                options.OAuthClientSecret(Configuration["Authentication:ClientSecret"]);
                 options.OAuthUsePkce();
             });
 
