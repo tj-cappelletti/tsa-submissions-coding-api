@@ -18,6 +18,84 @@ namespace Tsa.Submissions.Coding.Tests.WebApi.Controllers;
 //TODO: Add for testing participants
 public class TeamsControllerTests
 {
+    private static List<Team> GenerateTestTeams()
+    {
+        var teams = new List<Team>
+        {
+            // School 9000
+            new()
+            {
+                Id = "000000000001",
+                Participants = new List<Participant>
+                {
+                    new() { SchoolNumber = "9000", ParticipantNumber = "001" },
+                    new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                },
+                SchoolNumber = "9000",
+                TeamNumber = "901"
+            },
+
+            new()
+            {
+                Id = "000000000002",
+                Participants = new List<Participant>
+                {
+                    new() { SchoolNumber = "9000", ParticipantNumber = "003" },
+                    new() { SchoolNumber = "9000", ParticipantNumber = "004" }
+                },
+                SchoolNumber = "9000",
+                TeamNumber = "902"
+            },
+            new()
+            {
+                Id = "000000000003",
+                Participants = new List<Participant>
+                {
+                    new() { SchoolNumber = "9000", ParticipantNumber = "005" },
+                    new() { SchoolNumber = "9000", ParticipantNumber = "006" }
+                },
+                SchoolNumber = "9000",
+                TeamNumber = "903"
+            },
+            // School 9001
+            new()
+            {
+                Id = "000000000004",
+                Participants = new List<Participant>
+                {
+                    new() { SchoolNumber = "9001", ParticipantNumber = "001" },
+                    new() { SchoolNumber = "9001", ParticipantNumber = "002" }
+                },
+                SchoolNumber = "9001",
+                TeamNumber = "901"
+            },
+            new()
+            {
+                Id = "000000000005",
+                Participants = new List<Participant>
+                {
+                    new() { SchoolNumber = "9001", ParticipantNumber = "002" },
+                    new() { SchoolNumber = "9001", ParticipantNumber = "003" }
+                },
+                SchoolNumber = "9001",
+                TeamNumber = "902"
+            },
+            new()
+            {
+                Id = "000000000006",
+                Participants = new List<Participant>
+                {
+                    new() { SchoolNumber = "9000", ParticipantNumber = "005" },
+                    new() { SchoolNumber = "9000", ParticipantNumber = "006" }
+                },
+                SchoolNumber = "9001",
+                TeamNumber = "903"
+            }
+        };
+
+        return teams;
+    }
+
     [Theory]
     [ClassData(typeof(InvalidTeamTestData))]
     [Trait("AppLayer", "API")]
@@ -153,18 +231,8 @@ public class TeamsControllerTests
     public async void TeamsController_Get_By_Id_Should_Return_Not_Authorized()
     {
         // Arrange
-        const string id = "1234567890";
-
-        var team = new Team
-        {
-            Id = id,
-            SchoolNumber = "9999",
-            TeamNumber = "901",
-            Participants = new List<Participant>
-            {
-                new() { ParticipantNumber = "100", SchoolNumber = "9999" }
-            }
-        };
+        var teams = GenerateTestTeams();
+        var team = teams.First();
 
         var identityMock = new Mock<IIdentity>();
         identityMock.Setup(i => i.Name).Returns("8888-100");
@@ -179,7 +247,6 @@ public class TeamsControllerTests
         };
 
         var mockedTeamsService = new Mock<ITeamsService>();
-
         mockedTeamsService.Setup(m => m.GetAsync(It.IsAny<string>()))
             .Returns(Task.FromResult(team));
 
@@ -192,7 +259,7 @@ public class TeamsControllerTests
         };
 
         // Act
-        var actionResult = await teamsController.Get(id);
+        var actionResult = await teamsController.Get(team.Id);
 
         // Assert
         Assert.NotNull(actionResult);
@@ -243,21 +310,46 @@ public class TeamsControllerTests
     [Fact]
     [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Get_Should_Return_Empty_List()
+    public async void TeamsController_Get_Should_Return_None_Empty_List_With_Participant_Team()
     {
         // Arrange
+        // Arrange
+        var teams = GenerateTestTeams();
+        var expectedTeam = teams.First();
+        var participant = expectedTeam.Participants.First();
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns(participant.ParticipantId);
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        // Returns true for => User.IsInRole(SubmissionRoles.Participant)
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
         var mockedTeamsService = new Mock<ITeamsService>();
-
         mockedTeamsService.Setup(m => m.GetAsync())
-            .Returns(Task.FromResult(new List<Team>()));
+            .Returns(Task.FromResult(teams));
 
-        var teamsController = new TeamsController(mockedTeamsService.Object);
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
 
         // Act
-        var actualTeams = await teamsController.Get();
+        var actualTeams = (await teamsController.Get()).ToList();
 
         // Assert
-        Assert.Empty(actualTeams);
+        Assert.NotEmpty(actualTeams);
+        Assert.True(actualTeams.Count == 1);
+        Assert.Equal(expectedTeam.Id, actualTeams.First().Id);
 
         mockedTeamsService.Verify(m => m.GetAsync(), Times.Once);
     }
@@ -268,19 +360,32 @@ public class TeamsControllerTests
     public async void TeamsController_Get_Should_Return_None_Empty_List()
     {
         // Arrange
-        var expectedTeams = new List<Team>
+        var expectedTeams = GenerateTestTeams();
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns("6000-001");
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        // Returns false for => User.IsInRole(SubmissionRoles.Participant)
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+
+        var httpContext = new DefaultHttpContext
         {
-            new() { Id = "1", SchoolNumber = "9999", TeamNumber = "901" },
-            new() { Id = "2", SchoolNumber = "9999", TeamNumber = "902" },
-            new() { Id = "3", SchoolNumber = "9999", TeamNumber = "903" }
+            User = claimsPrincipalMock.Object
         };
 
         var mockedTeamsService = new Mock<ITeamsService>();
-
         mockedTeamsService.Setup(m => m.GetAsync())
             .Returns(Task.FromResult(expectedTeams));
 
-        var teamsController = new TeamsController(mockedTeamsService.Object);
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
 
         // Act
         var actualTeams = (await teamsController.Get()).ToList();
