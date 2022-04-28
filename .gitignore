@@ -353,3 +353,7 @@ MigrationBackup/
 *.cer
 *.crt
 *.pfx
+
+# Ignore secrets files for Kubernetes
+# This only works using certain naming convention
+*-secrets.yaml
