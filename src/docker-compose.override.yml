@@ -11,7 +11,7 @@ services:
 
   identity:
     hostname: identity.tsa.local
-    command: --CREATE_DB true --DB_SEED_SOURCE system --DB_SEED_SOURCE_LOCATION /data/identityserverseeddata.json
+    command: --CREATE_DB true --DB_SEED_SOURCE system --DB_SEED_SOURCE_LOCATION /data/identity-server-seed-data.json
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ASPNETCORE_URLS: "https://+:44301"
@@ -28,6 +28,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ./docker/certs:/https:ro
+      - ../data:/data:ro
 
   rabbitmq:
     ports:
