@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   db:
-    hostname: db.tsa.local
+    hostname: db.tsa.localdev.me
     environment:
       SA_PASSWORD: "rIMdEnfnHj395cFO"
       ACCEPT_EULA: "Y"
@@ -10,7 +10,7 @@ services:
       - "1433:1433"
 
   identity:
-    hostname: identity.tsa.local
+    hostname: identity.tsa.localdev.me
     command: --CREATE_DB true --DB_SEED_SOURCE system --DB_SEED_SOURCE_LOCATION /data/identity-server-seed-data.json
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
@@ -18,7 +18,7 @@ services:
       APSNETCORE_HTTPS_PORT: "44301"
       ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/identityServerCertificate.pfx"
-      ConnectionStrings:TsaIdentityServer: "Server=db.tsa.local;Database=tsa-identity-server;User=sa;Password=rIMdEnfnHj395cFO;"
+      ConnectionStrings:TsaIdentityServer: "Server=db.tsa.localdev.me;Database=tsa-identity-server;User=sa;Password=rIMdEnfnHj395cFO;"
       DOCKER_CONTAINER: "Y"
     expose:
       - "8001"
@@ -36,7 +36,7 @@ services:
       - "5672:5672"
 
   mongodb:
-    hostname: mongodb.tsa.local
+    hostname: mongodb.tsa.localdev.me
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: rIMdEnfnHj395cFO
@@ -47,12 +47,12 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: rIMdEnfnHj395cFO
-      ME_CONFIG_MONGODB_SERVER: mongodb.tsa.local
+      ME_CONFIG_MONGODB_SERVER: mongodb.tsa.localdev.me
     ports:
       - 8081:8081
 
   webapi:
-    hostname: api.tsa.local
+    hostname: api.tsa.localdev.me
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ASPNETCORE_URLS: "https://+:44300"
@@ -60,8 +60,8 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/apiCertificate.pfx"
       DOCKER_CONTAINER: "Y"
-      ConnectionStrings__SubmissionsContext: "Server=db.tsa.local;Database=tsa-coding-submissions;User=sa;Password=rIMdEnfnHj395cFO;"
-      Authentication__Authority: "https://identity.tsa.local:44301"
+      ConnectionStrings__SubmissionsContext: "Server=db.tsa.localdev.me;Database=tsa-coding-submissions;User=sa;Password=rIMdEnfnHj395cFO;"
+      Authentication__Authority: "https://identity.tsa.localdev.me:44301"
       Authentication__ClientSecret: "a673bbae-71e4-4962-a623-665689c4dd34"
     expose:
       - "44300"
