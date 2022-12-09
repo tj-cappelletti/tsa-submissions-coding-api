@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Tsa.Submissions.Coding.WebApi.Models;
+using System.Diagnostics.CodeAnalysis;
+using Tsa.Submissions.Coding.WebApi.Entities;
 
 namespace Tsa.Submissions.Coding.Tests.Data;
 
+[ExcludeFromCodeCoverage]
 internal class InvalidTeamTestData : IEnumerable<object[]>
 {
     public IEnumerator<object[]> GetEnumerator()

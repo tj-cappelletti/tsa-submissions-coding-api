@@ -1,27 +1,10 @@
-﻿namespace Tsa.Submissions.Coding.WebApi.Configuration;
+﻿// If the values are null, that means the app was miss configured
+// If the app was miss configured, let the error bubble up
+
+#pragma warning disable CS8618
+namespace Tsa.Submissions.Coding.WebApi.Configuration;
 
 public class SubmissionsDatabase
 {
-    public string ConnectionString
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(User) || string.IsNullOrEmpty(Password))
-                return $@"mongodb://{Host}:{Port}";
-
-            return $@"mongodb://{User}:{Password}@{Host}:{Port}";
-        }
-    }
-
     public string DatabaseName { get; set; }
-
-    public string Host { get; set; }
-
-    public string Password { get; set; }
-
-    public int Port { get; set; }
-
-    public string User { get; set; }
-
-    public string TeamsCollectionName { get; set; }
 }

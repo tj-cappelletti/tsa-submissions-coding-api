@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Middleware;
 using Tsa.Submissions.Coding.WebApi.Services;
@@ -81,7 +84,11 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.Configure<SubmissionsDatabase>(Configuration.GetSection("SubmissionsDatabase"));
+        services.Configure<SubmissionsDatabase>(Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection));
+
+        services.Add(
+            new ServiceDescriptor(typeof(IMongoClient),
+                new MongoClient(Configuration.GetConnectionString(ConfigurationKeys.MongoDbConnectionString))));
 
         if (Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y")
             services.AddCors();
@@ -112,6 +119,9 @@ public class Startup
 
         services.AddSwaggerGen(options =>
         {
+            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
             options.SwaggerDoc("v1", new OpenApiInfo { Title = "Tsa.Submissions.Coding.WebApi", Version = "v1" });
             
             options.EnableAnnotations();
