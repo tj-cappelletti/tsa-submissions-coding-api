@@ -27,8 +27,8 @@ services:
       - "44301:44301"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ./docker/certs:/https:ro
-      - ../data:/data:ro
+      - ../docker/certs:/https:ro
+      - ../../data:/data:ro
 
   rabbitmq:
     ports:
@@ -69,7 +69,7 @@ services:
       - "44300:44300"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ./docker/certs:/https:ro
+      - ../docker/certs:/https:ro
       - type: bind
-        source: ./docker/certs/publicRootCaCertificate.crt
+        source: ../docker/certs/publicRootCaCertificate.crt
         target: /usr/local/share/ca-certificates/publicRootCaCertificate.crt
