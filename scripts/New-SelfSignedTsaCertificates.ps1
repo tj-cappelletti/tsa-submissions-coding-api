@@ -12,7 +12,7 @@
 [CmdletBinding()]
 param (
     [string]
-    $RootCommonName = "tsa.local",
+    $RootCommonName = "tsa.localdev.me",
 
     [string]
     $CertificateStorePath = "Cert:\LocalMachine\My",
@@ -49,21 +49,21 @@ begin {
         Measure-Object
     ).Count -eq 0
 
-    $apiCommonNames = "api.tsa.local", "localhost"
+    $apiCommonNames = "api.$RootCommonName", "localhost"
     $createApiCertificate = (
         Get-ChildItem -Path $CertificateStorePath -Recurse |
         Where-Object { $_.Subject -eq "CN=$($apiCommonNames[0])" } |
         Measure-Object
     ).Count -eq 0
 
-    $identityServerCommonNames = "identity.tsa.local", "localhost"
+    $identityServerCommonNames = "identity.$RootCommonName", "localhost"
     $createIdentityServerCertificate = (
         Get-ChildItem -Path $CertificateStorePath -Recurse |
         Where-Object { $_.Subject -eq "CN=$($identityServerCommonNames[0])" } |
         Measure-Object
     ).Count -eq 0
 
-    $submissionsCommonNames = "submissions.tsa.local", "localhost"
+    $submissionsCommonNames = "submissions.$RootCommonName", "localhost"
     $createSubmissionsCertificate = (
         Get-ChildItem -Path $CertificateStorePath -Recurse |
         Where-Object { $_.Subject -eq "CN=$($submissionsCommonNames[0])" } |
