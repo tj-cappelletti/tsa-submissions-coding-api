@@ -36,19 +36,19 @@ jobs:
       shorSha: ${{ steps.execute-gitversion-step.outputs.shortSha }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Install GitVersion
         id: install-gitversion-step
-        uses: gittools/actions/gitversion/setup@v0.9.7
+        uses: gittools/actions/gitversion/setup@v0.9.14
         with:
           versionSpec: '5.x'
         
       - name: Execute GitVersion
         id: execute-gitversion-step
-        uses: gittools/actions/gitversion/execute@v0.9.7
+        uses: gittools/actions/gitversion/execute@v0.9.14
 
   buildApplicationJob:
     name: Build .NET Applciations
@@ -56,12 +56,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
 
       - name: Build Projects
         working-directory: ./src
@@ -87,6 +87,10 @@ jobs:
         with:
           files: ./src/Tsa.Submissions.Coding.Tests/coverage.opencover.xml
 
+      - name: Verify Code Formatting
+        working-directory: ./src
+        run: dotnet format Tsa.Submissions.Coding.sln --severity info --verify-no-changes
+
       - name: Publish Web API
         working-directory: ./src
         run: |
@@ -103,42 +107,52 @@ jobs:
           path: ${{ runner.temp }}/Tsa.Submissions.Coding.WebApi
           if-no-files-found: error
 
-  buildDockerContainersJob:
-    name: Build Docker Containers
+  buildDockerContainerJob:
+    name: Build Docker Container
     needs: [gitVersionJob, buildApplicationJob]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [webapi]
-        include:
-          - image: webapi
-            dockerContext: src/
-            dockerfile: src/Tsa.Submissions.Coding.WebApi/Dockerfile
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Build tsa/submissions/coding/${{ matrix.image }} Image
+      - name: Build tsa/submissions/coding/webapi Image
         run: |
           docker build \
-            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.semVer }} \
-            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.releaseLabel }} \
-            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }} \
-            --tag $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorReleaseLabel }} \
-            --file ${{ matrix.dockerfile }} \
-            ${{ matrix.dockerContext }}
+            --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.semVer }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.releaseLabel }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }} \
+            --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorReleaseLabel }} \
+            --file src/Tsa.Submissions.Coding.WebApi/Dockerfile \
+            src/
       
       - name: Docker Login to GHCR
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         if: ${{ github.event_name != 'pull_request' }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Push tsa/submissions/coding/${{ matrix.image }} Image
-        if: github.event_name != 'pull_request'
+      - name: Push tsa/submissions/coding/webapi Image
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: |
-          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.semVer }}
-          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.releaseLabel }}
-          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }}
-          docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorReleaseLabel }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.semVer }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.releaseLabel }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }}
+          docker push $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorReleaseLabel }}
+
+  tagRepoJob:
+    name: Create Git Tag
+    needs: [gitVersionJob, buildDockerContainerJob]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/v${{ needs.gitVersionJob.outputs.semVer }}',
+              sha: context.sha
+            })
