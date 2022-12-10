@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Tsa.Submissions.Coding.WebApi.Middleware;
 
+// This is used for local dev work and does not need to be unit tested
+[ExcludeFromCodeCoverage]
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)

@@ -2,7 +2,7 @@
 
 public class ParticipantModel
 {
-    public string? ParticipantId => string.IsNullOrWhiteSpace(SchoolNumber) || string.IsNullOrWhiteSpace(ParticipantId)
+    public string? ParticipantId => string.IsNullOrWhiteSpace(SchoolNumber) || string.IsNullOrWhiteSpace(ParticipantNumber)
         ? null
         : $"{SchoolNumber}-{ParticipantNumber}";
 
