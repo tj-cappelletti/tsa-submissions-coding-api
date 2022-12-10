@@ -1,207 +1,223 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tsa.Submissions.Coding.Tests.Data;
 using Tsa.Submissions.Coding.WebApi.Controllers;
+using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
 namespace Tsa.Submissions.Coding.Tests.WebApi.Controllers;
 
-//TODO: Add for testing participants
+[ExcludeFromCodeCoverage]
 public class TeamsControllerTests
 {
-    private static List<Team> GenerateTestTeams()
-    {
-        var teams = new List<Team>
-        {
-            // School 9000
-            new()
-            {
-                Id = "000000000001",
-                Participants = new List<Participant>
-                {
-                    new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                    new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                },
-                SchoolNumber = "9000",
-                TeamNumber = "901"
-            },
-
-            new()
-            {
-                Id = "000000000002",
-                Participants = new List<Participant>
-                {
-                    new() { SchoolNumber = "9000", ParticipantNumber = "003" },
-                    new() { SchoolNumber = "9000", ParticipantNumber = "004" }
-                },
-                SchoolNumber = "9000",
-                TeamNumber = "902"
-            },
-            new()
-            {
-                Id = "000000000003",
-                Participants = new List<Participant>
-                {
-                    new() { SchoolNumber = "9000", ParticipantNumber = "005" },
-                    new() { SchoolNumber = "9000", ParticipantNumber = "006" }
-                },
-                SchoolNumber = "9000",
-                TeamNumber = "903"
-            },
-            // School 9001
-            new()
-            {
-                Id = "000000000004",
-                Participants = new List<Participant>
-                {
-                    new() { SchoolNumber = "9001", ParticipantNumber = "001" },
-                    new() { SchoolNumber = "9001", ParticipantNumber = "002" }
-                },
-                SchoolNumber = "9001",
-                TeamNumber = "901"
-            },
-            new()
-            {
-                Id = "000000000005",
-                Participants = new List<Participant>
-                {
-                    new() { SchoolNumber = "9001", ParticipantNumber = "002" },
-                    new() { SchoolNumber = "9001", ParticipantNumber = "003" }
-                },
-                SchoolNumber = "9001",
-                TeamNumber = "902"
-            },
-            new()
-            {
-                Id = "000000000006",
-                Participants = new List<Participant>
-                {
-                    new() { SchoolNumber = "9000", ParticipantNumber = "005" },
-                    new() { SchoolNumber = "9000", ParticipantNumber = "006" }
-                },
-                SchoolNumber = "9001",
-                TeamNumber = "903"
-            }
-        };
-
-        return teams;
-    }
-
-    [Theory]
-    [ClassData(typeof(InvalidTeamTestData))]
-    [Trait("AppLayer", "API")]
+    [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Post_Should_Return_Bad_Request(Team newTeam)
+    public void Controller_Public_Methods_Should_Have_Authorize_Attribute()
     {
-        var mockedTeamsService = new Mock<ITeamsService>();
+        var teamsControllerType = typeof(TeamsController);
 
-        mockedTeamsService.Setup(m => m.CreateAsync(It.IsAny<Team>()))
-            .Callback((Team team) => team.Id = string.Empty);
+        var methodInfos = teamsControllerType.GetMethods(BindingFlags.DeclaredOnly);
 
-        var teamsController = new TeamsController(mockedTeamsService.Object);
+        foreach (var methodInfo in methodInfos)
+        {
+            var attributes = methodInfo.GetCustomAttributes(typeof(AuthorizeAttribute), false);
 
-        // Act
-        var actionResult = await teamsController.Post(newTeam);
-
-        Assert.NotNull(actionResult);
-        Assert.IsType<BadRequestResult>(actionResult.Result);
+            Assert.NotNull(attributes);
+            Assert.NotEmpty(attributes);
+            Assert.Single(attributes);
+        }
     }
 
     [Fact]
-    [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Delete_By_Id_Should_Return_No_Content()
+    public void Controller_Public_Methods_Should_Have_Http_Method_Attribute()
+    {
+        var teamsControllerType = typeof(TeamsController);
+
+        var methodInfos = teamsControllerType.GetMethods(BindingFlags.DeclaredOnly);
+
+        foreach (var methodInfo in methodInfos)
+        {
+            // Needs to be nullable so the compiler sees it's initialized
+            // The Assert.Fail doesn't tell it that the line it's being used
+            // will only ever be hit if it's initialized
+            Type? attributeType = null;
+
+            switch (methodInfo.Name.ToLower())
+            {
+                case "delete":
+                    attributeType = typeof(HttpDeleteAttribute);
+                    break;
+                case "get":
+                    attributeType = typeof(HttpGetAttribute);
+                    break;
+                case "head":
+                    attributeType = typeof(HttpHeadAttribute);
+                    break;
+                case "options":
+                    attributeType = typeof(HttpOptionsAttribute);
+                    break;
+                case "patch":
+                    attributeType = typeof(HttpPatchAttribute);
+                    break;
+                case "post":
+                    attributeType = typeof(HttpPostAttribute);
+                    break;
+                case "put":
+                    attributeType = typeof(HttpPutAttribute);
+                    break;
+                default:
+                    Assert.Fail("Unsupported public HTTP operation");
+                    break;
+            }
+
+            var attributes = methodInfo.GetCustomAttributes(attributeType, false);
+
+            Assert.NotNull(attributes);
+            Assert.NotEmpty(attributes);
+            Assert.Single(attributes);
+        }
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void Controller_Should_Have_ApiController_Attribute()
+    {
+        var teamsControllerType = typeof(TeamsController);
+
+        var attributes = teamsControllerType.GetCustomAttributes(typeof(ApiControllerAttribute), false);
+
+        Assert.NotNull(attributes);
+        Assert.NotEmpty(attributes);
+        Assert.Single(attributes);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void Controller_Should_Have_Produces_Attribute()
+    {
+        var teamsControllerType = typeof(TeamsController);
+
+        var attributes = teamsControllerType.GetCustomAttributes(typeof(ProducesAttribute), false);
+
+        Assert.NotNull(attributes);
+        Assert.NotEmpty(attributes);
+        Assert.Single(attributes);
+
+        var producesAttribute = (ProducesAttribute)attributes[0];
+
+        Assert.Contains("application/json", producesAttribute.ContentTypes);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void Controller_Should_Have_Route_Attribute()
+    {
+        var teamsControllerType = typeof(TeamsController);
+
+        var attributes = teamsControllerType.GetCustomAttributes(typeof(RouteAttribute), false);
+
+        Assert.NotNull(attributes);
+        Assert.NotEmpty(attributes);
+        Assert.Single(attributes);
+
+        var routeAttribute = (RouteAttribute)attributes[0];
+
+        Assert.Equal("api/[controller]", routeAttribute.Template);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Delete_Should_Return_No_Content()
     {
         // Arrange
-        const string expectedId = "1234567890";
+        var teamsTestData = new TeamsTestData();
 
-        var expectedTeam = new Team
-        {
-            Id = expectedId,
-            SchoolNumber = "9999",
-            TeamNumber = "901"
-        };
+        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-
-        mockedTeamsService.Setup(m => m.GetAsync(It.Is<string>(s => s == expectedId)))
-            .Returns(Task.FromResult(expectedTeam));
+        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
+            .ReturnsAsync(team);
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
 
         // Act
-        var actionResult = await teamsController.Delete(expectedId);
+        var actionResult = await teamsController.Delete("64639f6fcdde06187b09ecae", default);
 
         // Assert
         Assert.NotNull(actionResult);
         Assert.IsType<NoContentResult>(actionResult);
-
-        mockedTeamsService.Verify(m => m.GetAsync(It.IsAny<string>()), Times.Once);
-        mockedTeamsService.Verify(m => m.RemoveAsync(It.IsAny<string>()), Times.Once);
     }
 
     [Fact]
-    [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Delete_By_Id_Should_Return_Not_Found()
+    public async void Delete_Should_Return_Not_Found()
     {
         // Arrange
-        Team? nullTeam = null;
-
         var mockedTeamsService = new Mock<ITeamsService>();
-
-        mockedTeamsService.Setup(m => m.GetAsync(It.IsAny<string>()))
-            .Returns(Task.FromResult(nullTeam));
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
 
         // Act
-        var actionResult = await teamsController.Delete("1234567890");
+        var actionResult = await teamsController.Delete("64639f6fcdde06187b09ecae", default);
 
         // Assert
         Assert.NotNull(actionResult);
         Assert.IsType<NotFoundResult>(actionResult);
-
-        mockedTeamsService.Verify(m => m.GetAsync(It.IsAny<string>()), Times.Once);
-        mockedTeamsService.Verify(m => m.RemoveAsync(It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
-    [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Get_By_Id_Should_Return_A_Team()
+    public async void Get_By_Id_Should_Return_Not_Found()
     {
         // Arrange
-        const string expectedId = "1234567890";
+        var mockedTeamsService = new Mock<ITeamsService>();
 
-        var expectedTeam = new Team
-        {
-            Id = expectedId,
-            SchoolNumber = "9999",
-            TeamNumber = "901"
-        };
+        var teamsController = new TeamsController(mockedTeamsService.Object);
+
+        // Act
+        var actionResult = await teamsController.Get("64639f6fcdde06187b09ecae", default);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<NotFoundResult>(actionResult.Result);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Get_By_Id_Should_Return_Not_Found_For_Participant_Role()
+    {
+        // Arrange
+        var teamsTestData = new TeamsTestData();
+
+        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
+            .ReturnsAsync(team);
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns("0000-000");
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
 
         var httpContext = new DefaultHttpContext
         {
             User = claimsPrincipalMock.Object
         };
-
-        var mockedTeamsService = new Mock<ITeamsService>();
-
-        mockedTeamsService.Setup(m => m.GetAsync(It.Is<string>(s => s == expectedId)))
-            .Returns(Task.FromResult(expectedTeam));
 
         var teamsController = new TeamsController(mockedTeamsService.Object)
         {
@@ -212,316 +228,391 @@ public class TeamsControllerTests
         };
 
         // Act
-        var actionResult = await teamsController.Get(expectedId);
+        var actionResult = await teamsController.Get("64639f6fcdde06187b09ecae", default);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<NotFoundResult>(actionResult.Result);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Get_By_Id_Should_Return_Ok_For_Judge_Role()
+    {
+        // Arrange
+        var teamsTestData = new TeamsTestData();
+
+        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
+            .ReturnsAsync(team);
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await teamsController.Get("64639f6fcdde06187b09ecae", default);
 
         // Assert
         Assert.NotNull(actionResult);
         Assert.NotNull(actionResult.Value);
-        Assert.Equal(expectedTeam.Id, actionResult.Value!.Id);
-        Assert.Equal(expectedTeam.SchoolNumber, actionResult.Value.SchoolNumber);
-        Assert.Equal(expectedTeam.TeamId, actionResult.Value.TeamId);
-        Assert.Equal(expectedTeam.TeamNumber, actionResult.Value.TeamNumber);
+        Assert.Equal(team!.Id, actionResult.Value!.Id);
+        Assert.Equal(team.Participants.Count, actionResult.Value.Participants.Count);
 
-        mockedTeamsService.Verify(m => m.GetAsync(It.IsAny<string>()), Times.Once);
-    }
-
-    [Fact]
-    [Trait("AppLayer", "API")]
-    [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Get_By_Id_Should_Return_Not_Authorized()
-    {
-        // Arrange
-        var teams = GenerateTestTeams();
-        var team = teams.First();
-
-        var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns("8888-100");
-
-        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
-
-        var httpContext = new DefaultHttpContext
+        foreach (var participantModel in actionResult.Value.Participants)
         {
-            User = claimsPrincipalMock.Object
-        };
+            var participant = team.Participants.SingleOrDefault(_ =>
+                _.ParticipantNumber == participantModel.ParticipantNumber && _.SchoolNumber == participantModel.SchoolNumber);
 
-        var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(m => m.GetAsync(It.IsAny<string>()))
-            .Returns(Task.FromResult(team));
-
-        var teamsController = new TeamsController(mockedTeamsService.Object)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = httpContext
-            }
-        };
-
-        // Act
-        var actionResult = await teamsController.Get(team.Id);
-
-        // Assert
-        Assert.NotNull(actionResult);
-        Assert.NotNull(actionResult.Result);
-        Assert.IsType<UnauthorizedResult>(actionResult.Result);
-    }
-
-    [Fact]
-    [Trait("AppLayer", "API")]
-    [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Get_By_Id_Should_Return_Not_Found()
-    {
-        // Arrange
-        Team? nullTeam = null;
-
-        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = claimsPrincipalMock.Object
-        };
-
-        var mockedTeamsService = new Mock<ITeamsService>();
-
-        mockedTeamsService.Setup(m => m.GetAsync(It.IsAny<string>()))
-            .Returns(Task.FromResult(nullTeam));
-
-        var teamsController = new TeamsController(mockedTeamsService.Object)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = httpContext
-            }
-        };
-
-        // Act
-        var actionResult = await teamsController.Get("1234567890");
-
-        // Assert
-        Assert.NotNull(actionResult);
-        Assert.NotNull(actionResult.Result);
-        Assert.IsType<NotFoundResult>(actionResult.Result);
-
-        mockedTeamsService.Verify(m => m.GetAsync(It.IsAny<string>()), Times.Once);
-    }
-
-    [Fact]
-    [Trait("AppLayer", "API")]
-    [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Get_Should_Return_None_Empty_List_With_Participant_Team()
-    {
-        // Arrange
-        // Arrange
-        var teams = GenerateTestTeams();
-        var expectedTeam = teams.First();
-        var participant = expectedTeam.Participants.First();
-
-        var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(participant.ParticipantId);
-
-        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        // Returns true for => User.IsInRole(SubmissionRoles.Participant)
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = claimsPrincipalMock.Object
-        };
-
-        var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(m => m.GetAsync())
-            .Returns(Task.FromResult(teams));
-
-        var teamsController = new TeamsController(mockedTeamsService.Object)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = httpContext
-            }
-        };
-
-        // Act
-        var actualTeams = (await teamsController.Get()).ToList();
-
-        // Assert
-        Assert.NotEmpty(actualTeams);
-        Assert.True(actualTeams.Count == 1);
-        Assert.Equal(expectedTeam.Id, actualTeams.First().Id);
-
-        mockedTeamsService.Verify(m => m.GetAsync(), Times.Once);
-    }
-
-    [Fact]
-    [Trait("AppLayer", "API")]
-    [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Get_Should_Return_None_Empty_List()
-    {
-        // Arrange
-        var expectedTeams = GenerateTestTeams();
-
-        var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns("6000-001");
-
-        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        // Returns false for => User.IsInRole(SubmissionRoles.Participant)
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = claimsPrincipalMock.Object
-        };
-
-        var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(m => m.GetAsync())
-            .Returns(Task.FromResult(expectedTeams));
-
-        var teamsController = new TeamsController(mockedTeamsService.Object)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = httpContext
-            }
-        };
-
-        // Act
-        var actualTeams = (await teamsController.Get()).ToList();
-
-        // Assert
-        Assert.NotEmpty(actualTeams);
-        Assert.True(expectedTeams.Count == actualTeams.Count);
-
-        foreach (var actualTeam in actualTeams)
-        {
-            var expectedTeam = expectedTeams.SingleOrDefault(t => t.Id == actualTeam.Id);
-
-            Assert.NotNull(expectedTeam);
-
-            Assert.Equal(expectedTeam!.SchoolNumber, actualTeam.SchoolNumber);
-            Assert.Equal(expectedTeam.TeamId, actualTeam.TeamId);
-            Assert.Equal(expectedTeam.TeamNumber, actualTeam.TeamNumber);
+            Assert.NotNull(participant);
         }
 
-        mockedTeamsService.Verify(m => m.GetAsync(), Times.Once);
+        Assert.Equal(team.SchoolNumber, actionResult.Value.SchoolNumber);
+        Assert.Equal(team.TeamNumber, actionResult.Value.TeamNumber);
     }
 
     [Fact]
-    [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Post_Should_Return_A_Team()
+    public async void Get_By_Id_Should_Return_Ok_For_Participant_Role()
     {
         // Arrange
-        const string expectedId = "1234567890";
+        var teamsTestData = new TeamsTestData();
 
-        var expectedTeam = new Team
-        {
-            Id = expectedId,
-            SchoolNumber = "9999",
-            TeamNumber = "901"
-        };
-
-        var newTeam = new Team
-        {
-            SchoolNumber = expectedTeam.SchoolNumber,
-            TeamNumber = expectedTeam.TeamNumber
-        };
-
-        Func<Team, bool> checkNewTeamFunc = submittedTeam => submittedTeam.SchoolNumber == newTeam.SchoolNumber && submittedTeam.TeamNumber == newTeam.TeamNumber;
+        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
+            .ReturnsAsync(team);
 
-        mockedTeamsService.Setup(m => m.CreateAsync(It.IsAny<Team>()))
-            .Callback((Team team) => team.Id = expectedId);
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns(team!.Participants[0].ParticipantId);
 
-        var teamsController = new TeamsController(mockedTeamsService.Object);
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
 
         // Act
-        var actionResult = await teamsController.Post(newTeam);
+        var actionResult = await teamsController.Get("64639f6fcdde06187b09ecae", default);
 
+        // Assert
         Assert.NotNull(actionResult);
-        Assert.NotNull(actionResult.Result);
-        Assert.IsType<CreatedAtActionResult>(actionResult.Result);
+        Assert.NotNull(actionResult.Value);
+        Assert.Equal(team.Id, actionResult.Value!.Id);
+        Assert.Equal(team.Participants.Count, actionResult.Value.Participants.Count);
 
-        var actualTeam = ((CreatedAtActionResult)actionResult.Result!).Value as Team;
+        foreach (var participantModel in actionResult.Value.Participants)
+        {
+            var participant = team.Participants.SingleOrDefault(_ =>
+                _.ParticipantNumber == participantModel.ParticipantNumber && _.SchoolNumber == participantModel.SchoolNumber);
 
-        Assert.NotNull(actualTeam);
-        Assert.Equal(expectedTeam.Id, actualTeam!.Id);
-        Assert.Equal(expectedTeam.SchoolNumber, actualTeam.SchoolNumber);
-        Assert.Equal(expectedTeam.TeamId, actualTeam.TeamId);
-        Assert.Equal(expectedTeam.TeamNumber, actualTeam.TeamNumber);
+            Assert.NotNull(participant);
+        }
 
-        mockedTeamsService.Verify(m => m.CreateAsync(It.Is<Team>(data => checkNewTeamFunc(data))));
+        Assert.Equal(team.SchoolNumber, actionResult.Value.SchoolNumber);
+        Assert.Equal(team.TeamNumber, actionResult.Value.TeamNumber);
     }
 
     [Fact]
-    [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Put_Should_Return_No_Content()
+    public async void Get_Should_Return_Ok_When_Empty_For_Judge()
     {
         // Arrange
-        const string expectedId = "1234567890";
+        var emptyTeamsList = new List<Team>();
 
-        var expectedTeam = new Team
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(default))
+            .ReturnsAsync(emptyTeamsList);
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+
+        var httpContext = new DefaultHttpContext
         {
-            Id = expectedId,
-            SchoolNumber = "9999",
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await teamsController.Get(default);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.NotNull(actionResult.Value);
+        Assert.Empty(actionResult.Value!);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Get_Should_Return_Ok_When_Empty_For_Participant()
+    {
+        // Arrange
+        var emptyTeamsList = new List<Team>();
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(default))
+            .ReturnsAsync(emptyTeamsList);
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns("0000-000");
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await teamsController.Get(default);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.NotNull(actionResult.Value);
+        Assert.Empty(actionResult.Value!);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Get_Should_Return_Ok_When_Not_Empty_For_Judge()
+    {
+        // Arrange
+        var teamsTestData = new TeamsTestData();
+
+        var teamsList = teamsTestData
+            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
+            .Select(_ => _[0])
+            .Cast<Team>()
+            .ToList();
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(default))
+            .ReturnsAsync(teamsList);
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await teamsController.Get(default);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.NotNull(actionResult.Value);
+        Assert.NotEmpty(actionResult.Value!);
+        Assert.Equal(teamsList.Count, actionResult.Value!.Count);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Get_Should_Return_Ok_When_Not_Empty_For_Participant()
+    {
+        // Arrange
+        var teamsTestData = new TeamsTestData();
+
+        var teamsList = teamsTestData
+            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
+            .Select(_ => _[0])
+            .Cast<Team>()
+            .ToList();
+
+        var team = teamsList.First();
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(default))
+            .ReturnsAsync(teamsList);
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns(team!.Participants[0].ParticipantId);
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await teamsController.Get(default);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.NotNull(actionResult.Value);
+        Assert.NotEmpty(actionResult.Value!);
+        Assert.Equal(1, actionResult.Value!.Count);
+
+        var actualTeam = actionResult.Value![0];
+
+        Assert.Equal(team.Id, actualTeam.Id);
+        Assert.Equal(team.SchoolNumber, actualTeam.SchoolNumber);
+        Assert.Equal(team.TeamNumber, actualTeam.TeamNumber);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Post_Should_Return_Created()
+    {
+        // Arrange
+        var newTeam = new TeamModel
+        {
+            Id = "12345",
+            Participants = new[] { new ParticipantModel { ParticipantNumber = "123", SchoolNumber = "1234" } },
+            SchoolNumber = "1234",
             TeamNumber = "901"
+        };
+
+        Func<Team, bool> validateTeam = teamToValidate =>
+        {
+            var idsMatch = teamToValidate.Id == newTeam.Id;
+            var schoolNumbersMatch = teamToValidate.SchoolNumber == newTeam.SchoolNumber;
+            var teamNumbersMatch = teamToValidate.TeamNumber == newTeam.TeamNumber;
+
+            var participantsMatch = teamToValidate.Participants.Count == newTeam.Participants.Count &&
+                                    teamToValidate.Participants[0].ParticipantNumber == newTeam.Participants[0].ParticipantNumber &&
+                                    teamToValidate.Participants[0].SchoolNumber == newTeam.Participants[0].SchoolNumber;
+
+            return idsMatch && participantsMatch && schoolNumbersMatch && teamNumbersMatch;
         };
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
-        Func<Team, bool> checkNewTeamFunc = submittedTeam => submittedTeam.SchoolNumber == expectedTeam.SchoolNumber && submittedTeam.TeamNumber == expectedTeam.TeamNumber;
+        var teamsController = new TeamsController(mockedTeamsService.Object);
 
-        mockedTeamsService.Setup(m => m.GetAsync(It.Is<string>(s => s == expectedId)))
-            .Returns(Task.FromResult(expectedTeam));
+        // Act
+        var createdAtActionResult = await teamsController.Post(newTeam, default);
+
+        // Assert
+        Assert.NotNull(createdAtActionResult);
+
+        Assert.IsType<TeamModel>(createdAtActionResult.Value);
+
+        mockedTeamsService.Verify(_ => _.CreateAsync(It.Is<Team>(c => validateTeam(c)), default), Times.Once);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Put_Should_Return_No_Content()
+    {
+        // Arrange
+        var teamsTestData = new TeamsTestData();
+
+        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+
+        var updatedTeam = new TeamModel
+        {
+            Id = team!.Id,
+            Participants = new[] { new ParticipantModel { ParticipantNumber = "123", SchoolNumber = "1234" } },
+            SchoolNumber = "1234",
+            TeamNumber = "901"
+        };
+
+        Func<Team, bool> validateTeam = teamToValidate =>
+        {
+            var idsMatch = teamToValidate.Id == updatedTeam.Id;
+            var schoolNumbersMatch = teamToValidate.SchoolNumber == updatedTeam.SchoolNumber;
+            var teamNumbersMatch = teamToValidate.TeamNumber == updatedTeam.TeamNumber;
+
+            var participantsMatch = teamToValidate.Participants.Count == updatedTeam.Participants.Count &&
+                                    teamToValidate.Participants[0].ParticipantNumber == updatedTeam.Participants[0].ParticipantNumber &&
+                                    teamToValidate.Participants[0].SchoolNumber == updatedTeam.Participants[0].SchoolNumber;
+
+            return idsMatch && participantsMatch && schoolNumbersMatch && teamNumbersMatch;
+        };
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default)).ReturnsAsync(team);
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
 
         // Act
-        var actionResult = await teamsController.Put(expectedId, expectedTeam);
+        var actionResult = await teamsController.Put(team.Id!, updatedTeam, default);
 
         // Assert
         Assert.NotNull(actionResult);
         Assert.IsType<NoContentResult>(actionResult);
 
-        mockedTeamsService.Verify(m => m.GetAsync(It.IsAny<string>()), Times.Once);
-        mockedTeamsService.Verify(m => m.UpdateAsync(It.Is<string>(s => s == expectedId), It.Is<Team>(data => checkNewTeamFunc(data))));
+        mockedTeamsService.Verify(_ => _.UpdateAsync(It.Is<Team>(c => validateTeam(c)), default), Times.Once);
     }
 
     [Fact]
-    [Trait("AppLayer", "API")]
     [Trait("TestCategory", "UnitTest")]
-    public async void TeamsController_Put_Should_Return_Not_Found()
+    public async void Put_Should_Return_Not_Found()
     {
         // Arrange
-        Team? nullTeam = null;
-
-        const string expectedId = "1234567890";
-
-        var expectedTeam = new Team
-        {
-            Id = expectedId,
-            SchoolNumber = "9999",
-            TeamNumber = "901"
-        };
-
         var mockedTeamsService = new Mock<ITeamsService>();
-
-        mockedTeamsService.Setup(m => m.GetAsync(It.IsAny<string>()))
-            .Returns(Task.FromResult(nullTeam));
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
 
         // Act
-        var actionResult = await teamsController.Put(expectedId, expectedTeam);
+        var actionResult = await teamsController.Put("64639f6fcdde06187b09ecae", new TeamModel(), default);
 
         // Assert
         Assert.NotNull(actionResult);
         Assert.IsType<NotFoundResult>(actionResult);
-
-        mockedTeamsService.Verify(m => m.GetAsync(It.IsAny<string>()), Times.Once);
     }
 }

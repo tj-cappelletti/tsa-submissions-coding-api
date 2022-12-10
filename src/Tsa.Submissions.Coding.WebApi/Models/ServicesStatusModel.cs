@@ -1,6 +1,6 @@
 ﻿namespace Tsa.Submissions.Coding.WebApi.Models
 {
-    public class Status
+    public class ServicesStatusModel
     {
         public bool TeamsServiceIsAlive { get; set; }
 
