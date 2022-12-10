@@ -16,5 +16,6 @@ public class TeamsService : MongoDbService<Team>, ITeamsService
     public TeamsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
         mongoClient,
         options.Value.DatabaseName,
-        MongoDbCollectionName) { }
+        MongoDbCollectionName)
+    { }
 }
