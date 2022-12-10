@@ -87,6 +87,10 @@ jobs:
         with:
           files: ./src/Tsa.Submissions.Coding.Tests/coverage.opencover.xml
 
+      - name: Verify Code Formatting
+        working-directory: ./src
+        run: dotnet format Tsa.Submissions.Coding.sln --severity info --verify-no-changes
+
       - name: Publish Web API
         working-directory: ./src
         run: |
