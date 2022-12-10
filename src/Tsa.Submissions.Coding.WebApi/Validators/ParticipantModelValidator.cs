@@ -6,7 +6,7 @@ using Tsa.Submissions.Coding.WebApi.Models;
 
 namespace Tsa.Submissions.Coding.WebApi.Validators;
 
-public partial class ParticipantsPropertyValidator : PropertyValidator<TeamModel, IList<ParticipantModel>>
+public class ParticipantsPropertyValidator : PropertyValidator<TeamModel, IList<ParticipantModel>>
 {
     public override string Name => "ParticipantsPropertyValidator";
 
@@ -33,19 +33,16 @@ public partial class ParticipantsPropertyValidator : PropertyValidator<TeamModel
 
             if (participant.SchoolNumber != context.InstanceToValidate.SchoolNumber)
             {
-                context.AddFailure("The school number of the participants must match the school number of the team");
+                context.AddFailure("The school number of the participants must match the school number of the team.");
                 return false;
             }
 
-            if (!ParticipantNumberRegEx().IsMatch(participant.ParticipantNumber))
+            if (!Regex.IsMatch(participant.ParticipantNumber, "[0-8][\\d]{2}"))
             {
-                context.AddFailure("");
+                context.AddFailure("The participant number must be three digits in length and not start with a 9.");
             }
         }
 
         return true;
     }
-
-    [GeneratedRegex("[0-8][\\d]{2}")]
-    private static partial Regex ParticipantNumberRegEx();
 }

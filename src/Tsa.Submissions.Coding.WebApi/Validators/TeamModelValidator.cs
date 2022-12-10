@@ -21,6 +21,7 @@ public class TeamModelValidator : AbstractValidator<TeamModel>
             .WithMessage("The Team Number is required and must contain 3 digits and starts with a 9");
 
         RuleFor(team => team.Participants)
-            .SetValidator(new ParticipantsPropertyValidator());
+            .SetValidator(new ParticipantsPropertyValidator())
+            .WithMessage("The participant(s) are not valid");
     }
 }
