@@ -341,7 +341,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Empty()
+    public async void Get_Should_Return_Ok_When_Empty_For_Judge()
     {
         // Arrange
         var emptyTeamsList = new List<Team>();
@@ -350,7 +350,21 @@ public class TeamsControllerTests
         mockedTeamsService.Setup(_ => _.GetAsync(default))
             .ReturnsAsync(emptyTeamsList);
 
-        var teamsController = new TeamsController(mockedTeamsService.Object);
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
 
         // Act
         var actionResult = await teamsController.Get(default);
@@ -363,7 +377,47 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Not_Empty()
+    public async void Get_Should_Return_Ok_When_Empty_For_Participant()
+    {
+        // Arrange
+        var emptyTeamsList = new List<Team>();
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(default))
+            .ReturnsAsync(emptyTeamsList);
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns("0000-000");
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await teamsController.Get(default);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.NotNull(actionResult.Value);
+        Assert.Empty(actionResult.Value!);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Get_Should_Return_Ok_When_Not_Empty_For_Judge()
     {
         // Arrange
         var teamsTestData = new TeamsTestData();
@@ -378,7 +432,21 @@ public class TeamsControllerTests
         mockedTeamsService.Setup(_ => _.GetAsync(default))
             .ReturnsAsync(teamsList);
 
-        var teamsController = new TeamsController(mockedTeamsService.Object);
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(false);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
 
         // Act
         var actionResult = await teamsController.Get(default);
@@ -392,10 +460,65 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
+    public async void Get_Should_Return_Ok_When_Not_Empty_For_Participant()
+    {
+        // Arrange
+        var teamsTestData = new TeamsTestData();
+
+        var teamsList = teamsTestData
+            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
+            .Select(_ => _[0])
+            .Cast<Team>()
+            .ToList();
+
+        var team = teamsList.First();
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(_ => _.GetAsync(default))
+            .ReturnsAsync(teamsList);
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns(team!.Participants[0].ParticipantId);
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.IsAny<string>())).Returns(true);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var teamsController = new TeamsController(mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await teamsController.Get(default);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.NotNull(actionResult.Value);
+        Assert.NotEmpty(actionResult.Value!);
+        Assert.Equal(1, actionResult.Value!.Count);
+
+        var actualTeam = actionResult.Value![0];
+
+        Assert.Equal(team.Id, actualTeam.Id);
+        Assert.Equal(team.SchoolNumber, actualTeam.SchoolNumber);
+        Assert.Equal(team.TeamNumber, actualTeam.TeamNumber);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public async void Post_Should_Return_Created()
     {
         // Arrange
-        var updatedTeam = new TeamModel
+        var newTeam = new TeamModel
         {
             Id = "12345",
             Participants = new[] { new ParticipantModel { ParticipantNumber = "123", SchoolNumber = "1234" } },
@@ -405,25 +528,23 @@ public class TeamsControllerTests
 
         Func<Team, bool> validateTeam = teamToValidate =>
         {
-            var idsMatch = teamToValidate.Id == updatedTeam.Id;
-            var schoolNumbersMatch = teamToValidate.SchoolNumber == updatedTeam.SchoolNumber;
-            var teamNumbersMatch = teamToValidate.SchoolNumber == updatedTeam.TeamNumber;
+            var idsMatch = teamToValidate.Id == newTeam.Id;
+            var schoolNumbersMatch = teamToValidate.SchoolNumber == newTeam.SchoolNumber;
+            var teamNumbersMatch = teamToValidate.TeamNumber == newTeam.TeamNumber;
 
-            var participantsMatch = teamToValidate.Participants.Count == updatedTeam.Participants.Count &&
-                                    teamToValidate.Participants[0].ParticipantNumber == updatedTeam.Participants[0].ParticipantNumber &&
-                                    teamToValidate.Participants[0].SchoolNumber == updatedTeam.Participants[0].SchoolNumber;
+            var participantsMatch = teamToValidate.Participants.Count == newTeam.Participants.Count &&
+                                    teamToValidate.Participants[0].ParticipantNumber == newTeam.Participants[0].ParticipantNumber &&
+                                    teamToValidate.Participants[0].SchoolNumber == newTeam.Participants[0].SchoolNumber;
 
             return idsMatch && participantsMatch && schoolNumbersMatch && teamNumbersMatch;
         };
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService
-            .Setup(_ => _.UpdateAsync(It.IsAny<Team>(), default));
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
 
         // Act
-        var createdAtActionResult = await teamsController.Post(updatedTeam, default);
+        var createdAtActionResult = await teamsController.Post(newTeam, default);
 
         // Assert
         Assert.NotNull(createdAtActionResult);
@@ -454,7 +575,7 @@ public class TeamsControllerTests
         {
             var idsMatch = teamToValidate.Id == updatedTeam.Id;
             var schoolNumbersMatch = teamToValidate.SchoolNumber == updatedTeam.SchoolNumber;
-            var teamNumbersMatch = teamToValidate.SchoolNumber == updatedTeam.TeamNumber;
+            var teamNumbersMatch = teamToValidate.TeamNumber == updatedTeam.TeamNumber;
 
             var participantsMatch = teamToValidate.Participants.Count == updatedTeam.Participants.Count &&
                                     teamToValidate.Participants[0].ParticipantNumber == updatedTeam.Participants[0].ParticipantNumber &&

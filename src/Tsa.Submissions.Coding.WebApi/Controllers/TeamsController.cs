@@ -105,8 +105,7 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-
-    public async Task<ActionResult<TeamModel>> Post(TeamModel teamModel, CancellationToken cancellationToken)
+    public async Task<CreatedAtActionResult> Post(TeamModel teamModel, CancellationToken cancellationToken)
     {
         var team = teamModel.ToEntity();
 
