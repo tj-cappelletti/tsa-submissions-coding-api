@@ -36,19 +36,19 @@ jobs:
       shorSha: ${{ steps.execute-gitversion-step.outputs.shortSha }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Install GitVersion
         id: install-gitversion-step
-        uses: gittools/actions/gitversion/setup@v0.9.7
+        uses: gittools/actions/gitversion/setup@v0.9.14
         with:
           versionSpec: '5.x'
         
       - name: Execute GitVersion
         id: execute-gitversion-step
-        uses: gittools/actions/gitversion/execute@v0.9.7
+        uses: gittools/actions/gitversion/execute@v0.9.14
 
   buildApplicationJob:
     name: Build .NET Applciations
@@ -56,12 +56,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
 
       - name: Build Projects
         working-directory: ./src
@@ -104,18 +104,11 @@ jobs:
           if-no-files-found: error
 
   buildDockerContainersJob:
-    name: Build Docker Containers
+    name: Build Docker Container
     needs: [gitVersionJob, buildApplicationJob]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [webapi]
-        include:
-          - image: webapi
-            dockerContext: src/
-            dockerfile: src/Tsa.Submissions.Coding.WebApi/Dockerfile
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build tsa/submissions/coding/${{ matrix.image }} Image
         run: |
@@ -136,9 +129,26 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Push tsa/submissions/coding/${{ matrix.image }} Image
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: |
           docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.semVer }}
           docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.releaseLabel }}
           docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }}
           docker push $DOCKER_REPO/tsa/submissions/coding/${{ matrix.image }}:${{ needs.gitVersionJob.outputs.majorReleaseLabel }}
+
+  tagRepoJob:
+    name: Create Git Tag
+    needs: [gitVersionJob, buildDockerContainerJob, runIntegrationTestsJob]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/v${{ needs.gitVersionJob.outputs.semVer }}',
+              sha: context.sha
+            })
