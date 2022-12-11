@@ -30,4 +30,14 @@ public static class ModelExtensions
             TeamNumber = teamModel.TeamNumber
         };
     }
+
+    public static Problem ToEntity(this ProblemModel problemModel)
+    {
+        return new Problem
+        {
+            Description = problemModel.Description,
+            Id = problemModel.Id,
+            IsActive = problemModel.IsActive
+        };
+    }
 }
