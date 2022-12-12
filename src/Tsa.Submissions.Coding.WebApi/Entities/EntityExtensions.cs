@@ -32,7 +32,8 @@ public static class EntityExtensions
         {
             Description = problem.Description,
             Id = problem.Id,
-            IsActive = problem.IsActive
+            IsActive = problem.IsActive,
+            Title = problem.Title
         };
     }
 

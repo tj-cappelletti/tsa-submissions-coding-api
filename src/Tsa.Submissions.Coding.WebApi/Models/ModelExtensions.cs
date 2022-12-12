@@ -26,7 +26,8 @@ public static class ModelExtensions
         {
             Description = problemModel.Description,
             Id = problemModel.Id,
-            IsActive = problemModel.IsActive
+            IsActive = problemModel.IsActive,
+            Title = problemModel.Title
         };
     }
 
