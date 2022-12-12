@@ -121,7 +121,7 @@ public class ProblemsServiceTest
         {
             var descriptionsMatch = problemToValidate.Description == problem!.Description;
             var idsMatch = problemToValidate.Id == problem.Id;
-            var isActiveMatch = problemToValidate.IsActive== problem.IsActive;
+            var isActiveMatch = problemToValidate.IsActive == problem.IsActive;
 
             return descriptionsMatch && idsMatch && isActiveMatch;
         };
