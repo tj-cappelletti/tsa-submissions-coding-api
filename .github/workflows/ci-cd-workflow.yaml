@@ -74,7 +74,7 @@ jobs:
       - name: Run Unit Tests
         working-directory: ./src
         run: |
-          dotnet test ./Tsa.Submissions.Coding.Tests/Tsa.Submissions.Coding.Tests.csproj \
+          dotnet test ./Tsa.Submissions.Coding.UnitTests/Tsa.Submissions.Coding.UnitTests.csproj \
             --configuration Release \
             --no-build \
             --verbosity normal \
@@ -85,7 +85,7 @@ jobs:
 
       - uses: codecov/codecov-action@v2
         with:
-          files: ./src/Tsa.Submissions.Coding.Tests/coverage.opencover.xml
+          files: ./src/Tsa.Submissions.Coding.UnitTests/coverage.opencover.xml
 
       - name: Verify Code Formatting
         working-directory: ./src
