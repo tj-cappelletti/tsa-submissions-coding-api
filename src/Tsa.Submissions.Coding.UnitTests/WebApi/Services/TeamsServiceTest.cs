@@ -6,14 +6,14 @@ using System.Threading;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Moq;
-using Tsa.Submissions.Coding.Tests.Data;
-using Tsa.Submissions.Coding.Tests.ExtensionMethods;
+using Tsa.Submissions.Coding.UnitTests.Data;
+using Tsa.Submissions.Coding.UnitTests.ExtensionMethods;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
-namespace Tsa.Submissions.Coding.Tests.WebApi.Services;
+namespace Tsa.Submissions.Coding.UnitTests.WebApi.Services;
 
 [ExcludeFromCodeCoverage]
 public class TeamsServiceTest

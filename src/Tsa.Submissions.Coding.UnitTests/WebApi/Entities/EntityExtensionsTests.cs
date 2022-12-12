@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Xunit;
 
-namespace Tsa.Submissions.Coding.Tests.WebApi.Entities;
+namespace Tsa.Submissions.Coding.UnitTests.WebApi.Entities;
 
 [ExcludeFromCodeCoverage]
 public class EntityExtensions

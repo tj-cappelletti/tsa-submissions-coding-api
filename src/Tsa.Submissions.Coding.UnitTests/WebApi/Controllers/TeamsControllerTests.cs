@@ -9,14 +9,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Tsa.Submissions.Coding.Tests.Data;
+using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.WebApi.Controllers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
-namespace Tsa.Submissions.Coding.Tests.WebApi.Controllers;
+namespace Tsa.Submissions.Coding.UnitTests.WebApi.Controllers;
 
 [ExcludeFromCodeCoverage]
 public class TeamsControllerTests

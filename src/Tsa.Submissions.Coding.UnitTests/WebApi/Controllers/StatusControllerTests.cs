@@ -10,7 +10,7 @@ using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
-namespace Tsa.Submissions.Coding.Tests.WebApi.Controllers;
+namespace Tsa.Submissions.Coding.UnitTests.WebApi.Controllers;
 
 [ExcludeFromCodeCoverage]
 public class StatusControllerTests

@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FluentValidation.TestHelper;
-using Tsa.Submissions.Coding.Tests.Data;
+using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Validators;
 using Xunit;
 
-namespace Tsa.Submissions.Coding.Tests.WebApi.Validators;
+namespace Tsa.Submissions.Coding.UnitTests.WebApi.Validators;
 
 [ExcludeFromCodeCoverage]
 public class TeamModelValidatorTests

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Tsa.Submissions.Coding.WebApi.Entities;
 
-namespace Tsa.Submissions.Coding.Tests.Data;
+namespace Tsa.Submissions.Coding.UnitTests.Data;
 
 [ExcludeFromCodeCoverage]
 public class TeamsTestData : IEnumerable<object[]>

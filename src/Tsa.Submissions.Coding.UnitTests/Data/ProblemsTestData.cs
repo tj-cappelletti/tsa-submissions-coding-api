@@ -2,12 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tsa.Submissions.Coding.WebApi.Entities;
 
-namespace Tsa.Submissions.Coding.Tests.Data;
+namespace Tsa.Submissions.Coding.UnitTests.Data;
 
 [ExcludeFromCodeCoverage]
 public class ProblemsTestData : IEnumerable<object[]>
