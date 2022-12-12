@@ -5,7 +5,7 @@ using Tsa.Submissions.Coding.WebApi.Entities;
 
 namespace Tsa.Submissions.Coding.WebApi.Services;
 
-public class ProblemsService: MongoDbService<Problem>, IProblemsService
+public class ProblemsService : MongoDbService<Problem>, IProblemsService
 {
     public const string MongoDbCollectionName = "problems";
 
@@ -16,6 +16,5 @@ public class ProblemsService: MongoDbService<Problem>, IProblemsService
     public ProblemsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
         mongoClient,
         options.Value.DatabaseName,
-        MongoDbCollectionName)
-    { }
+        MongoDbCollectionName) { }
 }

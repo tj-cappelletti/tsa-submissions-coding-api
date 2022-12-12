@@ -31,7 +31,7 @@ public static class EntityExtensions
         return new ProblemModel
         {
             Description = problem.Description,
-            Id = problem.Description,
+            Id = problem.Id,
             IsActive = problem.IsActive
         };
     }

@@ -20,6 +20,16 @@ public static class ModelExtensions
         };
     }
 
+    public static Problem ToEntity(this ProblemModel problemModel)
+    {
+        return new Problem
+        {
+            Description = problemModel.Description,
+            Id = problemModel.Id,
+            IsActive = problemModel.IsActive
+        };
+    }
+
     public static Team ToEntity(this TeamModel teamModel)
     {
         return new Team
@@ -28,16 +38,6 @@ public static class ModelExtensions
             Participants = teamModel.Participants.ToEntities(),
             SchoolNumber = teamModel.SchoolNumber,
             TeamNumber = teamModel.TeamNumber
-        };
-    }
-
-    public static Problem ToEntity(this ProblemModel problemModel)
-    {
-        return new Problem
-        {
-            Description = problemModel.Description,
-            Id = problemModel.Id,
-            IsActive = problemModel.IsActive
         };
     }
 }
