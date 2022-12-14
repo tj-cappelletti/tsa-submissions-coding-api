@@ -102,9 +102,11 @@ public class Startup
                 new MongoClient(Configuration.GetConnectionString(ConfigurationKeys.MongoDbConnectionString))));
 
         // Add MongoDB Services
+        services.AddSingleton<IProblemsService, ProblemsService>();
         services.AddSingleton<ITeamsService, TeamsService>();
 
         // Add Pingable Services - Should match MongoDB Services
+        services.AddSingleton<IPingableService, ProblemsService>();
         services.AddSingleton<IPingableService, TeamsService>();
 
         // Add Validators

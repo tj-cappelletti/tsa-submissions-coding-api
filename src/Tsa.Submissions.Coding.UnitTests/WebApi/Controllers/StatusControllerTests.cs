@@ -15,30 +15,97 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Controllers;
 [ExcludeFromCodeCoverage]
 public class StatusControllerTests
 {
+    private void AssertServiceStatus(ServicesStatusModel servicesStatusModel, PingableServiceFailures pingableServiceFailures)
+    {
+        Assert.Equal(servicesStatusModel.ProblemsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Problems));
+        Assert.Equal(servicesStatusModel.TeamsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Teams));
+    }
+
+    private static IList<IPingableService> BuildHealthyPingableServices()
+    {
+        var pingableServices = new List<IPingableService>();
+
+        foreach (var serviceType in GetServiceTypes())
+        {
+            var mockedPingableService = new Mock<IPingableService>();
+
+            mockedPingableService
+                .Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            mockedPingableService
+                .Setup(_ => _.ServiceName)
+                .Returns(serviceType.Name.Replace("Service", string.Empty));
+
+            pingableServices.Add(mockedPingableService.Object);
+        }
+
+        return pingableServices;
+    }
+
+    private static IList<IPingableService> BuildUnhealthyPingableServices(PingableServiceFailures pingableServiceFailures,
+        ServiceFailureType serviceFailureType)
+    {
+        var pingableServices = new List<IPingableService>();
+
+        foreach (var serviceType in GetServiceTypes())
+        {
+            var serviceName = serviceType.Name.Replace("Service", string.Empty);
+
+            var pingableServiceFailureFlag = Enum.Parse<PingableServiceFailures>(serviceName);
+
+            var mockedPingableService = new Mock<IPingableService>();
+
+            mockedPingableService
+                .Setup(_ => _.ServiceName)
+                .Returns(serviceName);
+
+            if (pingableServiceFailures.HasFlag(pingableServiceFailureFlag))
+            {
+                switch (serviceFailureType)
+                {
+                    case ServiceFailureType.ExceptionThrown:
+                        mockedPingableService
+                            .Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
+                            .Throws(new Exception("Test handling exceptions"));
+                        break;
+
+                    case ServiceFailureType.PingFailed:
+                        mockedPingableService.Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
+                            .ReturnsAsync(false);
+                        break;
+                }
+            }
+            else
+            {
+                mockedPingableService
+                    .Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(true);
+            }
+
+            pingableServices.Add(mockedPingableService.Object);
+        }
+
+        return pingableServices;
+    }
+
     [Theory]
     // Use this tool to generate the permutations
     // https://www.easyunitconverter.com/permutation-calculator
 
     #region Inline Data
 
-    [InlineData(false)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.Problems)]
+    [InlineData(PingableServiceFailures.Teams)]
 
     #endregion
 
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_InternalServerError(bool teamsServiceStatus)
+    public async void Get_Should_Return_InternalServerError(PingableServiceFailures pingableServiceFailures)
     {
         // Arrange
-        var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(teamsServiceStatus);
-        mockedTeamsService.Setup(_ => _.ServiceName)
-            .Returns("Teams");
-
-        var pingableServices = new List<IPingableService>
-        {
-            mockedTeamsService.Object
-        };
+        var pingableServices = BuildUnhealthyPingableServices(pingableServiceFailures, ServiceFailureType.PingFailed);
 
         var statusController = new StatusController(pingableServices);
 
@@ -59,40 +126,24 @@ public class StatusControllerTests
         var servicesStatus = objectResult.Value as ServicesStatusModel;
         Assert.False(servicesStatus!.IsHealthy);
 
-        Assert.Equal(servicesStatus.TeamsServiceIsAlive, teamsServiceStatus);
+        AssertServiceStatus(servicesStatus, pingableServiceFailures);
     }
 
     [Theory]
 
     #region Inline Data
 
-    [InlineData(true)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.Problems)]
+    [InlineData(PingableServiceFailures.Teams)]
 
     #endregion
 
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_InternalServerError_When_Exception_Is_Thrown(bool teamsServiceThrowsException)
+    public async void Get_Should_Return_InternalServerError_When_Exception_Is_Thrown(PingableServiceFailures pingableServiceFailures)
     {
         // Arrange
-        var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.ServiceName)
-            .Returns("Teams");
-
-        if (teamsServiceThrowsException)
-        {
-            mockedTeamsService.Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
-                .Throws(new Exception("Test handling exceptions"));
-        }
-        else
-        {
-            mockedTeamsService.Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(true);
-        }
-
-        var pingableServices = new List<IPingableService>
-        {
-            mockedTeamsService.Object
-        };
+        var pingableServices = BuildUnhealthyPingableServices(pingableServiceFailures, ServiceFailureType.ExceptionThrown);
 
         var statusController = new StatusController(pingableServices);
 
@@ -114,10 +165,12 @@ public class StatusControllerTests
 
         Assert.False(servicesStatus!.IsHealthy);
 
-        if (teamsServiceThrowsException)
-        {
-            Assert.False(servicesStatus.TeamsServiceIsAlive);
-        }
+        AssertServiceStatus(servicesStatus, pingableServiceFailures);
+    }
+
+    private static Type[] GetServiceTypes()
+    {
+        return new[] { typeof(ProblemsService), typeof(TeamsService) };
     }
 
     [Fact]
@@ -223,16 +276,46 @@ public class StatusControllerTests
     public async void Get_Should_Return_Ok()
     {
         // Arrange
-        var mockedComponentsService = new Mock<ITeamsService>();
-        mockedComponentsService.Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        mockedComponentsService.Setup(_ => _.ServiceName)
-            .Returns("Teams");
+        var pingableServices = BuildHealthyPingableServices();
 
-        var pingableServices = new List<IPingableService>
-        {
-            mockedComponentsService.Object
-        };
+        var statusController = new StatusController(pingableServices);
+
+        // Act
+        var actionResult = await statusController.Get();
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<ActionResult<ServicesStatusModel>>(actionResult);
+
+        var okObjectResult = actionResult.Result as ObjectResult;
+        Assert.NotNull(okObjectResult);
+        Assert.NotNull(okObjectResult.StatusCode);
+        Assert.Equal(200, okObjectResult.StatusCode!.Value);
+        Assert.NotNull(okObjectResult.Value);
+        Assert.IsType<ServicesStatusModel>(okObjectResult.Value);
+
+        var servicesStatus = okObjectResult.Value as ServicesStatusModel;
+        Assert.True(servicesStatus!.IsHealthy);
+        Assert.True(servicesStatus.ProblemsServiceIsAlive);
+        Assert.True(servicesStatus.TeamsServiceIsAlive);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Get_Should_Return_Ok_When_Unknown_Service_Is_Injected()
+    {
+        // Arrange
+        var pingableServices = BuildHealthyPingableServices();
+
+        var mockedUnknownService = new Mock<IPingableService>();
+        mockedUnknownService
+            .Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        mockedUnknownService
+            .Setup(_ => _.ServiceName)
+            .Returns("Bomb");
+
+        pingableServices.Add(mockedUnknownService.Object);
 
         var statusController = new StatusController(pingableServices);
 
@@ -255,49 +338,18 @@ public class StatusControllerTests
         Assert.True(servicesStatus.TeamsServiceIsAlive);
     }
 
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Unknown_Service_Is_Injected()
+    [Flags]
+    public enum PingableServiceFailures
     {
-        // Arrange
-        var mockedComponentsService = new Mock<ITeamsService>();
-        mockedComponentsService.Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        mockedComponentsService.Setup(_ => _.ServiceName)
-            .Returns("Teams");
+        None = 0,
+        Problems = 1,
+        Teams = 2
+    }
 
-        var mockedUnknownService = new Mock<IPingableService>();
-        mockedUnknownService
-            .Setup(_ => _.PingAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-        mockedUnknownService
-            .Setup(_ => _.ServiceName)
-            .Returns("Bomb");
-
-        var pingableServices = new List<IPingableService>
-        {
-            mockedComponentsService.Object,
-            mockedUnknownService.Object
-        };
-
-        var statusController = new StatusController(pingableServices);
-
-        // Act
-        var actionResult = await statusController.Get();
-
-        // Assert
-        Assert.NotNull(actionResult);
-        Assert.IsType<ActionResult<ServicesStatusModel>>(actionResult);
-
-        var okObjectResult = actionResult.Result as ObjectResult;
-        Assert.NotNull(okObjectResult);
-        Assert.NotNull(okObjectResult.StatusCode);
-        Assert.Equal(200, okObjectResult.StatusCode!.Value);
-        Assert.NotNull(okObjectResult.Value);
-        Assert.IsType<ServicesStatusModel>(okObjectResult.Value);
-
-        var servicesStatus = okObjectResult.Value as ServicesStatusModel;
-        Assert.True(servicesStatus!.IsHealthy);
-        Assert.True(servicesStatus.TeamsServiceIsAlive);
+    public enum ServiceFailureType
+    {
+        None,
+        ExceptionThrown,
+        PingFailed
     }
 }
