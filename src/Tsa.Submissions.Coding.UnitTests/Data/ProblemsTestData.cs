@@ -52,11 +52,43 @@ public class ProblemsTestData : IEnumerable<object[]>
             new Problem
             {
                 Description = "This is the description of Problem #4",
-                Id = "000000000000000000000001",
+                Id = "000000000000000000000004",
                 IsActive = false,
                 Title = "Problem #4"
             },
             ProblemDataIssues.None
+        };
+
+        yield return new object[]
+        {
+            new Problem
+            {
+                Id = "000000000000000000000005",
+                IsActive = false,
+                Title = "Problem #5"
+            },
+            ProblemDataIssues.MissingDescription
+        };
+
+        yield return new object[]
+        {
+            new Problem
+            {
+                Description = "This is the description of Problem #6",
+                Id = "000000000000000000000006",
+                IsActive = false,
+            },
+            ProblemDataIssues.MissingTitle
+        };
+
+        yield return new object[]
+        {
+            new Problem
+            {
+                Id = "000000000000000000000007",
+                IsActive = false,
+            },
+            ProblemDataIssues.MissingDescription | ProblemDataIssues.MissingTitle
         };
     }
 
@@ -69,5 +101,7 @@ public class ProblemsTestData : IEnumerable<object[]>
 [Flags]
 public enum ProblemDataIssues
 {
-    None = 0
+    None = 0,
+    MissingDescription = 1 << 0,
+    MissingTitle = 1 << 1
 }

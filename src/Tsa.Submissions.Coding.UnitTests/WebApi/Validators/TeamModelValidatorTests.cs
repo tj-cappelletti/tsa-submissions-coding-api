@@ -24,6 +24,8 @@ public class TeamModelValidatorTests
 
         var testValidationResult = teamModelValidator.TestValidate(teamModel);
 
+        // Assert
+
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidParticipants))
         {
             testValidationResult.ShouldHaveValidationErrorFor(_ => _.Participants);

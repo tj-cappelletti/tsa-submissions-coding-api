@@ -110,6 +110,7 @@ public class Startup
         services.AddSingleton<IPingableService, TeamsService>();
 
         // Add Validators
+        services.AddScoped<IValidator<ProblemModel>, ProblemModelValidator>();
         services.AddScoped<IValidator<TeamModel>, TeamModelValidator>();
 
         // Setup authentication and authorization
