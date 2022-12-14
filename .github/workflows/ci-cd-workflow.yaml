@@ -121,6 +121,7 @@ jobs:
             --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.releaseLabel }} \
             --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }} \
             --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorReleaseLabel }} \
+            --tag $DOCKER_REPO/pos/backoffice/services/webapi:latest \
             --file src/Tsa.Submissions.Coding.WebApi/Dockerfile \
             --build-arg CONTAINER_VERSION=${{ needs.gitVersionJob.outputs.semVer }} \
             src/
