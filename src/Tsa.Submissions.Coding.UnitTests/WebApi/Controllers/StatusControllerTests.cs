@@ -15,7 +15,7 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Controllers;
 [ExcludeFromCodeCoverage]
 public class StatusControllerTests
 {
-    private void AssertServiceStatus(ServicesStatusModel servicesStatusModel, PingableServiceFailures pingableServiceFailures)
+    private static void AssertServiceStatus(ServicesStatusModel servicesStatusModel, PingableServiceFailures pingableServiceFailures)
     {
         Assert.Equal(servicesStatusModel.ProblemsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Problems));
         Assert.Equal(servicesStatusModel.TeamsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Teams));
