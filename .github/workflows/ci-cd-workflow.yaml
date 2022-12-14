@@ -42,13 +42,13 @@ jobs:
 
       - name: Install GitVersion
         id: install-gitversion-step
-        uses: gittools/actions/gitversion/setup@v0.9.14
+        uses: gittools/actions/gitversion/setup@v0.9.15
         with:
           versionSpec: '5.x'
         
       - name: Execute GitVersion
         id: execute-gitversion-step
-        uses: gittools/actions/gitversion/execute@v0.9.14
+        uses: gittools/actions/gitversion/execute@v0.9.15
 
   buildApplicationJob:
     name: Build .NET Applciations
@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '7.0.x'
 
@@ -83,7 +83,7 @@ jobs:
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=opencover
 
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           files: ./src/Tsa.Submissions.Coding.UnitTests/coverage.opencover.xml
 
@@ -100,7 +100,7 @@ jobs:
             --output ${{ runner.temp }}/Tsa.Submissions.Coding.WebApi \
             --nologo
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         name: Upload Published Web API App
         with:
           name: web-api
@@ -122,23 +122,27 @@ jobs:
             --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }} \
             --tag $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorReleaseLabel }} \
             --file src/Tsa.Submissions.Coding.WebApi/Dockerfile \
+            --build-arg CONTAINER_VERSION=${{ needs.gitVersionJob.outputs.semVer }} \
             src/
       
       - name: Docker Login to GHCR
         uses: docker/login-action@v2
-        if: ${{ github.event_name != 'pull_request' }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Push tsa/submissions/coding/webapi Image
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: |
           docker push $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.semVer }}
           docker push $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.releaseLabel }}
           docker push $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }}
           docker push $DOCKER_REPO/tsa/submissions/coding/webapi:${{ needs.gitVersionJob.outputs.majorReleaseLabel }}
+
+      - name: Move Latest Tag
+        if: github.event_name != 'pull_request'
+        run: |
+          docker push $DOCKER_REPO/pos/backoffice/services/webapi:latest
 
   tagRepoJob:
     name: Create Git Tag
