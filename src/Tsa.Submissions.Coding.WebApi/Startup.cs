@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
@@ -41,9 +40,6 @@ public class Startup
     {
         if (env.IsDevelopment())
         {
-            IdentityModelEventSource.ShowPII = true;
-            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI(options =>
@@ -93,7 +89,9 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         if (Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y")
+        {
             services.AddCors();
+        }
 
         services.Configure<SubmissionsDatabase>(Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection));
 
@@ -136,10 +134,7 @@ public class Startup
 
         // Setup Controllers
         services
-            .AddControllers(configure =>
-            {
-                configure.Filters.Add(new AuthorizeFilter(requireAuthenticatedUserPolicy));
-            })
+            .AddControllers(configure => { configure.Filters.Add(new AuthorizeFilter(requireAuthenticatedUserPolicy)); })
             .AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
