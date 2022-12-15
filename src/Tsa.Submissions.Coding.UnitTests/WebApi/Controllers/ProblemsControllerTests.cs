@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tsa.Submissions.Coding.UnitTests.Data;
+using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Controllers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -20,11 +21,13 @@ public class ProblemsControllerTests
 {
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public void Controller_Public_Methods_Should_Have_Authorize_Attribute()
+    public void Controller_Public_Methods_Should_Have_Authorize_Attribute_With_Proper_Roles()
     {
         var problemsControllerType = typeof(ProblemsController);
 
-        var methodInfos = problemsControllerType.GetMethods(BindingFlags.DeclaredOnly);
+        var methodInfos = problemsControllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+
+        Assert.NotEmpty(methodInfos);
 
         foreach (var methodInfo in methodInfos)
         {
@@ -33,6 +36,30 @@ public class ProblemsControllerTests
             Assert.NotNull(attributes);
             Assert.NotEmpty(attributes);
             Assert.Single(attributes);
+
+            var authorizeAttribute = (AuthorizeAttribute)attributes[0];
+
+            switch (methodInfo.Name)
+            {
+                case "Delete": Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
+
+                case "Get":
+                    Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
+                    break;
+
+                case "Post":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
+
+                case "Put":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
+
+                default:
+                    Assert.Fail($"A test case for the method `{methodInfo.Name}` does not exist");
+                    break;
+            }
         }
     }
 
@@ -42,7 +69,9 @@ public class ProblemsControllerTests
     {
         var problemsControllerType = typeof(ProblemsController);
 
-        var methodInfos = problemsControllerType.GetMethods(BindingFlags.DeclaredOnly);
+        var methodInfos = problemsControllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+
+        Assert.NotEmpty(methodInfos);
 
         foreach (var methodInfo in methodInfos)
         {
