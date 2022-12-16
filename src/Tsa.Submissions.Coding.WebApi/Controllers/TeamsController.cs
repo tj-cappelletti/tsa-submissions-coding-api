@@ -128,9 +128,9 @@ public class TeamsController : ControllerBase
     [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPut("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(TeamModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(TeamModel))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put(string id, TeamModel updatedTeamModel, CancellationToken cancellationToken)
     {
         var team = await _teamsService.GetAsync(id, cancellationToken);

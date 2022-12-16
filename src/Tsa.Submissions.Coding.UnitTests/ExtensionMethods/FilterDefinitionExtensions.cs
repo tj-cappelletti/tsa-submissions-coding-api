@@ -3,7 +3,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
-namespace Tsa.Submissions.Coding.Tests.ExtensionMethods;
+namespace Tsa.Submissions.Coding.UnitTests.ExtensionMethods;
 
 [ExcludeFromCodeCoverage]
 public static class FilterDefinitionExtensions

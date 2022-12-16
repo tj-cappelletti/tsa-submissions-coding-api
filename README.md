@@ -2,13 +2,19 @@
 This project is part of a larger solution built for the Technology Student Association (TSA) [High School Coding][tsa-hs-competitions] competition.
 This API project is designed to be the heart of the solution to automate the testing and evaluation of solutions to coding problems presented to the students.
 
-## Workflow Status
+## Status Badges
+| **Badge**          | **Description**                    
+|--------------------| ------------------------------------
+| ![cicd-main-badge] | `main` Branch `ci-cd-workflow` Run |
+| ![codeql-badge]    | Latest `CodeQL` Run                |
+| ![codecove-badge]  | Codecov                            |
+| ![sc-qg-badge]     | SonarCloud Quality Gate - C#       |
+| ![sc-m-badge]      | SonarCloud Mantainablity Grade     |
+| ![sc-r-badge]      | SonarCloud Reliablity Grade        |
+| ![sc-s-badge]      | SonarCloud Security Grade          |
+| ![sc-loc-badge]    | Lines of Code                      |
 
-CI/CD Workflow| |
---------|-|
-Latest Run|![cicd-badge]
-Latest PR|![cicd-pr-badge]
-`main` Branch|![cicd-main-badge]
+![codecov-graph]
 
 ## Project Description
 This API project exposes core functionality to both the UI and to tools/utilities that test and evaluate submissions by students.
@@ -39,7 +45,16 @@ This will help explain our coding style, testing practices, and process for inte
 <!-- BADGES -->
 [cicd-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/workflows/ci-cd-workflow/badge.svg "current status"
 [cicd-main-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/workflows/ci-cd-workflow/badge.svg?branch=main "main branch status"
-[cicd-pr-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/workflows/ci-cd-workflow/badge.svg?event=pull_request "pull request status"
+[codeql-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/workflows/CodeQL/badge.svg "current status"
+
+[codecove-badge]: https://codecov.io/gh/tj-cappelletti/tsa-submissions-coding-api/branch/main/graph/badge.svg?token=WDBdfphI5L
+[codecov-graph]: https://codecov.io/gh/tj-cappelletti/tsa-submissions-coding-api/branch/main/graphs/sunburst.svg?token=WDBdfphI5L "Code Coverage Graph"
+
+[sc-qg-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=alert_status "quality gate status"
+[sc-m-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=sqale_rating "maintainablity"
+[sc-r-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=reliability_rating "reliablity"
+[sc-s-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=security_rating "security"
+[sc-loc-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=ncloc "lines of code"
 
 <!-- LINKS -->
 [cg]: CONTRIBUTING.md "Contributing Guidelines"

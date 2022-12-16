@@ -3,14 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Xunit;
 
-namespace Tsa.Submissions.Coding.Tests.WebApi.Entities;
+namespace Tsa.Submissions.Coding.UnitTests.WebApi.Entities;
 
 [ExcludeFromCodeCoverage]
 public class EntityExtensions
 {
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public void ToModel_For_Team_Should_Return_ParticipantModel()
+    public void ToModel_For_Participant_Should_Return_ParticipantModel()
     {
         // Arrange
         var participant = new Participant
@@ -25,6 +25,29 @@ public class EntityExtensions
         // Assert
         Assert.Equal(participant.ParticipantNumber, participantModel.ParticipantNumber);
         Assert.Equal(participant.SchoolNumber, participantModel.SchoolNumber);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_Problem_Should_Return_ProblemModel()
+    {
+        // Arrange
+        var problem = new Problem
+        {
+            Description = "This is the description",
+            Id = "This is the ID",
+            IsActive = true,
+            Title = "This is the title"
+        };
+
+        // Act
+        var problemModel = problem.ToModel();
+
+        // Assert
+        Assert.Equal(problem.Description, problemModel.Description);
+        Assert.Equal(problem.Id, problemModel.Id);
+        Assert.Equal(problem.IsActive, problemModel.IsActive);
+        Assert.Equal(problem.Title, problemModel.Title);
     }
 
     [Fact]

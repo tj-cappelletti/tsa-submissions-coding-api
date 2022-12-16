@@ -20,6 +20,17 @@ public static class ModelExtensions
         };
     }
 
+    public static Problem ToEntity(this ProblemModel problemModel)
+    {
+        return new Problem
+        {
+            Description = problemModel.Description,
+            Id = problemModel.Id,
+            IsActive = problemModel.IsActive,
+            Title = problemModel.Title
+        };
+    }
+
     public static Team ToEntity(this TeamModel teamModel)
     {
         return new Team
