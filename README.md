@@ -5,7 +5,6 @@ This API project is designed to be the heart of the solution to automate the tes
 ## Status Badges
 | **Badge**          | **Description**                    
 |--------------------| ------------------------------------
-| ![cicd-badge]      | Latest `ci-cd-workflow` Run        |
 | ![cicd-main-badge] | `main` Branch `ci-cd-workflow` Run |
 | ![codeql-badge]    | Latest `CodeQL` Run                |
 | ![codecove-badge]  | Codecov                            |
