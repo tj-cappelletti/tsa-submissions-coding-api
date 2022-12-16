@@ -143,7 +143,7 @@ jobs:
       - name: Move Latest Tag
         if: github.event_name != 'pull_request'
         run: |
-          docker push $DOCKER_REPO/pos/backoffice/services/webapi:latest
+          docker push $DOCKER_REPO/tsa/submissions/coding/webapi:latest
 
   tagRepoJob:
     name: Create Git Tag
