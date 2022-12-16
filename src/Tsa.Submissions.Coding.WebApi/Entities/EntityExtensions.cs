@@ -26,6 +26,17 @@ public static class EntityExtensions
         };
     }
 
+    public static ProblemModel ToModel(this Problem problem)
+    {
+        return new ProblemModel
+        {
+            Description = problem.Description,
+            Id = problem.Id,
+            IsActive = problem.IsActive,
+            Title = problem.Title
+        };
+    }
+
     public static List<ParticipantModel> ToModels(this IList<Participant> participants)
     {
         return participants.Select(participant => participant.ToModel()).ToList();
@@ -34,5 +45,10 @@ public static class EntityExtensions
     public static List<TeamModel> ToModels(this IList<Team> teams)
     {
         return teams.Select(team => team.ToModel()).ToList();
+    }
+
+    public static List<ProblemModel> ToModels(this IList<Problem> problems)
+    {
+        return problems.Select(problem => problem.ToModel()).ToList();
     }
 }

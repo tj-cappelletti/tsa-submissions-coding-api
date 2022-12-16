@@ -2,7 +2,7 @@
 using Tsa.Submissions.Coding.WebApi.Models;
 using Xunit;
 
-namespace Tsa.Submissions.Coding.Tests.WebApi.Models;
+namespace Tsa.Submissions.Coding.UnitTests.WebApi.Models;
 
 [ExcludeFromCodeCoverage]
 public class ParticipantModelTests
