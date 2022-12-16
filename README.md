@@ -5,7 +5,6 @@ This API project is designed to be the heart of the solution to automate the tes
 ## Status Badges
 | **Badge**          | **Description**                    
 |--------------------| ------------------------------------
-| ![cicd-badge]      | Latest `ci-cd-workflow` Run        |
 | ![cicd-main-badge] | `main` Branch `ci-cd-workflow` Run |
 | ![codeql-badge]    | Latest `CodeQL` Run                |
 | ![codecove-badge]  | Codecov                            |
@@ -14,6 +13,8 @@ This API project is designed to be the heart of the solution to automate the tes
 | ![sc-r-badge]      | SonarCloud Reliablity Grade        |
 | ![sc-s-badge]      | SonarCloud Security Grade          |
 | ![sc-loc-badge]    | Lines of Code                      |
+
+![codecov-graph]
 
 ## Project Description
 This API project exposes core functionality to both the UI and to tools/utilities that test and evaluate submissions by students.
@@ -47,6 +48,7 @@ This will help explain our coding style, testing practices, and process for inte
 [codeql-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/workflows/CodeQL/badge.svg "current status"
 
 [codecove-badge]: https://codecov.io/gh/tj-cappelletti/tsa-submissions-coding-api/branch/main/graph/badge.svg?token=WDBdfphI5L
+[codecov-graph]: https://codecov.io/gh/tj-cappelletti/tsa-submissions-coding-api/branch/main/graphs/sunburst.svg?token=WDBdfphI5L "Code Coverage Graph"
 
 [sc-qg-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=alert_status "quality gate status"
 [sc-m-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=sqale_rating "maintainablity"
