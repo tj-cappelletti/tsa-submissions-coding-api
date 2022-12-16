@@ -41,7 +41,8 @@ public class ProblemsControllerTests
 
             switch (methodInfo.Name)
             {
-                case "Delete": Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                case "Delete":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
                     break;
 
                 case "Get":
