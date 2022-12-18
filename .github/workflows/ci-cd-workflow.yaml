@@ -1,4 +1,3 @@
-
 name: ci-cd-workflow
 
 # Build on every push (regardless of branch) for code changes
