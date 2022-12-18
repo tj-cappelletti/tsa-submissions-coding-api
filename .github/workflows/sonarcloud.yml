@@ -20,6 +20,11 @@ jobs:
   sonarcloudScanner:
     name: Run SonarCloud Scanner
     runs-on: windows-latest
+
+    permissions:
+      issues: write
+      pull-requests: write
+
     steps:
       - uses: actions/checkout@v3
         with:
