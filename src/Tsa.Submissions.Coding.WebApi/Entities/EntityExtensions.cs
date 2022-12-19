@@ -47,6 +47,18 @@ public static class EntityExtensions
         };
     }
 
+    public static TestSetModel ToModel(this TestSet testSet)
+    {
+        return new TestSetModel
+        {
+            Id = testSet.Id,
+            Inputs = testSet.Inputs.ToModels(),
+            IsPublic = testSet.IsPublic,
+            Name = testSet.Name,
+            ProblemId = testSet.Problem?.Id.AsString
+        };
+    }
+
     public static IList<TestSetInputModel>? ToModels(this IList<TestSetInput>? testSetInputs)
     {
         return testSetInputs?.Select(testSetInput => testSetInput.ToModel()).ToList();

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Entities;
+using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
 namespace Tsa.Submissions.Coding.UnitTests.WebApi.Entities;
@@ -89,5 +92,81 @@ public class EntityExtensions
         {
             Assert.Contains(team.Participants, _ => _.ParticipantId == teamModelParticipant.ParticipantId);
         }
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_TestSet_Should_Return_TestSetModel()
+    {
+        // Arrange
+        var testSet = new TestSet
+        {
+            Id = "This is an ID",
+            Inputs = new List<TestSetInput>
+            {
+                new()
+                {
+                    DataType = "Data Type #1",
+                    Index = 1,
+                    Value = "Value #1"
+                },
+                new()
+                {
+                    DataType = "Data Type #2",
+                    Index = 2,
+                    Value = "Value #2"
+                },
+                new()
+                {
+                    DataType = "Data Type #3",
+                    Index = 3,
+                    Value = "Value #3"
+                }
+            },
+            IsPublic = true,
+            Name = "Test Set #1",
+            Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
+        };
+
+        // Act
+        var testSetModel = testSet.ToModel();
+
+        // Assert
+        Assert.Equal(testSet.Id, testSetModel.Id);
+        Assert.NotNull(testSetModel.Inputs);
+        Assert.NotEmpty(testSetModel.Inputs);
+
+        foreach (var testSetInput in testSet.Inputs)
+        {
+            var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
+
+            Assert.NotNull(testSetInputModel);
+            Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
+            Assert.Equal(testSetInput.Value, testSetInputModel.Value);
+        }
+
+        Assert.Equal(testSet.Name, testSetModel.Name);
+        Assert.Equal(testSet.Problem?.Id.AsString, testSetModel.ProblemId);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_TestSetInput_Should_Return_TestSetInputModel()
+    {
+        // Arrange
+        var testSetInput = new TestSetInput
+        {
+            DataType = "Data Type",
+            Index = 9999,
+            Value = "Value"
+        };
+
+        // Act
+        var testSetInputModel = testSetInput.ToModel();
+
+        // Assert
+        Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
+        Assert.Equal(testSetInput.Index, testSetInputModel.Index);
+        Assert.Equal(testSetInput.Value, testSetInputModel.Value);
     }
 }
