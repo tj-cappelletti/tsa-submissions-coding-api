@@ -92,7 +92,7 @@ public class TestSetsServiceTests
         // Arrange
         var testSetsTestData = new TestSetsTestData();
 
-        var testSet = testSetsTestData.First(_ => (TestSetDataIssues) _[1] == TestSetDataIssues.None)[0] as TestSet;
+        var testSet = testSetsTestData.First(_ => (TestSetDataIssues)_[1] == TestSetDataIssues.None)[0] as TestSet;
 
         var mockedMongoCollection = new Mock<IMongoCollection<TestSet>>();
         //mockedMongoCollection.Setup(_=>_.InsertOneAsync())
@@ -147,7 +147,7 @@ public class TestSetsServiceTests
         var testSetsTestData = new TestSetsTestData();
 
         var expectedTestSet = testSetsTestData
-            .Where(_ => (TestSetDataIssues) _[1] == TestSetDataIssues.None)
+            .Where(_ => (TestSetDataIssues)_[1] == TestSetDataIssues.None)
             .Select(_ => _[0])
             .Cast<TestSet>()
             .Last();
@@ -214,7 +214,7 @@ public class TestSetsServiceTests
         var testSetsTestData = new TestSetsTestData();
 
         var testSets = testSetsTestData
-            .Where(_ => (TestSetDataIssues) _[1] == TestSetDataIssues.None)
+            .Where(_ => (TestSetDataIssues)_[1] == TestSetDataIssues.None)
             .Select(_ => _[0])
             .Cast<TestSet>()
             .ToList();
@@ -276,7 +276,7 @@ public class TestSetsServiceTests
         var testSetsTestData = new TestSetsTestData();
 
         var expectedTestSet = testSetsTestData
-            .Where(_ => (TestSetDataIssues) _[1] == TestSetDataIssues.None)
+            .Where(_ => (TestSetDataIssues)_[1] == TestSetDataIssues.None)
             .Select(_ => _[0])
             .Cast<TestSet>()
             .Last();
@@ -344,7 +344,7 @@ public class TestSetsServiceTests
         var testSetsTestData = new TestSetsTestData();
 
         var expectedTestSets = testSetsTestData
-            .Where(_ => (TestSetDataIssues) _[1] == TestSetDataIssues.None)
+            .Where(_ => (TestSetDataIssues)_[1] == TestSetDataIssues.None)
             .Select(_ => _[0])
             .Cast<TestSet>()
             .ToList();
@@ -479,7 +479,7 @@ public class TestSetsServiceTests
         var testSetsTestData = new TestSetsTestData();
 
         var expectedTestSet = testSetsTestData
-            .Where(_ => (TestSetDataIssues) _[1] == TestSetDataIssues.None)
+            .Where(_ => (TestSetDataIssues)_[1] == TestSetDataIssues.None)
             .Select(_ => _[0])
             .Cast<TestSet>()
             .Last();
@@ -571,7 +571,7 @@ public class TestSetsServiceTests
         var testSetsTestData = new TestSetsTestData();
 
         var expectedTestSet = testSetsTestData
-            .Where(_ => (TestSetDataIssues) _[1] == TestSetDataIssues.None)
+            .Where(_ => (TestSetDataIssues)_[1] == TestSetDataIssues.None)
             .Select(_ => _[0])
             .Cast<TestSet>()
             .Last();

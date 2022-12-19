@@ -16,5 +16,6 @@ public class TestSetsService : MongoDbService<TestSet>, ITestSetsService
     public TestSetsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
         mongoClient,
         options.Value.DatabaseName,
-        MongoDbCollectionName) { }
+        MongoDbCollectionName)
+    { }
 }

@@ -2,4 +2,4 @@
 
 namespace Tsa.Submissions.Coding.WebApi.Services;
 
-public interface ITestSetsService: IMongoEntityService<TestSet>, IPingableService { }
+public interface ITestSetsService : IMongoEntityService<TestSet>, IPingableService { }
