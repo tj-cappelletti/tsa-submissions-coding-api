@@ -151,6 +151,61 @@ public class EntityExtensions
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_TestSet_Should_Return_TestSetModel_With_ProblemId_Null_When_Problem_Is_Null()
+    {
+        // Arrange
+        var testSet = new TestSet
+        {
+            Id = "This is an ID",
+            Inputs = new List<TestSetInput>
+            {
+                new()
+                {
+                    DataType = "Data Type #1",
+                    Index = 1,
+                    Value = "Value #1"
+                },
+                new()
+                {
+                    DataType = "Data Type #2",
+                    Index = 2,
+                    Value = "Value #2"
+                },
+                new()
+                {
+                    DataType = "Data Type #3",
+                    Index = 3,
+                    Value = "Value #3"
+                }
+            },
+            IsPublic = true,
+            Name = "Test Set #1",
+            Problem = null
+        };
+
+        // Act
+        var testSetModel = testSet.ToModel();
+
+        // Assert
+        Assert.Equal(testSet.Id, testSetModel.Id);
+        Assert.NotNull(testSetModel.Inputs);
+        Assert.NotEmpty(testSetModel.Inputs);
+
+        foreach (var testSetInput in testSet.Inputs)
+        {
+            var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
+
+            Assert.NotNull(testSetInputModel);
+            Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
+            Assert.Equal(testSetInput.Value, testSetInputModel.Value);
+        }
+
+        Assert.Equal(testSet.Name, testSetModel.Name);
+        Assert.Null(testSetModel.ProblemId);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public void ToModel_For_TestSetInput_Should_Return_TestSetInputModel()
     {
         // Arrange
@@ -168,5 +223,19 @@ public class EntityExtensions
         Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
         Assert.Equal(testSetInput.Index, testSetInputModel.Index);
         Assert.Equal(testSetInput.Value, testSetInputModel.Value);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModels_For_TestSetInputs_Should_Return_Null_When_Inputs_Is_Null()
+    {
+        // Arrange
+        var testSet = new TestSet();
+
+        // Act
+        var testSetInputModels = testSet.Inputs.ToModels();
+
+        // Assert
+        Assert.Null(testSetInputModels);
     }
 }

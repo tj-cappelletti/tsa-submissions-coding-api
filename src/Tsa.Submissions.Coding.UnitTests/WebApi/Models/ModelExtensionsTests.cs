@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Xunit;
 
@@ -29,6 +30,20 @@ public class ModelExtensions
         {
             Assert.Contains(participantModels, _ => _.ParticipantId == participant.ParticipantId);
         }
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToEntities_For_TestSetInputModels_Should_Return_Null_When_Inputs_Is_Null()
+    {
+        // Arrange
+        var testSetModel = new TestSetModel();
+
+        // Act
+        var testSetInputs = testSetModel.Inputs.ToEntities();
+
+        // Assert
+        Assert.Null(testSetInputs);
     }
 
     [Fact]
@@ -112,5 +127,81 @@ public class ModelExtensions
         {
             Assert.Contains(teamModel.Participants, _ => _.ParticipantId == participant.ParticipantId);
         }
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToEntity_For_TestSetInputModel_Should_Return_TestSetInput()
+    {
+        // Arrange
+        var testSetInputModel = new TestSetInputModel
+        {
+            DataType = "Data Type",
+            Index = 9999,
+            Value = "Value"
+        };
+
+        // Act
+        var testSetInput = testSetInputModel.ToEntity();
+
+        // Assert
+        Assert.Equal(testSetInputModel.DataType, testSetInput.DataType);
+        Assert.Equal(testSetInputModel.Index, testSetInput.Index);
+        Assert.Equal(testSetInputModel.Value, testSetInput.Value);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToEntity_For_TestSetModel_Should_Return_TestSet()
+    {
+        // Arrange
+        var testSetModel = new TestSetModel
+        {
+            Id = "This is an ID",
+            Inputs = new List<TestSetInputModel>
+            {
+                new()
+                {
+                    DataType = "Data Type #1",
+                    Index = 1,
+                    Value = "Value #1"
+                },
+                new()
+                {
+                    DataType = "Data Type #2",
+                    Index = 2,
+                    Value = "Value #2"
+                },
+                new()
+                {
+                    DataType = "Data Type #3",
+                    Index = 3,
+                    Value = "Value #3"
+                }
+            },
+            IsPublic = true,
+            Name = "Test Set #1",
+            ProblemId = "000000000000000000000000"
+        };
+
+        // Act
+        var testSet = testSetModel.ToEntity();
+
+        // Assert
+        Assert.Equal(testSetModel.Id, testSet.Id);
+        Assert.NotNull(testSet.Inputs);
+        Assert.NotEmpty(testSet.Inputs);
+
+        foreach (var testSetInputModel in testSetModel.Inputs)
+        {
+            var testSetInput = testSet.Inputs.SingleOrDefault(_ => _.Index == testSetInputModel.Index);
+
+            Assert.NotNull(testSetInput);
+            Assert.Equal(testSetInputModel.DataType, testSetInput.DataType);
+            Assert.Equal(testSetInputModel.Value, testSetInput.Value);
+        }
+
+        Assert.Equal(testSetModel.Name, testSet.Name);
+        Assert.Equal(testSetModel.ProblemId, testSet.Problem?.Id.AsString);
     }
 }
