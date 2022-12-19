@@ -177,7 +177,9 @@ public class ProblemsControllerTests
         mockedProblemsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
             .ReturnsAsync(problem);
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var actionResult = await problemsController.Delete("64639f6fcdde06187b09ecae", default);
@@ -194,7 +196,9 @@ public class ProblemsControllerTests
         // Arrange
         var mockedProblemsService = new Mock<IProblemsService>();
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var actionResult = await problemsController.Delete("64639f6fcdde06187b09ecae", default);
@@ -211,7 +215,9 @@ public class ProblemsControllerTests
         // Arrange
         var mockedProblemsService = new Mock<IProblemsService>();
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var actionResult = await problemsController.Get("64639f6fcdde06187b09ecae", default);
@@ -234,7 +240,9 @@ public class ProblemsControllerTests
         mockedProblemsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
             .ReturnsAsync(problem);
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var actionResult = await problemsController.Get("64639f6fcdde06187b09ecae", default);
@@ -259,7 +267,9 @@ public class ProblemsControllerTests
         mockedProblemsService.Setup(_ => _.GetAsync(default))
             .ReturnsAsync(emptyProblemsList);
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var actionResult = await problemsController.Get(default);
@@ -287,7 +297,9 @@ public class ProblemsControllerTests
         mockedProblemsService.Setup(_ => _.GetAsync(default))
             .ReturnsAsync(problemsList);
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var actionResult = await problemsController.Get(default);
@@ -324,7 +336,9 @@ public class ProblemsControllerTests
 
         var mockedProblemsService = new Mock<IProblemsService>();
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var createdAtActionResult = await problemsController.Post(newProblem, default);
@@ -367,7 +381,9 @@ public class ProblemsControllerTests
         var mockedProblemsService = new Mock<IProblemsService>();
         mockedProblemsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default)).ReturnsAsync(problem);
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var actionResult = await problemsController.Put(problem!.Id!, updatedProblem, default);
@@ -386,7 +402,9 @@ public class ProblemsControllerTests
         // Arrange
         var mockedProblemsService = new Mock<IProblemsService>();
 
-        var problemsController = new ProblemsController(mockedProblemsService.Object);
+        var mockedTestSetsService = new Mock<ITestSetsService>();
+
+        var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
         var actionResult = await problemsController.Put("64639f6fcdde06187b09ecae", new ProblemModel(), default);

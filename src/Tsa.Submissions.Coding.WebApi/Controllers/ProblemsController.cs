@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -17,10 +18,12 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers;
 public class ProblemsController : ControllerBase
 {
     private readonly IProblemsService _problemsService;
+    private readonly ITestSetsService _testSetsService;
 
-    public ProblemsController(IProblemsService problemsService)
+    public ProblemsController(IProblemsService problemsService, ITestSetsService testSetsService)
     {
         _problemsService = problemsService;
+        _testSetsService = testSetsService;
     }
 
     /// <summary>
@@ -71,7 +74,7 @@ public class ProblemsController : ControllerBase
     /// <response code="404">The problem does not exist in the database</response>
     [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet("{id:length(24)}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProblemModel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProblemModel>> Get(string id, CancellationToken cancellationToken)
@@ -81,6 +84,31 @@ public class ProblemsController : ControllerBase
         if (problem == null) return NotFound();
 
         return problem.ToModel();
+    }
+
+    /// <summary>
+    ///     Fetches a problem from the database
+    /// </summary>
+    /// <param name="id">The ID of the problem to get</param>
+    /// <param name="cancellationToken">The .NET cancellation token</param>
+    /// <response code="200">Returns the requested problem</response>
+    /// <response code="404">The problem does not exist in the database</response>
+    [Authorize(Roles = SubmissionRoles.All)]
+    [HttpGet("{id:length(24)}/testsets")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TestSetModel>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IList<TestSetModel>>> GetTestSets(string id, CancellationToken cancellationToken)
+    {
+        var problem = await _problemsService.GetAsync(id, cancellationToken);
+
+        if (problem == null) return NotFound();
+
+        var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
+
+        return User.IsInRole(SubmissionRoles.Participant)
+            ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+            : testSets.ToModels();
     }
 
     /// <summary>
