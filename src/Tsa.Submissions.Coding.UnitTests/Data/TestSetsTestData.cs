@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Services;
 
 namespace Tsa.Submissions.Coding.UnitTests.Data;
 
+[ExcludeFromCodeCoverage]
 public class TestSetsTestData : IEnumerable<object[]>
 {
     IEnumerator IEnumerable.GetEnumerator()

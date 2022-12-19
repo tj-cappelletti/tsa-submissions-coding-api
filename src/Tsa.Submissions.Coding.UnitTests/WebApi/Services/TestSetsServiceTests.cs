@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,7 @@ using Xunit;
 
 namespace Tsa.Submissions.Coding.UnitTests.WebApi.Services;
 
+[ExcludeFromCodeCoverage]
 public class TestSetsServiceTests
 {
     private const string CollectionName = "test-sets";
