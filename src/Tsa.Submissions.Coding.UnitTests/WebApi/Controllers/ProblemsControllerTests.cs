@@ -49,6 +49,10 @@ public class ProblemsControllerTests
                     Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
                     break;
 
+                case "GetTestSets":
+                    Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
+                    break;
+
                 case "Post":
                     Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
                     break;
@@ -87,6 +91,9 @@ public class ProblemsControllerTests
                     attributeType = typeof(HttpDeleteAttribute);
                     break;
                 case "get":
+                    attributeType = typeof(HttpGetAttribute);
+                    break;
+                case "gettestsets":
                     attributeType = typeof(HttpGetAttribute);
                     break;
                 case "head":
