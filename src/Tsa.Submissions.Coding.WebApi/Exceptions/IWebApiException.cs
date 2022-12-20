@@ -1,6 +1,7 @@
 using System.Net;
+using Tsa.Submissions.Coding.WebApi.Models;
 
-namespace PointOfSales.BackOffice.Services.WebApi.Exceptions;
+namespace Tsa.Submissions.Coding.WebApi.Exceptions;
 
 public interface IWebApiException
 {

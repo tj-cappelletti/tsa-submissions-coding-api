@@ -1,3 +1,5 @@
+namespace Tsa.Submissions.Coding.WebApi.Models;
+
 public class ApiErrorResponse
 {
     public int ErrorCode { get; set; }

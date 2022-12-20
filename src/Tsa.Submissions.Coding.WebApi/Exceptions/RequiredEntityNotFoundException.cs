@@ -1,6 +1,6 @@
 using System;
 using System.Net;
-using PointOfSales.BackOffice.Services.WebApi.Exceptions;
+using Tsa.Submissions.Coding.WebApi.Models;
 
 namespace Tsa.Submissions.Coding.WebApi.Exceptions;
 
