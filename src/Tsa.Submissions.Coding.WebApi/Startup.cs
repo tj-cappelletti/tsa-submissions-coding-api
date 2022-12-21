@@ -110,6 +110,7 @@ public class Startup
         // Add Validators
         services.AddScoped<IValidator<ProblemModel>, ProblemModelValidator>();
         services.AddScoped<IValidator<TeamModel>, TeamModelValidator>();
+        services.AddScoped<IValidator<TestSetModel>, TestSetModelValidator>();
 
         // Setup authentication and authorization
         var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
