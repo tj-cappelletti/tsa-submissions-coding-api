@@ -108,19 +108,22 @@ public class EntityExtensions
                 {
                     DataType = "Data Type #1",
                     Index = 1,
-                    Value = "Value #1"
+                    IsArray = true,
+                    ValueAsJson = "ValueAsJson #1"
                 },
                 new()
                 {
                     DataType = "Data Type #2",
                     Index = 2,
-                    Value = "Value #2"
+                    IsArray = false,
+                    ValueAsJson = "ValueAsJson #2"
                 },
                 new()
                 {
                     DataType = "Data Type #3",
                     Index = 3,
-                    Value = "Value #3"
+                    IsArray = true,
+                    ValueAsJson = "ValueAsJson #3"
                 }
             },
             IsPublic = true,
@@ -142,7 +145,8 @@ public class EntityExtensions
 
             Assert.NotNull(testSetInputModel);
             Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
-            Assert.Equal(testSetInput.Value, testSetInputModel.Value);
+            Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
+            Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
         }
 
         Assert.Equal(testSet.Name, testSetModel.Name);
@@ -163,19 +167,19 @@ public class EntityExtensions
                 {
                     DataType = "Data Type #1",
                     Index = 1,
-                    Value = "Value #1"
+                    ValueAsJson = "ValueAsJson #1"
                 },
                 new()
                 {
                     DataType = "Data Type #2",
                     Index = 2,
-                    Value = "Value #2"
+                    ValueAsJson = "ValueAsJson #2"
                 },
                 new()
                 {
                     DataType = "Data Type #3",
                     Index = 3,
-                    Value = "Value #3"
+                    ValueAsJson = "ValueAsJson #3"
                 }
             },
             IsPublic = true,
@@ -197,7 +201,7 @@ public class EntityExtensions
 
             Assert.NotNull(testSetInputModel);
             Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
-            Assert.Equal(testSetInput.Value, testSetInputModel.Value);
+            Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
         }
 
         Assert.Equal(testSet.Name, testSetModel.Name);
@@ -213,7 +217,8 @@ public class EntityExtensions
         {
             DataType = "Data Type",
             Index = 9999,
-            Value = "Value"
+            IsArray = true,
+            ValueAsJson = "ValueAsJson"
         };
 
         // Act
@@ -222,7 +227,8 @@ public class EntityExtensions
         // Assert
         Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
         Assert.Equal(testSetInput.Index, testSetInputModel.Index);
-        Assert.Equal(testSetInput.Value, testSetInputModel.Value);
+        Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
+        Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
     }
 
     [Fact]

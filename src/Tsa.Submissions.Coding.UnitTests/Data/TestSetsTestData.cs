@@ -29,13 +29,13 @@ public class TestSetsTestData : IEnumerable<object[]>
                     {
                         DataType = "string",
                         Index = 0,
-                        Value = "test value"
+                        ValueAsJson = "test value"
                     },
                     new()
                     {
                         DataType = "number",
                         Index = 1,
-                        Value = "1"
+                        ValueAsJson = "1"
                     }
                 },
                 IsPublic = true,
@@ -56,13 +56,13 @@ public class TestSetsTestData : IEnumerable<object[]>
                     {
                         DataType = "string",
                         Index = 0,
-                        Value = "test value"
+                        ValueAsJson = "test value"
                     },
                     new()
                     {
                         DataType = "number",
                         Index = 1,
-                        Value = "1"
+                        ValueAsJson = "1"
                     }
                 },
                 IsPublic = true,

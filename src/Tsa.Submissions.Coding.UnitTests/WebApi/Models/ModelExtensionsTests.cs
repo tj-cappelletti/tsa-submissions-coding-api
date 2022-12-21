@@ -138,7 +138,8 @@ public class ModelExtensions
         {
             DataType = "Data Type",
             Index = 9999,
-            Value = "Value"
+            IsArray = true,
+            ValueAsJson = "ValueAsJson"
         };
 
         // Act
@@ -147,7 +148,8 @@ public class ModelExtensions
         // Assert
         Assert.Equal(testSetInputModel.DataType, testSetInput.DataType);
         Assert.Equal(testSetInputModel.Index, testSetInput.Index);
-        Assert.Equal(testSetInputModel.Value, testSetInput.Value);
+        Assert.Equal(testSetInputModel.IsArray, testSetInput.IsArray);
+        Assert.Equal(testSetInputModel.ValueAsJson, testSetInput.ValueAsJson);
     }
 
     [Fact]
@@ -164,19 +166,22 @@ public class ModelExtensions
                 {
                     DataType = "Data Type #1",
                     Index = 1,
-                    Value = "Value #1"
+                    IsArray = true,
+                    ValueAsJson = "ValueAsJson #1"
                 },
                 new()
                 {
                     DataType = "Data Type #2",
                     Index = 2,
-                    Value = "Value #2"
+                    IsArray = false,
+                    ValueAsJson = "ValueAsJson #2"
                 },
                 new()
                 {
                     DataType = "Data Type #3",
                     Index = 3,
-                    Value = "Value #3"
+                    IsArray = true,
+                    ValueAsJson = "ValueAsJson #3"
                 }
             },
             IsPublic = true,
@@ -198,7 +203,8 @@ public class ModelExtensions
 
             Assert.NotNull(testSetInput);
             Assert.Equal(testSetInputModel.DataType, testSetInput.DataType);
-            Assert.Equal(testSetInputModel.Value, testSetInput.Value);
+            Assert.Equal(testSetInputModel.IsArray, testSetInput.IsArray);
+            Assert.Equal(testSetInputModel.ValueAsJson, testSetInput.ValueAsJson);
         }
 
         Assert.Equal(testSetModel.Name, testSet.Name);

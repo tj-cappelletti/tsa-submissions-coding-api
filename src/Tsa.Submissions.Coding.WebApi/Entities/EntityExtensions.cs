@@ -43,7 +43,8 @@ public static class EntityExtensions
         {
             DataType = testSetInput.DataType,
             Index = testSetInput.Index,
-            Value = testSetInput.Value
+            IsArray = testSetInput.IsArray,
+            ValueAsJson = testSetInput.ValueAsJson
         };
     }
 
@@ -59,16 +60,6 @@ public static class EntityExtensions
         };
     }
 
-    public static List<TestSetModel> ToModels(this IList<TestSet> testSets)
-    {
-        return testSets.Select(testSet => testSet.ToModel()).ToList();
-    }
-
-    public static List<TestSetInputModel>? ToModels(this IList<TestSetInput>? testSetInputs)
-    {
-        return testSetInputs?.Select(testSetInput => testSetInput.ToModel()).ToList();
-    }
-
     public static List<ParticipantModel> ToModels(this IList<Participant> participants)
     {
         return participants.Select(participant => participant.ToModel()).ToList();
@@ -82,5 +73,15 @@ public static class EntityExtensions
     public static List<TeamModel> ToModels(this IList<Team> teams)
     {
         return teams.Select(team => team.ToModel()).ToList();
+    }
+
+    public static List<TestSetInputModel>? ToModels(this IList<TestSetInput>? testSetInputs)
+    {
+        return testSetInputs?.Select(testSetInput => testSetInput.ToModel()).ToList();
+    }
+
+    public static List<TestSetModel> ToModels(this IList<TestSet> testSets)
+    {
+        return testSets.Select(testSet => testSet.ToModel()).ToList();
     }
 }

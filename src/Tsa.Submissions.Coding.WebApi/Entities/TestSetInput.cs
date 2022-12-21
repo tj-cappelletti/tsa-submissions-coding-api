@@ -6,5 +6,7 @@ public class TestSetInput
 
     public int? Index { get; set; }
 
-    public string? Value { get; set; }
+    public bool IsArray { get; set; }
+
+    public string? ValueAsJson { get; set; }
 }

@@ -67,7 +67,8 @@ public static class ModelExtensions
         {
             DataType = testSetInputModel.DataType,
             Index = testSetInputModel.Index,
-            Value = testSetInputModel.Value
+            IsArray = testSetInputModel.IsArray,
+            ValueAsJson = testSetInputModel.ValueAsJson
         };
     }
 }
