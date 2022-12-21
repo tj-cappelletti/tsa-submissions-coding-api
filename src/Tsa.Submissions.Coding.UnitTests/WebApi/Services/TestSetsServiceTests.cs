@@ -270,6 +270,76 @@ public class TestSetsServiceTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
+    public async void GetAsync_Should_Get_All_Entities_By_Problem()
+    {
+        // Arrange
+        var problem = new Problem
+        {
+            Id = "000000000000000000000001"
+        };
+
+        var testSetsTestData = new TestSetsTestData();
+
+        var testSets = testSetsTestData
+            .Where(_ => (TestSetDataIssues)_[1] == TestSetDataIssues.None)
+            .Select(_ => _[0])
+            .Cast<TestSet>()
+            .Where(_ => _.Problem?.Id.AsString == problem.Id)
+            .ToList();
+
+        var mockedAsyncCursor = new Mock<IAsyncCursor<TestSet>>();
+        mockedAsyncCursor.Setup(_ => _.Current).Returns(testSets);
+        mockedAsyncCursor
+            .SetupSequence(_ => _.MoveNextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
+
+        var filterDefinitionJson = Builders<TestSet>.Filter.Eq(_ => _.Problem!.Id.AsString, problem.Id).RenderToJson();
+
+        // If you get this error:
+        // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
+        // The predicate for FindAsync changed and is causing an error
+        var mockedMongoCollection = new Mock<IMongoCollection<TestSet>>();
+        mockedMongoCollection
+            .Setup(_ => _.FindAsync(
+                It.Is<FilterDefinition<TestSet>>(filter => filter.RenderToJson().Equals(filterDefinitionJson)),
+                It.IsAny<FindOptions<TestSet, TestSet>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockedAsyncCursor.Object)
+            .Verifiable();
+
+        var mockedMongoDatabase = new Mock<IMongoDatabase>();
+        mockedMongoDatabase
+            .Setup(_ => _.GetCollection<TestSet>(It.Is<string>(collectionName => collectionName == CollectionName), null))
+            .Returns(mockedMongoCollection.Object);
+
+        var mockedMongoClient = new Mock<IMongoClient>();
+        mockedMongoClient
+            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
+            .Returns(mockedMongoDatabase.Object)
+            .Verifiable();
+
+        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
+        mockedPointOfSalesOptions
+            .Setup(_ => _.Value)
+            .Returns(new SubmissionsDatabase
+            {
+                DatabaseName = DatabaseName
+            });
+
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+
+        // Act
+        var result = await testSetsService.GetAsync(problem);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Equal(testSets.Count, result.Count);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public async void GetAsync_Should_Get_Entity_By_Id()
     {
         // Arrange
