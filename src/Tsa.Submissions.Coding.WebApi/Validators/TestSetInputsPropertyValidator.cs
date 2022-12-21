@@ -99,7 +99,7 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
                 ? IsValidJsonType<ValueAsStringArrayModel>(testSetInputModel.ValueAsJson)
                 : IsValidJsonType<ValueAsStringModel>(testSetInputModel.ValueAsJson),
 
-            _ => throw new NotImplementedException($"Parsing for the `{testSetInputDataType}` is not supported.")
+            _ => throw new NotImplementedException($"Parsing for the `{testSetInputDataType}` data type is not supported.")
         };
     }
 }
