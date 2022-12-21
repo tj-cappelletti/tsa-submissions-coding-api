@@ -71,11 +71,65 @@ public class TestSetsTestData : IEnumerable<object[]>
             },
             TestSetDataIssues.None
         };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000003",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "string",
+                        Index = 0,
+                        ValueAsJson = "test value"
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 1,
+                        ValueAsJson = "1"
+                    }
+                },
+                IsPublic = true,
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000002")
+            },
+            TestSetDataIssues.MissingName
+        };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000004",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "string",
+                        Index = 0,
+                        ValueAsJson = "test value"
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 1,
+                        ValueAsJson = "1"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #4"
+            },
+            TestSetDataIssues.MissingProblemId
+        };
     }
 }
 
 [Flags]
 public enum TestSetDataIssues
 {
-    None = 0
+    None = 0,
+    MissingName = 1 << 0,
+    MissingProblemId = 1 << 1,
 }
