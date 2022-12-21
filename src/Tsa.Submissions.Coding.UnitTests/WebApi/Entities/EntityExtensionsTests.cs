@@ -244,4 +244,104 @@ public class EntityExtensions
         // Assert
         Assert.Null(testSetInputModels);
     }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModels_For_TestSets_Should_Return_TestSetModels()
+    {
+        // Arrange
+        var testSets = new List<TestSet>
+        {
+            new()
+            {
+                Id = "000000000000000000000000",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "Data Type #1",
+                        Index = 1,
+                        IsArray = true,
+                        ValueAsJson = "ValueAsJson #1"
+                    },
+                    new()
+                    {
+                        DataType = "Data Type #2",
+                        Index = 2,
+                        IsArray = false,
+                        ValueAsJson = "ValueAsJson #2"
+                    },
+                    new()
+                    {
+                        DataType = "Data Type #3",
+                        Index = 3,
+                        IsArray = true,
+                        ValueAsJson = "ValueAsJson #3"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #1",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
+            },
+            new()
+            {
+                Id = "000000000000000000000001",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "Data Type #4",
+                        Index = 1,
+                        IsArray = true,
+                        ValueAsJson = "ValueAsJson #4"
+                    },
+                    new()
+                    {
+                        DataType = "Data Type #5",
+                        Index = 2,
+                        IsArray = false,
+                        ValueAsJson = "ValueAsJson #5"
+                    },
+                    new()
+                    {
+                        DataType = "Data Type #6",
+                        Index = 3,
+                        IsArray = true,
+                        ValueAsJson = "ValueAsJson #6"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #2",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
+            }
+        };
+
+        // Act
+        var testSetModels = testSets.ToModels();
+
+        foreach (var testSetModel in testSetModels)
+        {
+            var testSet = testSets.SingleOrDefault(_ => _.Id == testSetModel.Id);
+
+            Assert.NotNull(testSet);
+
+            // Assert
+            Assert.Equal(testSet.Id, testSetModel.Id);
+            Assert.NotNull(testSetModel.Inputs);
+            Assert.NotEmpty(testSetModel.Inputs);
+
+            foreach (var testSetInput in testSet.Inputs!)
+            {
+                var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
+
+                Assert.NotNull(testSetInputModel);
+                Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
+                Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
+                Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+            }
+
+            Assert.Equal(testSet.Name, testSetModel.Name);
+            Assert.Equal(testSet.Problem?.Id.AsString, testSetModel.ProblemId);
+        }
+    }
 }
