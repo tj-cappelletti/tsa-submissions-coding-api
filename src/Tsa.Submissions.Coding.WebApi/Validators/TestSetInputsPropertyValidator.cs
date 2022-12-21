@@ -78,7 +78,7 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
 
         if (string.IsNullOrWhiteSpace(testSetInputModel.ValueAsJson))
         {
-            throw new ArgumentException("The value cannot be null.", nameof(TestSetInputModel.ValueAsJson));
+            throw new ArgumentException("The JSON value cannot be null.");
         }
 
         return testSetInputDataType switch
