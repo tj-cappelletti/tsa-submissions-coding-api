@@ -1,9 +1,11 @@
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Xunit;
 
 namespace Tsa.Submissions.Coding.UnitTests.WebApi.Models;
 
+[ExcludeFromCodeCoverage]
 public class ValueAsNumberModelTests
 {
     [Fact]
