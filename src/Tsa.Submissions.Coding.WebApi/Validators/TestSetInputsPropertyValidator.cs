@@ -24,25 +24,25 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
         {
             if (string.IsNullOrWhiteSpace(testSetInputModel.DataType) || !IsValidDataType(testSetInputModel.DataType))
             {
-                context.AddFailure(nameof(TestSetInputModel.DataType), "You must specify a valid data type for the input");
+                context.AddFailure("You must specify a valid data type for the input");
                 return false;
             }
 
             if (testSetInputModel.Index == null)
             {
-                context.AddFailure(nameof(TestSetInputModel.Index), "There must be a value for the index");
+                context.AddFailure("There must be a value for the index");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(testSetInputModel.ValueAsJson))
             {
-                context.AddFailure(nameof(TestSetInputModel.ValueAsJson), "You must specify a value for the input");
+                context.AddFailure("You must specify a value for the input");
                 return false;
             }
 
             if (!ValueParsesToDataType(testSetInputModel))
             {
-                context.AddFailure(nameof(TestSetInputModel.ValueAsJson), "The value must parse to the specified data type.");
+                context.AddFailure("Unable to deserialize the value to the specified data type");
                 return false;
             }
         }
@@ -52,7 +52,7 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
 
     private static bool IsValidDataType(string dataType)
     {
-        return Enum.TryParse<TestSetInputDataTypes>(dataType, out _);
+        return Enum.TryParse<TestSetInputDataTypes>(dataType, true, out _);
     }
 
     private static bool IsValidJsonType<T>(string jsonValue)
@@ -71,14 +71,14 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
 
     private static bool ValueParsesToDataType(TestSetInputModel testSetInputModel)
     {
-        if (!Enum.TryParse<TestSetInputDataTypes>(testSetInputModel.DataType, out var testSetInputDataType))
+        if (!Enum.TryParse<TestSetInputDataTypes>(testSetInputModel.DataType, true, out var testSetInputDataType))
         {
-            throw new ArgumentException("Unable to determine the data type of the value.");
+            throw new ArgumentException("Unable to determine the data type of the value");
         }
 
         if (string.IsNullOrWhiteSpace(testSetInputModel.ValueAsJson))
         {
-            throw new ArgumentException("The JSON value cannot be null.");
+            throw new ArgumentException("The JSON value cannot be null");
         }
 
         return testSetInputDataType switch
@@ -99,7 +99,7 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
                 ? IsValidJsonType<ValueAsStringArrayModel>(testSetInputModel.ValueAsJson)
                 : IsValidJsonType<ValueAsStringModel>(testSetInputModel.ValueAsJson),
 
-            _ => throw new NotImplementedException($"Parsing for the `{testSetInputDataType}` data type is not supported.")
+            _ => throw new NotImplementedException($"Parsing for the `{testSetInputDataType}` data type is not supported")
         };
     }
 }
