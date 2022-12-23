@@ -29,13 +29,13 @@ public class TestSetsTestData : IEnumerable<object[]>
                     {
                         DataType = "string",
                         Index = 0,
-                        ValueAsJson = "test value"
+                        ValueAsJson = "{ \"value\": \"test value\" }"
                     },
                     new()
                     {
                         DataType = "number",
                         Index = 1,
-                        ValueAsJson = "1"
+                        ValueAsJson = "{ \"value\": 1 }"
                     }
                 },
                 IsPublic = true,
@@ -56,13 +56,13 @@ public class TestSetsTestData : IEnumerable<object[]>
                     {
                         DataType = "string",
                         Index = 0,
-                        ValueAsJson = "test value"
+                        ValueAsJson = "{ \"value\": \"test value\" }"
                     },
                     new()
                     {
                         DataType = "number",
                         Index = 1,
-                        ValueAsJson = "1"
+                        ValueAsJson = "{ \"value\": 1 }"
                     }
                 },
                 IsPublic = true,
@@ -83,13 +83,13 @@ public class TestSetsTestData : IEnumerable<object[]>
                     {
                         DataType = "string",
                         Index = 0,
-                        ValueAsJson = "test value"
+                        ValueAsJson = "{ \"value\": \"test value\" }"
                     },
                     new()
                     {
                         DataType = "number",
                         Index = 1,
-                        ValueAsJson = "1"
+                        ValueAsJson = "{ \"value\": 1 }"
                     }
                 },
                 IsPublic = true,
@@ -109,19 +109,31 @@ public class TestSetsTestData : IEnumerable<object[]>
                     {
                         DataType = "string",
                         Index = 0,
-                        ValueAsJson = "test value"
+                        ValueAsJson = "{ \"value\": \"test value\" }"
                     },
                     new()
                     {
                         DataType = "number",
                         Index = 1,
-                        ValueAsJson = "1"
+                        ValueAsJson = "{ \"value\": 1 }"
                     }
                 },
                 IsPublic = true,
                 Name = "Test Set #4"
             },
             TestSetDataIssues.MissingProblemId
+        };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000005",
+                IsPublic = true,
+                Name = "Test Set #5",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000002")
+            },
+            TestSetDataIssues.MissingInput
         };
     }
 }
@@ -132,4 +144,5 @@ public enum TestSetDataIssues
     None = 0,
     MissingName = 1 << 0,
     MissingProblemId = 1 << 1,
+    MissingInput = 1 << 2
 }

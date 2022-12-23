@@ -48,5 +48,14 @@ public class TestSetModelValidatorTests
         {
             testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.ProblemId);
         }
+
+        if (testSetDataIssues.HasFlag(TestSetDataIssues.MissingInput))
+        {
+            testValidationResult.ShouldHaveValidationErrorFor(_ => _.Inputs);
+        }
+        else
+        {
+            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.Inputs);
+        }
     }
 }
