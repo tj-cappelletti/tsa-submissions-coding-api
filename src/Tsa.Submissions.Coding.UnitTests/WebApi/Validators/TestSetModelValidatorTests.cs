@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 using FluentValidation.TestHelper;
 using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.WebApi.Entities;
@@ -49,7 +44,14 @@ public class TestSetModelValidatorTests
             testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.ProblemId);
         }
 
-        if (testSetDataIssues.HasFlag(TestSetDataIssues.MissingInput))
+        if (testSetDataIssues.HasFlag(TestSetDataIssues.MissingInput) ||
+            testSetDataIssues.HasFlag(TestSetDataIssues.MissingDataType) ||
+            testSetDataIssues.HasFlag(TestSetDataIssues.InvalidDataType) ||
+            testSetDataIssues.HasFlag(TestSetDataIssues.MissingIndex) ||
+            testSetDataIssues.HasFlag(TestSetDataIssues.IndexNotUnique) ||
+            testSetDataIssues.HasFlag(TestSetDataIssues.MissingValueAsJson) ||
+            testSetDataIssues.HasFlag(TestSetDataIssues.ValueDoesNotMatchDataType) ||
+            testSetDataIssues.HasFlag(TestSetDataIssues.ValueCannotBeDeserialized))
         {
             testValidationResult.ShouldHaveValidationErrorFor(_ => _.Inputs);
         }

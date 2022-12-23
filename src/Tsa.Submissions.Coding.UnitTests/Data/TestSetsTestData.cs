@@ -135,6 +135,189 @@ public class TestSetsTestData : IEnumerable<object[]>
             },
             TestSetDataIssues.MissingInput
         };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000006",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        Index = 0,
+                        ValueAsJson = "{ \"value\": \"test value\" }"
+                    },
+                    new()
+                    {
+                        Index = 1,
+                        ValueAsJson = "{ \"value\": 1 }"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #6",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
+            },
+            TestSetDataIssues.MissingDataType
+        };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000007",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "dog",
+                        Index = 0,
+                        ValueAsJson = "{ \"value\": \"test value\" }"
+                    },
+                    new()
+                    {
+                        DataType = "cat",
+                        Index = 1,
+                        ValueAsJson = "{ \"value\": 1 }"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #7",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
+            },
+            TestSetDataIssues.InvalidDataType
+        };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000008",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "string",
+                        ValueAsJson = "{ \"value\": \"test value\" }"
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        ValueAsJson = "{ \"value\": 1 }"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #8",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
+            },
+            TestSetDataIssues.MissingIndex
+        };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000009",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "string",
+                        Index = 0,
+                        ValueAsJson = "{ \"value\": \"test value\" }"
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 0,
+                        ValueAsJson = "{ \"value\": 1 }"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #2",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
+            },
+            TestSetDataIssues.IndexNotUnique
+        };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000010",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "string",
+                        Index = 0
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 1
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #10",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
+            },
+            TestSetDataIssues.MissingValueAsJson
+        };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000011",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 0,
+                        ValueAsJson = "{ \"value\": \"test value\" }"
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 1,
+                        ValueAsJson = "{ \"value\": 1 }"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #11",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
+            },
+            TestSetDataIssues.ValueDoesNotMatchDataType
+        };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000012",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "string",
+                        Index = 0,
+                        ValueAsJson = "Try me"
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 1,
+                        ValueAsJson = "Try me"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #12",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
+            },
+            TestSetDataIssues.ValueCannotBeDeserialized
+        };
     }
 }
 
@@ -144,5 +327,12 @@ public enum TestSetDataIssues
     None = 0,
     MissingName = 1 << 0,
     MissingProblemId = 1 << 1,
-    MissingInput = 1 << 2
+    MissingInput = 1 << 2,
+    MissingDataType = 1 << 3,
+    InvalidDataType = 1 << 4,
+    MissingIndex = 1 << 5,
+    IndexNotUnique = 1 << 6,
+    MissingValueAsJson = 1 << 7,
+    ValueDoesNotMatchDataType = 1 << 8,
+    ValueCannotBeDeserialized = 1 << 9
 }
