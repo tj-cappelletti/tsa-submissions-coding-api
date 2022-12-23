@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentValidation;
 using FluentValidation.Validators;
 using Newtonsoft.Json;
@@ -20,6 +21,8 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
             return false;
         }
 
+        var indexes = new List<int>();
+
         foreach (var testSetInputModel in value)
         {
             if (string.IsNullOrWhiteSpace(testSetInputModel.DataType) || !IsValidDataType(testSetInputModel.DataType))
@@ -34,6 +37,14 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
                 return false;
             }
 
+            if (indexes.Contains(testSetInputModel.Index.Value))
+            {
+                context.AddFailure(nameof(TestSetInputModel.Index), "The value for the input index must be unique");
+                return false;
+            }
+
+            indexes.Add(testSetInputModel.Index.Value);
+
             if (string.IsNullOrWhiteSpace(testSetInputModel.ValueAsJson))
             {
                 context.AddFailure(nameof(TestSetInputModel.ValueAsJson), "You must specify a value for the input");
@@ -45,6 +56,18 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
                 context.AddFailure(nameof(TestSetInputModel.ValueAsJson), "The value must parse to the specified data type.");
                 return false;
             }
+        }
+
+        var expectedValue = 0;
+        foreach (var index in indexes.Order())
+        {
+            if (index != expectedValue)
+            {
+                context.AddFailure(nameof(TestSetInputModel.Index), "Indexes need to start at 0 and must be continuous.");
+                return false;
+            }
+
+            expectedValue++;
         }
 
         return true;
