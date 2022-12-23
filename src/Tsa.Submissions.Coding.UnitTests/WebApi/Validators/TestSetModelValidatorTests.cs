@@ -51,7 +51,8 @@ public class TestSetModelValidatorTests
             testSetDataIssues.HasFlag(TestSetDataIssues.IndexNotUnique) ||
             testSetDataIssues.HasFlag(TestSetDataIssues.MissingValueAsJson) ||
             testSetDataIssues.HasFlag(TestSetDataIssues.ValueDoesNotMatchDataType) ||
-            testSetDataIssues.HasFlag(TestSetDataIssues.ValueCannotBeDeserialized))
+            testSetDataIssues.HasFlag(TestSetDataIssues.ValueCannotBeDeserialized) ||
+            testSetDataIssues.HasFlag(TestSetDataIssues.IndexNotContinuous))
         {
             testValidationResult.ShouldHaveValidationErrorFor(_ => _.Inputs);
         }

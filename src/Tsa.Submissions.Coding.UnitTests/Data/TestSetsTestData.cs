@@ -27,15 +27,55 @@ public class TestSetsTestData : IEnumerable<object[]>
                 {
                     new()
                     {
-                        DataType = "string",
+                        DataType = "character",
                         Index = 0,
-                        ValueAsJson = "{ \"value\": \"test value\" }"
+                        ValueAsJson = "{ \"value\": \"a\" }"
+                    },
+                    new()
+                    {
+                        DataType = "character",
+                        Index = 1,
+                        IsArray = true,
+                        ValueAsJson = "{ \"value\": [ \"a\", \"b\", \"c\" ] }"
+                    },
+                    new()
+                    {
+                        DataType = "decimal",
+                        Index = 2,
+                        ValueAsJson = "{ \"value\": 1.1 }"
+                    },
+                    new()
+                    {
+                        DataType = "decimal",
+                        Index = 3,
+                        IsArray = true,
+                        ValueAsJson = "{ \"value\": [ 1.1, 1.2, 1.3 ] }"
                     },
                     new()
                     {
                         DataType = "number",
-                        Index = 1,
+                        Index = 4,
                         ValueAsJson = "{ \"value\": 1 }"
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 5,
+                        IsArray = true,
+                        ValueAsJson = "{ \"value\": [ 1, 2, 3 ] }"
+                    },
+                    new()
+                    {
+                        DataType = "string",
+                        Index = 6,
+                        ValueAsJson = "{ \"value\": \"string a\" }"
+                    },
+                    new()
+                    {
+                        DataType = "string",
+                        Index = 7,
+                        IsArray = true,
+                        ValueAsJson = "{ \"value\": [ \"string a\", \"string b\", \"string c\" ] }"
                     }
                 },
                 IsPublic = true,
@@ -318,6 +358,33 @@ public class TestSetsTestData : IEnumerable<object[]>
             },
             TestSetDataIssues.ValueCannotBeDeserialized
         };
+
+        yield return new object[]
+        {
+            new TestSet
+            {
+                Id = "000000000000000000000012",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "string",
+                        Index = 0,
+                        ValueAsJson = "{ \"value\": \"test value\" }"
+                    },
+                    new()
+                    {
+                        DataType = "number",
+                        Index = 2,
+                        ValueAsJson = "{ \"value\": 1 }"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #2",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
+            },
+            TestSetDataIssues.IndexNotContinuous
+        };
     }
 }
 
@@ -334,5 +401,6 @@ public enum TestSetDataIssues
     IndexNotUnique = 1 << 6,
     MissingValueAsJson = 1 << 7,
     ValueDoesNotMatchDataType = 1 << 8,
-    ValueCannotBeDeserialized = 1 << 9
+    ValueCannotBeDeserialized = 1 << 9,
+    IndexNotContinuous = 1 << 10
 }

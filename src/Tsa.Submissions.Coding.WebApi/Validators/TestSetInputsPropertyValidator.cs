@@ -39,7 +39,7 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
 
             if (indexes.Contains(testSetInputModel.Index.Value))
             {
-                context.AddFailure(nameof(TestSetInputModel.Index), "The value for the input index must be unique");
+                context.AddFailure("The value for the input index must be unique");
                 return false;
             }
 
@@ -53,7 +53,7 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
 
             if (!ValueParsesToDataType(testSetInputModel))
             {
-                context.AddFailure("Unable to deserialize the value to the specified data type");
+                context.AddFailure($"Unable to deserialize the value `{testSetInputModel.ValueAsJson}` to the specified data type `{testSetInputModel.DataType}`");
                 return false;
             }
         }
@@ -63,7 +63,7 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
         {
             if (index != expectedValue)
             {
-                context.AddFailure(nameof(TestSetInputModel.Index), "Indexes need to start at 0 and must be continuous.");
+                context.AddFailure("Indexes need to start at 0 and must be continuous.");
                 return false;
             }
 
