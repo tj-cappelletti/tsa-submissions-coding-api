@@ -227,7 +227,7 @@ public class ProblemsControllerTests
         var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
-        var actionResult = await problemsController.Get("64639f6fcdde06187b09ecae", default);
+        var actionResult = await problemsController.Get("64639f6fcdde06187b09ecae");
 
         // Assert
         Assert.NotNull(actionResult);
@@ -252,7 +252,7 @@ public class ProblemsControllerTests
         var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
-        var actionResult = await problemsController.Get("64639f6fcdde06187b09ecae", default);
+        var actionResult = await problemsController.Get("64639f6fcdde06187b09ecae");
 
         // Assert
         Assert.NotNull(actionResult);
@@ -279,7 +279,7 @@ public class ProblemsControllerTests
         var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
-        var actionResult = await problemsController.Get(default);
+        var actionResult = await problemsController.Get();
 
         // Assert
         Assert.NotNull(actionResult);
@@ -309,7 +309,7 @@ public class ProblemsControllerTests
         var problemsController = new ProblemsController(mockedProblemsService.Object, mockedTestSetsService.Object);
 
         // Act
-        var actionResult = await problemsController.Get(default);
+        var actionResult = await problemsController.Get();
 
         // Assert
         Assert.NotNull(actionResult);

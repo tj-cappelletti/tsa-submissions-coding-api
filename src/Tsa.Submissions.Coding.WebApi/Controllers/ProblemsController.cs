@@ -53,22 +53,46 @@ public class ProblemsController : ControllerBase
     /// <summary>
     ///     Fetches all the problems from the database
     /// </summary>
+    /// <param name="expandTestSets">If true, the test sets are returned with the problems, otherwise null is returned</param>
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">All available problems returned</response>
     [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProblemModel>))]
-    public async Task<ActionResult<IList<ProblemModel>>> Get(CancellationToken cancellationToken)
+    public async Task<ActionResult<IList<ProblemModel>>> Get(bool expandTestSets = false, CancellationToken cancellationToken = default)
     {
         var problems = await _problemsService.GetAsync(cancellationToken);
 
-        return problems.ToModels();
+        var problemModels = new List<ProblemModel>();
+
+        if (expandTestSets && problems.Any())
+        {
+            foreach (var problem in problems)
+            {
+                var problemModel = problem.ToModel();
+
+                var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
+
+                problemModel.TestSets = User.IsInRole(SubmissionRoles.Participant)
+                    ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+                    : testSets.ToModels();
+
+                problemModels.Add(problemModel);
+            }
+        }
+        else
+        {
+            problemModels.AddRange(problems.ToModels());
+        }
+
+        return problemModels;
     }
 
     /// <summary>
     ///     Fetches a problem from the database
     /// </summary>
     /// <param name="id">The ID of the problem to get</param>
+    /// <param name="expandTestSets">If true, the test sets are returned with the problem, otherwise null is returned</param>
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">Returns the requested problem</response>
     /// <response code="404">The problem does not exist in the database</response>
@@ -77,13 +101,23 @@ public class ProblemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProblemModel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProblemModel>> Get(string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProblemModel>> Get(string id, bool expandTestSets = false, CancellationToken cancellationToken = default)
     {
         var problem = await _problemsService.GetAsync(id, cancellationToken);
 
         if (problem == null) return NotFound();
 
-        return problem.ToModel();
+        if (!expandTestSets) return problem.ToModel();
+
+        var problemModel = problem.ToModel();
+
+        var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
+
+        problemModel.TestSets = User.IsInRole(SubmissionRoles.Participant)
+            ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+            : testSets.ToModels();
+
+        return problemModel;
     }
 
     /// <summary>
