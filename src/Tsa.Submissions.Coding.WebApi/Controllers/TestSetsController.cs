@@ -40,7 +40,7 @@ public class TestSetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken = default)
     {
         var testSet = await _testSetsService.GetAsync(id, cancellationToken);
 
@@ -67,7 +67,7 @@ public class TestSetsController : ControllerBase
     [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TestSetModel>))]
-    public async Task<ActionResult<IList<TestSetModel>>> Get(CancellationToken cancellationToken)
+    public async Task<ActionResult<IList<TestSetModel>>> Get(CancellationToken cancellationToken = default)
     {
         var testSets = await _testSetsService.GetAsync(cancellationToken);
 
@@ -87,7 +87,7 @@ public class TestSetsController : ControllerBase
     [HttpGet("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TestSetModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<TestSetModel>> Get(string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<TestSetModel>> Get(string id, CancellationToken cancellationToken = default)
     {
         var testSet = await _testSetsService.GetAsync(id, cancellationToken);
 
@@ -115,7 +115,7 @@ public class TestSetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<CreatedAtActionResult> Post(TestSetModel testSetModel, CancellationToken cancellationToken)
+    public async Task<CreatedAtActionResult> Post(TestSetModel testSetModel, CancellationToken cancellationToken = default)
     {
         // The ProblemModelValidator will ensure ProblemId is not null
         await EnsureProblemExists(testSetModel.ProblemId!, nameof(TestSetModel.ProblemId));
@@ -144,7 +144,7 @@ public class TestSetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Put(string id, TestSetModel updatedTestSetModel, CancellationToken cancellationToken)
+    public async Task<IActionResult> Put(string id, TestSetModel updatedTestSetModel, CancellationToken cancellationToken = default)
     {
         // The ProblemModelValidator will ensure ProblemId is not null
         await EnsureProblemExists(updatedTestSetModel.ProblemId!, nameof(TestSetModel.ProblemId));
