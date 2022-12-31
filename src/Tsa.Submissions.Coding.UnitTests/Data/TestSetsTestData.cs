@@ -105,7 +105,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         ValueAsJson = "{ \"value\": 1 }"
                     }
                 },
-                IsPublic = true,
+                IsPublic = false,
                 Name = "Test Set #2",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000001")
             },
