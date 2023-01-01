@@ -294,7 +294,7 @@ public class TestSetsServiceTests
             .ReturnsAsync(true)
             .ReturnsAsync(false);
 
-        var filterDefinitionJson = Builders<TestSet>.Filter.Eq(_ => _.Problem!.Id.AsString, problem.Id).RenderToJson();
+        var filterDefinitionJson = Builders<TestSet>.Filter.Eq(_ => _.Problem!.Id, problem.Id).RenderToJson();
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
