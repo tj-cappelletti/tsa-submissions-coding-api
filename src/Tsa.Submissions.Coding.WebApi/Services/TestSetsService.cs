@@ -24,7 +24,7 @@ public class TestSetsService : MongoDbService<TestSet>, ITestSetsService
 
     public async Task<List<TestSet>> GetAsync(Problem problem, CancellationToken cancellationToken = default)
     {
-        var filterDefinition = Builders<TestSet>.Filter.Eq(_ => _.Problem!.Id.AsString, problem.Id);
+        var filterDefinition = Builders<TestSet>.Filter.Eq(_ => _.Problem!.Id, problem.Id);
 
         var cursor = await EntityCollection.FindAsync(filterDefinition, null, cancellationToken);
 
