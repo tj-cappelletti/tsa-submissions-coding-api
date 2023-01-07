@@ -39,7 +39,7 @@ public class ProblemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken = default)
     {
         var problem = await _problemsService.GetAsync(id, cancellationToken);
 
@@ -132,7 +132,7 @@ public class ProblemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TestSetModel>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IList<TestSetModel>>> GetTestSets(string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<IList<TestSetModel>>> GetTestSets(string id, CancellationToken cancellationToken = default)
     {
         var problem = await _problemsService.GetAsync(id, cancellationToken);
 
@@ -158,7 +158,7 @@ public class ProblemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<CreatedAtActionResult> Post(ProblemModel problemModel, CancellationToken cancellationToken)
+    public async Task<CreatedAtActionResult> Post(ProblemModel problemModel, CancellationToken cancellationToken = default)
     {
         var problem = problemModel.ToEntity();
 
@@ -184,7 +184,7 @@ public class ProblemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Put(string id, ProblemModel updatedProblemModel, CancellationToken cancellationToken)
+    public async Task<IActionResult> Put(string id, ProblemModel updatedProblemModel, CancellationToken cancellationToken = default)
     {
         var problem = await _problemsService.GetAsync(id, cancellationToken);
 
