@@ -64,7 +64,7 @@ jobs:
         shell: pwsh
         run: |
           .\.sonar\scanner/dotnet-sonarscanner begin `
-            /k:"tj-cappelletti_tsa-coding-submissions" `
+            /k:"tj-cappelletti_tsa-submissions-coding-api" `
             /o:"tj-cappelletti" `
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.host.url="https://sonarcloud.io" `
