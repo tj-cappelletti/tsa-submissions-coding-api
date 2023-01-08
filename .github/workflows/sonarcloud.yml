@@ -73,7 +73,7 @@ jobs:
           dotnet build `
             ./src/Tsa.Submissions.Coding.sln `
             --configuration Release `
-            --no-incremental
+            --no-incremental `
             --nologo
 
           dotnet test ./src/Tsa.Submissions.Coding.UnitTests/Tsa.Submissions.Coding.UnitTests.csproj `
