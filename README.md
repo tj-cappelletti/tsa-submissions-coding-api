@@ -50,11 +50,11 @@ This will help explain our coding style, testing practices, and process for inte
 [codecove-badge]: https://codecov.io/gh/tj-cappelletti/tsa-submissions-coding-api/branch/main/graph/badge.svg?token=WDBdfphI5L
 [codecov-graph]: https://codecov.io/gh/tj-cappelletti/tsa-submissions-coding-api/branch/main/graphs/sunburst.svg?token=WDBdfphI5L "Code Coverage Graph"
 
-[sc-qg-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=alert_status "quality gate status"
-[sc-m-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=sqale_rating "maintainablity"
-[sc-r-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=reliability_rating "reliablity"
-[sc-s-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=security_rating "security"
-[sc-loc-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-coding-submissions&metric=ncloc "lines of code"
+[sc-qg-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-submissions-coding-api&metric=alert_status "quality gate status"
+[sc-m-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-submissions-coding-api&metric=sqale_rating "maintainablity"
+[sc-r-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-submissions-coding-api&metric=reliability_rating "reliablity"
+[sc-s-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-submissions-coding-api&metric=security_rating "security"
+[sc-loc-badge]: https://sonarcloud.io/api/project_badges/measure?project=tj-cappelletti_tsa-submissions-coding-api&metric=ncloc "lines of code"
 
 <!-- LINKS -->
 [cg]: CONTRIBUTING.md "Contributing Guidelines"
