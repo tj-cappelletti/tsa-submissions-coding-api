@@ -85,6 +85,5 @@ jobs:
             /p:CollectCoverage=true `
             /p:CoverletOutputFormat=opencover
 
-          dotnet-coverage collect 'dotnet test ./src/Tsa.Submissions.Coding.UnitTests/Tsa.Submissions.Coding.UnitTests.csproj' -f xml  -o 'coverage.xml'
           .\.sonar\scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       
