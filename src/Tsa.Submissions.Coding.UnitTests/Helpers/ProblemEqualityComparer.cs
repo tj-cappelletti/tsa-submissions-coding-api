@@ -11,9 +11,9 @@ internal class ProblemEqualityComparer : IEqualityComparer<Problem?>, IEqualityC
 {
     public bool Equals(Problem? x, Problem? y)
     {
-        if (x == null && y == null) return true;
-
-        if (x == null || y == null) return false;
+        if (ReferenceEquals(x, y)) return true;
+        if (x is null) return false;
+        if (y is null) return false;
 
         var descriptionsMatch = x.Description == y.Description;
         var idsMatch = x.Id == y.Id;

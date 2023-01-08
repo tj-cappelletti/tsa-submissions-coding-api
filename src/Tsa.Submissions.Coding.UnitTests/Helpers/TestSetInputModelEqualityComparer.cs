@@ -13,8 +13,8 @@ internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetInpu
     public bool Equals(TestSetInputModel? x, TestSetInputModel? y)
     {
         if (ReferenceEquals(x, y)) return true;
-        if (ReferenceEquals(x, null)) return false;
-        if (ReferenceEquals(y, null)) return false;
+        if (x is null) return false;
+        if (y is null) return false;
         if (x.GetType() != y.GetType()) return false;
 
         return
@@ -27,8 +27,8 @@ internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetInpu
     public bool Equals(IList<TestSetInputModel>? x, IList<TestSetInputModel>? y)
     {
         if (ReferenceEquals(x, y)) return true;
-        if (ReferenceEquals(x, null)) return false;
-        if (ReferenceEquals(y, null)) return false;
+        if (x is null) return false;
+        if (y is null) return false;
         if (x.Count != y.Count) return false;
 
         foreach (var leftTestInputModel in x)
