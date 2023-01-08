@@ -102,14 +102,17 @@ public class Startup
         // Add MongoDB Services
         services.AddSingleton<IProblemsService, ProblemsService>();
         services.AddSingleton<ITeamsService, TeamsService>();
+        services.AddSingleton<ITestSetsService, TestSetsService>();
 
         // Add Pingable Services - Should match MongoDB Services
         services.AddSingleton<IPingableService, ProblemsService>();
         services.AddSingleton<IPingableService, TeamsService>();
+        services.AddSingleton<IPingableService, TestSetsService>();
 
         // Add Validators
         services.AddScoped<IValidator<ProblemModel>, ProblemModelValidator>();
         services.AddScoped<IValidator<TeamModel>, TeamModelValidator>();
+        services.AddScoped<IValidator<TestSetModel>, TestSetModelValidator>();
 
         // Setup authentication and authorization
         var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()

@@ -63,9 +63,27 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: pwsh
         run: |
-          dotnet tool install --global dotnet-coverage
-          .\.sonar\scanner/dotnet-sonarscanner begin /k:"tj-cappelletti_tsa-coding-submissions" /o:"tj-cappelletti" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build ./src/Tsa.Submissions.Coding.sln --configuration Release --nologo
-          dotnet-coverage collect 'dotnet test ./src/Tsa.Submissions.Coding.UnitTests/Tsa.Submissions.Coding.UnitTests.csproj' -f xml  -o 'coverage.xml'
+          .\.sonar\scanner/dotnet-sonarscanner begin `
+            /k:"tj-cappelletti_tsa-coding-submissions" `
+            /o:"tj-cappelletti" `
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
+            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.cs.opencover.reportsPaths=.\src\Tsa.Submissions.Coding.UnitTests\coverage.opencover.xml
+
+          dotnet build `
+            ./src/Tsa.Submissions.Coding.sln `
+            --configuration Release `
+            --no-incremental `
+            --nologo
+
+          dotnet test ./src/Tsa.Submissions.Coding.UnitTests/Tsa.Submissions.Coding.UnitTests.csproj `
+            --configuration Release `
+            --no-build `
+            --verbosity normal `
+            --filter "TestCategory=UnitTest" `
+            --nologo `
+            /p:CollectCoverage=true `
+            /p:CoverletOutputFormat=opencover
+
           .\.sonar\scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
       

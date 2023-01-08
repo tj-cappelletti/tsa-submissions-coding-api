@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -17,10 +18,12 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers;
 public class ProblemsController : ControllerBase
 {
     private readonly IProblemsService _problemsService;
+    private readonly ITestSetsService _testSetsService;
 
-    public ProblemsController(IProblemsService problemsService)
+    public ProblemsController(IProblemsService problemsService, ITestSetsService testSetsService)
     {
         _problemsService = problemsService;
+        _testSetsService = testSetsService;
     }
 
     /// <summary>
@@ -36,7 +39,7 @@ public class ProblemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken = default)
     {
         var problem = await _problemsService.GetAsync(id, cancellationToken);
 
@@ -50,16 +53,71 @@ public class ProblemsController : ControllerBase
     /// <summary>
     ///     Fetches all the problems from the database
     /// </summary>
+    /// <param name="expandTestSets">If true, the test sets are returned with the problems, otherwise null is returned</param>
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">All available problems returned</response>
     [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProblemModel>))]
-    public async Task<ActionResult<IList<ProblemModel>>> Get(CancellationToken cancellationToken)
+    public async Task<ActionResult<IList<ProblemModel>>> Get(bool expandTestSets = false, CancellationToken cancellationToken = default)
     {
         var problems = await _problemsService.GetAsync(cancellationToken);
 
-        return problems.ToModels();
+        var problemModels = new List<ProblemModel>();
+
+        if (expandTestSets && problems.Any())
+        {
+            foreach (var problem in problems)
+            {
+                var problemModel = problem.ToModel();
+
+                var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
+
+                problemModel.TestSets = User.IsInRole(SubmissionRoles.Participant)
+                    ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+                    : testSets.ToModels();
+
+                problemModels.Add(problemModel);
+            }
+        }
+        else
+        {
+            problemModels.AddRange(problems.ToModels());
+        }
+
+        return problemModels;
+    }
+
+    /// <summary>
+    ///     Fetches a problem from the database
+    /// </summary>
+    /// <param name="id">The ID of the problem to get</param>
+    /// <param name="expandTestSets">If true, the test sets are returned with the problem, otherwise null is returned</param>
+    /// <param name="cancellationToken">The .NET cancellation token</param>
+    /// <response code="200">Returns the requested problem</response>
+    /// <response code="404">The problem does not exist in the database</response>
+    [Authorize(Roles = SubmissionRoles.All)]
+    [HttpGet("{id:length(24)}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProblemModel))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProblemModel>> Get(string id, bool expandTestSets = false, CancellationToken cancellationToken = default)
+    {
+        var problem = await _problemsService.GetAsync(id, cancellationToken);
+
+        if (problem == null) return NotFound();
+
+        if (!expandTestSets) return problem.ToModel();
+
+        var problemModel = problem.ToModel();
+
+        var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
+
+        problemModel.TestSets = User.IsInRole(SubmissionRoles.Participant)
+            ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+            : testSets.ToModels();
+
+        return problemModel;
     }
 
     /// <summary>
@@ -70,17 +128,21 @@ public class ProblemsController : ControllerBase
     /// <response code="200">Returns the requested problem</response>
     /// <response code="404">The problem does not exist in the database</response>
     [Authorize(Roles = SubmissionRoles.All)]
-    [HttpGet("{id:length(24)}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet("{id:length(24)}/testsets")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TestSetModel>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProblemModel>> Get(string id, CancellationToken cancellationToken)
+    public async Task<ActionResult<IList<TestSetModel>>> GetTestSets(string id, CancellationToken cancellationToken = default)
     {
         var problem = await _problemsService.GetAsync(id, cancellationToken);
 
         if (problem == null) return NotFound();
 
-        return problem.ToModel();
+        var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
+
+        return User.IsInRole(SubmissionRoles.Participant)
+            ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+            : testSets.ToModels();
     }
 
     /// <summary>
@@ -96,7 +158,7 @@ public class ProblemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<CreatedAtActionResult> Post(ProblemModel problemModel, CancellationToken cancellationToken)
+    public async Task<CreatedAtActionResult> Post(ProblemModel problemModel, CancellationToken cancellationToken = default)
     {
         var problem = problemModel.ToEntity();
 
@@ -122,7 +184,7 @@ public class ProblemsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Put(string id, ProblemModel updatedProblemModel, CancellationToken cancellationToken)
+    public async Task<IActionResult> Put(string id, ProblemModel updatedProblemModel, CancellationToken cancellationToken = default)
     {
         var problem = await _problemsService.GetAsync(id, cancellationToken);
 

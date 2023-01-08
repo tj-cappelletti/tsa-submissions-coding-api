@@ -95,9 +95,13 @@ public class StatusControllerTests
 
     #region Inline Data
 
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems)]
     [InlineData(PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.TestSets)]
 
     #endregion
 
@@ -133,9 +137,13 @@ public class StatusControllerTests
 
     #region Inline Data
 
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems)]
     [InlineData(PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.TestSets)]
 
     #endregion
 
@@ -170,7 +178,7 @@ public class StatusControllerTests
 
     private static Type[] GetServiceTypes()
     {
-        return new[] { typeof(ProblemsService), typeof(TeamsService) };
+        return new[] { typeof(ProblemsService), typeof(TeamsService), typeof(TestSetsService) };
     }
 
     [Fact]
@@ -337,19 +345,20 @@ public class StatusControllerTests
         Assert.True(servicesStatus!.IsHealthy);
         Assert.True(servicesStatus.TeamsServiceIsAlive);
     }
+}
 
-    [Flags]
-    public enum PingableServiceFailures
-    {
-        None = 0,
-        Problems = 1,
-        Teams = 2
-    }
+[Flags]
+public enum PingableServiceFailures
+{
+    None = 0,
+    Problems = 1 << 0,
+    Teams = 1 << 1,
+    TestSets = 1 << 2
+}
 
-    public enum ServiceFailureType
-    {
-        None,
-        ExceptionThrown,
-        PingFailed
-    }
+public enum ServiceFailureType
+{
+    None,
+    ExceptionThrown,
+    PingFailed
 }

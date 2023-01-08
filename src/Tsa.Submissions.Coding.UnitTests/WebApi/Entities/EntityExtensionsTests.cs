@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Entities;
+using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
 namespace Tsa.Submissions.Coding.UnitTests.WebApi.Entities;
@@ -88,6 +91,257 @@ public class EntityExtensions
         foreach (var teamModelParticipant in teamModel.Participants)
         {
             Assert.Contains(team.Participants, _ => _.ParticipantId == teamModelParticipant.ParticipantId);
+        }
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_TestSet_Should_Return_TestSetModel()
+    {
+        // Arrange
+        var testSet = new TestSet
+        {
+            Id = "This is an ID",
+            Inputs = new List<TestSetInput>
+            {
+                new()
+                {
+                    DataType = "Data Type #1",
+                    Index = 1,
+                    IsArray = true,
+                    ValueAsJson = "ValueAsJson #1"
+                },
+                new()
+                {
+                    DataType = "Data Type #2",
+                    Index = 2,
+                    IsArray = false,
+                    ValueAsJson = "ValueAsJson #2"
+                },
+                new()
+                {
+                    DataType = "Data Type #3",
+                    Index = 3,
+                    IsArray = true,
+                    ValueAsJson = "ValueAsJson #3"
+                }
+            },
+            IsPublic = true,
+            Name = "Test Set #1",
+            Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
+        };
+
+        // Act
+        var testSetModel = testSet.ToModel();
+
+        // Assert
+        Assert.Equal(testSet.Id, testSetModel.Id);
+        Assert.NotNull(testSetModel.Inputs);
+        Assert.NotEmpty(testSetModel.Inputs);
+
+        foreach (var testSetInput in testSet.Inputs)
+        {
+            var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
+
+            Assert.NotNull(testSetInputModel);
+            Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
+            Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
+            Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+        }
+
+        Assert.Equal(testSet.Name, testSetModel.Name);
+        Assert.Equal(testSet.Problem?.Id.AsString, testSetModel.ProblemId);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_TestSet_Should_Return_TestSetModel_With_ProblemId_Null_When_Problem_Is_Null()
+    {
+        // Arrange
+        var testSet = new TestSet
+        {
+            Id = "This is an ID",
+            Inputs = new List<TestSetInput>
+            {
+                new()
+                {
+                    DataType = "Data Type #1",
+                    Index = 1,
+                    ValueAsJson = "ValueAsJson #1"
+                },
+                new()
+                {
+                    DataType = "Data Type #2",
+                    Index = 2,
+                    ValueAsJson = "ValueAsJson #2"
+                },
+                new()
+                {
+                    DataType = "Data Type #3",
+                    Index = 3,
+                    ValueAsJson = "ValueAsJson #3"
+                }
+            },
+            IsPublic = true,
+            Name = "Test Set #1",
+            Problem = null
+        };
+
+        // Act
+        var testSetModel = testSet.ToModel();
+
+        // Assert
+        Assert.Equal(testSet.Id, testSetModel.Id);
+        Assert.NotNull(testSetModel.Inputs);
+        Assert.NotEmpty(testSetModel.Inputs);
+
+        foreach (var testSetInput in testSet.Inputs)
+        {
+            var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
+
+            Assert.NotNull(testSetInputModel);
+            Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
+            Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+        }
+
+        Assert.Equal(testSet.Name, testSetModel.Name);
+        Assert.Null(testSetModel.ProblemId);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_TestSetInput_Should_Return_TestSetInputModel()
+    {
+        // Arrange
+        var testSetInput = new TestSetInput
+        {
+            DataType = "Data Type",
+            Index = 9999,
+            IsArray = true,
+            ValueAsJson = "ValueAsJson"
+        };
+
+        // Act
+        var testSetInputModel = testSetInput.ToModel();
+
+        // Assert
+        Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
+        Assert.Equal(testSetInput.Index, testSetInputModel.Index);
+        Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
+        Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModels_For_TestSetInputs_Should_Return_Null_When_Inputs_Is_Null()
+    {
+        // Arrange
+        var testSet = new TestSet();
+
+        // Act
+        var testSetInputModels = testSet.Inputs.ToModels();
+
+        // Assert
+        Assert.Null(testSetInputModels);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModels_For_TestSets_Should_Return_TestSetModels()
+    {
+        // Arrange
+        var testSets = new List<TestSet>
+        {
+            new()
+            {
+                Id = "000000000000000000000000",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "Data Type #1",
+                        Index = 1,
+                        IsArray = true,
+                        ValueAsJson = "ValueAsJson #1"
+                    },
+                    new()
+                    {
+                        DataType = "Data Type #2",
+                        Index = 2,
+                        IsArray = false,
+                        ValueAsJson = "ValueAsJson #2"
+                    },
+                    new()
+                    {
+                        DataType = "Data Type #3",
+                        Index = 3,
+                        IsArray = true,
+                        ValueAsJson = "ValueAsJson #3"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #1",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
+            },
+            new()
+            {
+                Id = "000000000000000000000001",
+                Inputs = new List<TestSetInput>
+                {
+                    new()
+                    {
+                        DataType = "Data Type #4",
+                        Index = 1,
+                        IsArray = true,
+                        ValueAsJson = "ValueAsJson #4"
+                    },
+                    new()
+                    {
+                        DataType = "Data Type #5",
+                        Index = 2,
+                        IsArray = false,
+                        ValueAsJson = "ValueAsJson #5"
+                    },
+                    new()
+                    {
+                        DataType = "Data Type #6",
+                        Index = 3,
+                        IsArray = true,
+                        ValueAsJson = "ValueAsJson #6"
+                    }
+                },
+                IsPublic = true,
+                Name = "Test Set #2",
+                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
+            }
+        };
+
+        // Act
+        var testSetModels = testSets.ToModels();
+
+        foreach (var testSetModel in testSetModels)
+        {
+            var testSet = testSets.SingleOrDefault(_ => _.Id == testSetModel.Id);
+
+            Assert.NotNull(testSet);
+
+            // Assert
+            Assert.Equal(testSet.Id, testSetModel.Id);
+            Assert.NotNull(testSetModel.Inputs);
+            Assert.NotEmpty(testSetModel.Inputs);
+
+            foreach (var testSetInput in testSet.Inputs!)
+            {
+                var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
+
+                Assert.NotNull(testSetInputModel);
+                Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
+                Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
+                Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+            }
+
+            Assert.Equal(testSet.Name, testSetModel.Name);
+            Assert.Equal(testSet.Problem?.Id.AsString, testSetModel.ProblemId);
         }
     }
 }
