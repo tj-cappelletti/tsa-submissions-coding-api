@@ -49,6 +49,18 @@ jobs:
         id: execute-gitversion-step
         uses: gittools/actions/gitversion/execute@v0.9.15
 
+  verifyCodeFormattingJob:
+    name: Verify Code Formatting
+    needs: gitVersionJob
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Verify Code Formatting
+        working-directory: ./src
+        run: dotnet format Tsa.Submissions.Coding.sln --severity info --verify-no-changes
+
   buildApplicationJob:
     name: Build .NET Applciations
     needs: gitVersionJob
@@ -146,7 +158,7 @@ jobs:
 
   tagRepoJob:
     name: Create Git Tag
-    needs: [gitVersionJob, buildDockerContainerJob]
+    needs: [gitVersionJob, verifyCodeFormattingJob, buildDockerContainerJob]
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
