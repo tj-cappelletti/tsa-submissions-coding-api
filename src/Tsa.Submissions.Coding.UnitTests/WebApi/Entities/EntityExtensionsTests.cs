@@ -111,98 +111,6 @@ public class EntityExtensions
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public void ToModels_For_Submission_Should_Return_SubmissionModel()
-    {
-        // Arrange
-        var submissions = new List<Submission>
-        {
-            new()
-            {
-                Id = "000000000000000000000000",
-                IsFinalSubmission = true,
-                Language = "csharp",
-                Problem = new MongoDBRef("problems", "00000000000000000000000A"),
-                Solution = "The solution in C#",
-                SubmittedOn = DateTime.Now.AddHours(-5),
-                Team = new MongoDBRef("teams", "00000000000000000000000B"),
-                TestSetResults = new List<TestSetResult>
-                {
-                    new()
-                    {
-                        Passed = true,
-                        RunDuration = new TimeSpan(0, 0, 5, 0),
-                        TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
-                    },
-                    new()
-                    {
-                        Passed = true,
-                        RunDuration = new TimeSpan(0, 0, 5, 0),
-                        TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
-                    }
-                }
-            },
-            new()
-            {
-                Id = "000000000000000000000001",
-                IsFinalSubmission = true,
-                Language = "java",
-                Problem = new MongoDBRef("problems", "00000000000000000000000A"),
-                Solution = "The solution in Java",
-                SubmittedOn = DateTime.Now.AddHours(-4),
-                Team = new MongoDBRef("teams", "00000000000000000000000C"),
-                TestSetResults = new List<TestSetResult>
-                {
-                    new()
-                    {
-                        Passed = true,
-                        RunDuration = new TimeSpan(0, 0, 5, 0),
-                        TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
-                    },
-                    new()
-                    {
-                        Passed = true,
-                        RunDuration = new TimeSpan(0, 0, 5, 0),
-                        TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
-                    }
-                }
-            }
-        };
-
-        // Act
-
-
-
-        var submissionModels = submissions.ToModels();
-
-        foreach (var submission in submissions)
-        {
-            var submissionModel = submissionModels.SingleOrDefault(_ => _.Id == submission.Id);
-            
-            Assert.NotNull(submissionModel);
-            Assert.Equal(submission.Id, submissionModel.Id);
-            Assert.Equal(submission.IsFinalSubmission, submissionModel.IsFinalSubmission);
-            Assert.Equal(submission.Language, submissionModel.Language);
-            Assert.Equal(submission.Problem?.Id.AsString, submissionModel.ProblemId);
-            Assert.Equal(submission.Solution, submissionModel.Solution);
-            Assert.Equal(submission.SubmittedOn, submissionModel.SubmittedOn);
-            Assert.Equal(submission.Team?.Id.AsString, submissionModel.TeamId);
-            Assert.NotNull(submissionModel.TestSetResults);
-            Assert.Equal(submission.TestSetResults!.Count, submissionModel.TestSetResults.Count);
-
-            foreach (var testSetResult in submission.TestSetResults)
-            {
-                var testSetResultModel = submissionModel.TestSetResults.SingleOrDefault(_ => _.TestSetId == testSetResult.TestSet?.Id.AsString);
-
-                Assert.NotNull(testSetResultModel);
-                Assert.Equal(testSetResult.Passed, testSetResultModel.Passed);
-                Assert.Equal(testSetResult.RunDuration, testSetResultModel.RunDuration);
-                Assert.Equal(testSetResult.TestSet?.Id.AsString, testSetResultModel.TestSetId);
-            }
-        }
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
     public void ToModel_For_Team_Should_Return_TeamModel()
     {
         // Arrange
@@ -377,6 +285,97 @@ public class EntityExtensions
         Assert.Equal(testSetInput.Index, testSetInputModel.Index);
         Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
         Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModels_For_Submission_Should_Return_SubmissionModel()
+    {
+        // Arrange
+        var submissions = new List<Submission>
+        {
+            new()
+            {
+                Id = "000000000000000000000000",
+                IsFinalSubmission = true,
+                Language = "csharp",
+                Problem = new MongoDBRef("problems", "00000000000000000000000A"),
+                Solution = "The solution in C#",
+                SubmittedOn = DateTime.Now.AddHours(-5),
+                Team = new MongoDBRef("teams", "00000000000000000000000B"),
+                TestSetResults = new List<TestSetResult>
+                {
+                    new()
+                    {
+                        Passed = true,
+                        RunDuration = new TimeSpan(0, 0, 5, 0),
+                        TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
+                    },
+                    new()
+                    {
+                        Passed = true,
+                        RunDuration = new TimeSpan(0, 0, 5, 0),
+                        TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
+                    }
+                }
+            },
+            new()
+            {
+                Id = "000000000000000000000001",
+                IsFinalSubmission = true,
+                Language = "java",
+                Problem = new MongoDBRef("problems", "00000000000000000000000A"),
+                Solution = "The solution in Java",
+                SubmittedOn = DateTime.Now.AddHours(-4),
+                Team = new MongoDBRef("teams", "00000000000000000000000C"),
+                TestSetResults = new List<TestSetResult>
+                {
+                    new()
+                    {
+                        Passed = true,
+                        RunDuration = new TimeSpan(0, 0, 5, 0),
+                        TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
+                    },
+                    new()
+                    {
+                        Passed = true,
+                        RunDuration = new TimeSpan(0, 0, 5, 0),
+                        TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
+                    }
+                }
+            }
+        };
+
+        // Act
+
+
+        var submissionModels = submissions.ToModels();
+
+        foreach (var submission in submissions)
+        {
+            var submissionModel = submissionModels.SingleOrDefault(_ => _.Id == submission.Id);
+
+            Assert.NotNull(submissionModel);
+            Assert.Equal(submission.Id, submissionModel.Id);
+            Assert.Equal(submission.IsFinalSubmission, submissionModel.IsFinalSubmission);
+            Assert.Equal(submission.Language, submissionModel.Language);
+            Assert.Equal(submission.Problem?.Id.AsString, submissionModel.ProblemId);
+            Assert.Equal(submission.Solution, submissionModel.Solution);
+            Assert.Equal(submission.SubmittedOn, submissionModel.SubmittedOn);
+            Assert.Equal(submission.Team?.Id.AsString, submissionModel.TeamId);
+            Assert.NotNull(submissionModel.TestSetResults);
+            Assert.Equal(submission.TestSetResults!.Count, submissionModel.TestSetResults.Count);
+
+            foreach (var testSetResult in submission.TestSetResults)
+            {
+                var testSetResultModel = submissionModel.TestSetResults.SingleOrDefault(_ => _.TestSetId == testSetResult.TestSet?.Id.AsString);
+
+                Assert.NotNull(testSetResultModel);
+                Assert.Equal(testSetResult.Passed, testSetResultModel.Passed);
+                Assert.Equal(testSetResult.RunDuration, testSetResultModel.RunDuration);
+                Assert.Equal(testSetResult.TestSet?.Id.AsString, testSetResultModel.TestSetId);
+            }
+        }
     }
 
     [Fact]
