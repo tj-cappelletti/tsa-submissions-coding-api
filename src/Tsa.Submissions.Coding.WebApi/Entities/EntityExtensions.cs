@@ -26,6 +26,21 @@ public static class EntityExtensions
         };
     }
 
+    public static SubmissionModel ToModel(this Submission submission)
+    {
+        return new SubmissionModel
+        {
+            Id = submission.Id,
+            IsFinalSubmission = submission.IsFinalSubmission,
+            Language = submission.Language,
+            ProblemId = submission.Problem?.Id.AsString,
+            Solution = submission.Solution,
+            SubmittedOn = submission.SubmittedOn,
+            TeamId = submission.Team?.Id.AsString,
+            TestSetResults = submission.TestSetResults?.ToModels()
+        };
+    }
+
     public static TeamModel ToModel(this Team team)
     {
         return new TeamModel
@@ -58,6 +73,26 @@ public static class EntityExtensions
             Name = testSet.Name,
             ProblemId = testSet.Problem?.Id.AsString
         };
+    }
+
+    public static TestSetResultModel ToModel(this TestSetResult testSetResult)
+    {
+        return new TestSetResultModel
+        {
+            Passed = testSetResult.Passed,
+            RunDuration = testSetResult.RunDuration,
+            TestSetId = testSetResult.TestSet?.Id.AsString
+        };
+    }
+
+    public static IList<SubmissionModel> ToModels(this IList<Submission> submissions)
+    {
+        return submissions.Select(submission => submission.ToModel()).ToList();
+    }
+
+    public static IList<TestSetResultModel>? ToModels(this IList<TestSetResult>? testSetResults)
+    {
+        return testSetResults?.Select(testSetResult => testSetResult.ToModel()).ToList();
     }
 
     public static List<ParticipantModel> ToModels(this IList<Participant> participants)

@@ -13,6 +13,11 @@ public static class ModelExtensions
         return testSetInputModels?.Select(testSetInputModel => testSetInputModel.ToEntity()).ToList();
     }
 
+    public static IList<TestSetResult>? ToEntities(this IList<TestSetResultModel>? testSetResultModels)
+    {
+        return testSetResultModels?.Select(testSetResultModel => testSetResultModel.ToEntity()).ToList();
+    }
+
     public static List<Participant> ToEntities(this IList<ParticipantModel> participants)
     {
         return participants.Select(participant => participant.ToEntity()).ToList();
@@ -35,6 +40,21 @@ public static class ModelExtensions
             Id = problemModel.Id,
             IsActive = problemModel.IsActive,
             Title = problemModel.Title
+        };
+    }
+
+    public static Submission ToEntity(this SubmissionModel submissionModel)
+    {
+        return new Submission
+        {
+            Id = submissionModel.Id,
+            IsFinalSubmission = submissionModel.IsFinalSubmission,
+            Language = submissionModel.Language,
+            Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, submissionModel.ProblemId),
+            Solution = submissionModel.Solution,
+            SubmittedOn = submissionModel.SubmittedOn,
+            Team = new MongoDBRef(TeamsService.MongoDbCollectionName, submissionModel.TeamId),
+            TestSetResults = submissionModel.TestSetResults.ToEntities()
         };
     }
 
@@ -69,6 +89,16 @@ public static class ModelExtensions
             Index = testSetInputModel.Index,
             IsArray = testSetInputModel.IsArray,
             ValueAsJson = testSetInputModel.ValueAsJson
+        };
+    }
+
+    public static TestSetResult ToEntity(this TestSetResultModel testSetResultModel)
+    {
+        return new TestSetResult
+        {
+            Passed = testSetResultModel.Passed,
+            RunDuration = testSetResultModel.RunDuration,
+            TestSet = new MongoDBRef(TestSetsService.MongoDbCollectionName, testSetResultModel.TestSetId)
         };
     }
 }
