@@ -78,8 +78,10 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
         return Enum.TryParse<TestSetInputDataTypes>(dataType, true, out _);
     }
 
-    private static bool IsValidJsonType<T>(string jsonValue)
+    private static bool IsValidJsonType<T>(string? jsonValue)
     {
+        if (jsonValue == null) return false;
+
         try
         {
             JsonConvert.DeserializeObject<T>(jsonValue);
@@ -94,21 +96,15 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
 
     private static bool ValueParsesToDataType(TestSetInputModel testSetInputModel)
     {
-        if (!Enum.TryParse<TestSetInputDataTypes>(testSetInputModel.DataType, true, out var testSetInputDataType))
-        {
-            throw new ArgumentException("Unable to determine the data type of the value");
-        }
-
-        if (string.IsNullOrWhiteSpace(testSetInputModel.ValueAsJson))
-        {
-            throw new ArgumentException("The JSON value cannot be null");
-        }
+        // This method should only be called after testSetInputModel.DataType
+        // has been verified to have to be a valid value
+        var testSetInputDataType = Enum.Parse<TestSetInputDataTypes>(testSetInputModel.DataType!, true);
 
         return testSetInputDataType switch
         {
             TestSetInputDataTypes.Character => testSetInputModel.IsArray
-                ? IsValidJsonType<ValueAsCharacterArrayModel>(testSetInputModel.ValueAsJson)
-                : IsValidJsonType<ValueAsCharacterModel>(testSetInputModel.ValueAsJson),
+                ? IsValidJsonType<ValueAsCharacterArrayModel>(testSetInputModel.ValueAsJson!)
+                : IsValidJsonType<ValueAsCharacterModel>(testSetInputModel.ValueAsJson!),
 
             TestSetInputDataTypes.Decimal => testSetInputModel.IsArray
                 ? IsValidJsonType<ValueAsDecimalArrayModel>(testSetInputModel.ValueAsJson)
