@@ -53,12 +53,14 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
 
             if (!ValueParsesToDataType(testSetInputModel))
             {
-                context.AddFailure($"Unable to deserialize the value `{testSetInputModel.ValueAsJson}` to the specified data type `{testSetInputModel.DataType}`");
+                context.AddFailure(
+                    $"Unable to deserialize the value `{testSetInputModel.ValueAsJson}` to the specified data type `{testSetInputModel.DataType}`");
                 return false;
             }
         }
 
         var expectedValue = 0;
+
         foreach (var index in indexes.Order())
         {
             if (index != expectedValue)
