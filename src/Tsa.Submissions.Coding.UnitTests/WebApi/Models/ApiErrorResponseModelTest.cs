@@ -13,7 +13,7 @@ public class ApiErrorResponseTest
     {
         // Arrange
         // Act
-        var apiErrorResponse = ApiErrorResponse.Unauthorized;
+        var apiErrorResponse = ApiErrorResponseModel.Unauthorized;
 
         // Assert
         Assert.Equal((int)ErrorCodes.Unauthorized, apiErrorResponse.ErrorCode);
@@ -26,7 +26,7 @@ public class ApiErrorResponseTest
     {
         // Arrange
         // Act
-        var apiErrorResponse = ApiErrorResponse.UnexpectedMissingResource;
+        var apiErrorResponse = ApiErrorResponseModel.UnexpectedMissingResource;
 
         // Assert
         Assert.Equal((int)ErrorCodes.UnexpectedMissingResource, apiErrorResponse.ErrorCode);
@@ -39,7 +39,7 @@ public class ApiErrorResponseTest
     {
         // Arrange
         // Act
-        var apiErrorResponse = ApiErrorResponse.UnexpectedNullValue;
+        var apiErrorResponse = ApiErrorResponseModel.UnexpectedNullValue;
 
         // Assert
         Assert.Equal((int)ErrorCodes.UnexpectedNullValue, apiErrorResponse.ErrorCode);
