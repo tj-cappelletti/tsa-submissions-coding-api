@@ -101,11 +101,13 @@ public class Startup
 
         // Add MongoDB Services
         services.AddSingleton<IProblemsService, ProblemsService>();
+        services.AddSingleton<ISubmissionsService, SubmissionsService>();
         services.AddSingleton<ITeamsService, TeamsService>();
         services.AddSingleton<ITestSetsService, TestSetsService>();
 
         // Add Pingable Services - Should match MongoDB Services
         services.AddSingleton<IPingableService, ProblemsService>();
+        services.AddSingleton<IPingableService, SubmissionsService>();
         services.AddSingleton<IPingableService, TeamsService>();
         services.AddSingleton<IPingableService, TestSetsService>();
 
