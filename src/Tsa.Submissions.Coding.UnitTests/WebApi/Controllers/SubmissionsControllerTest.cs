@@ -258,7 +258,7 @@ public class SubmissionsControllerTest
             .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
             .Select(_ => _[0])
             .Cast<Team>()
-            .Single(_=>_.Id == submission.Team?.Id.AsString);
+            .Single(_ => _.Id == submission.Team?.Id.AsString);
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
         mockedSubmissionsService
@@ -518,7 +518,7 @@ public class SubmissionsControllerTest
             Language = "Language",
             ProblemId = "000000000000000000000001",
             Solution = "This is the solution",
-            TeamId = "000000000000000000000001",
+            TeamId = "000000000000000000000001"
         };
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
@@ -547,7 +547,7 @@ public class SubmissionsControllerTest
 
         var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
 
-        var updatedSubmission = new SubmissionModel()
+        var updatedSubmission = new SubmissionModel
         {
             Id = submission!.Id,
             IsFinalSubmission = true,
@@ -555,18 +555,18 @@ public class SubmissionsControllerTest
             ProblemId = "000000000000000000000001",
             Solution = "This is the solution",
             SubmittedOn = submission.SubmittedOn,
-            TeamId = "000000000000000000000001",
+            TeamId = "000000000000000000000001"
         };
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService.Setup(_ => _.GetAsync(It.Is(submission!.Id, new StringEqualityComparer())!, default)).ReturnsAsync(submission);
+        mockedSubmissionsService.Setup(_ => _.GetAsync(It.Is(submission.Id, new StringEqualityComparer())!, default)).ReturnsAsync(submission);
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
         var submissionsController = new SubmissionsController(mockedSubmissionsService.Object, mockedTeamsService.Object);
 
         // Act
-        var actionResult = await submissionsController.Put(submission!.Id!, updatedSubmission);
+        var actionResult = await submissionsController.Put(submission.Id!, updatedSubmission);
 
         // Assert
         Assert.NotNull(actionResult);
