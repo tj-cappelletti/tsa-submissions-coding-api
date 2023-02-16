@@ -9,7 +9,16 @@ namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 [ExcludeFromCodeCoverage]
 internal class SubmissionEqualityComparer : IEqualityComparer<Submission?>, IEqualityComparer<IList<Submission>?>
 {
+    private readonly bool _ignoreDateTimes;
+
     private readonly TestSetResultEqualityComparer _testSetResultEqualityComparer = new();
+
+    public SubmissionEqualityComparer(bool ignoreDateTimes)
+    {
+        _ignoreDateTimes = ignoreDateTimes;
+    }
+
+    public SubmissionEqualityComparer() : this(false) { }
 
     public bool Equals(Submission? x, Submission? y)
     {
@@ -24,6 +33,19 @@ internal class SubmissionEqualityComparer : IEqualityComparer<Submission?>, IEqu
         var solutionsMatch = x.Solution == y.Solution;
         var submittedOnsMatch = x.SubmittedOn == y.SubmittedOn;
         var teamsMatch = x.Team?.Id.AsString == y.Team?.Id.AsString;
+        var testSetResultsMatch = _testSetResultEqualityComparer.Equals(x.TestSetResults, y.TestSetResults);
+
+
+        if (_ignoreDateTimes)
+        {
+            return idsMatch &&
+                   isFinalSubmissionsMatch &&
+                   languagesMatch &&
+                   problemsMatch &&
+                   solutionsMatch &&
+                   teamsMatch &&
+                   testSetResultsMatch;
+        }
 
         return idsMatch &&
                isFinalSubmissionsMatch &&
@@ -32,7 +54,7 @@ internal class SubmissionEqualityComparer : IEqualityComparer<Submission?>, IEqu
                solutionsMatch &&
                submittedOnsMatch &&
                teamsMatch &&
-               _testSetResultEqualityComparer.Equals(x.TestSetResults, y.TestSetResults);
+               testSetResultsMatch;
     }
 
     public bool Equals(IList<Submission>? x, IList<Submission>? y)

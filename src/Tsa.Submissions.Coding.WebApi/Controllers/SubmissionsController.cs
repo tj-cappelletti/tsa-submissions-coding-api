@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -39,16 +40,20 @@ public class SubmissionsController : ControllerBase
     {
         var submissions = await _submissionsService.GetAsync(cancellationToken);
 
-        if (User.IsInRole(SubmissionRoles.Judge)) return Ok(submissions.ToModels());
+        if (User.IsInRole(SubmissionRoles.Judge)) return submissions.ToModels();
 
-        var teams = (await _teamsService.GetAsync(cancellationToken))
-            .Where(t => t.Participants.Any(p => p.ParticipantId == User.Identity!.Name))
-            .ToList();
+        var team = (await _teamsService.GetAsync(cancellationToken))
+            .SingleOrDefault(t => t.Participants.Any(p => p.ParticipantId == User.Identity!.Name));
 
-        return Ok(submissions
-            .Where(_ => _.Team != null && teams.Any(t => t.Id == _.Team.Id.AsString))
+        if (team == null)
+        {
+            return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
+        }
+
+        return submissions
+            .Where(_ => _.Team != null && _.Team.Id.AsString == team.Id)
             .ToList()
-            .ToModels());
+            .ToModels();
     }
 
     /// <summary>
@@ -63,24 +68,28 @@ public class SubmissionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubmissionModel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get(string id, CancellationToken cancellationToken = default)
+    public async Task<ActionResult<SubmissionModel>> Get(string id, CancellationToken cancellationToken = default)
     {
         var submission = await _submissionsService.GetAsync(id, cancellationToken);
 
         if (submission == null) return NotFound();
 
-        if (User.IsInRole(SubmissionRoles.Judge)) return Ok(submission.ToModel());
+        if (User.IsInRole(SubmissionRoles.Judge)) return submission.ToModel();
 
         if (submission.Team == null)
+        {
             return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedNullValue);
+        }
 
         var team = await _teamsService.GetAsync(submission.Team.Id.AsString, cancellationToken);
 
         if (team == null)
+        {
             return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
+        }
 
         return team.Participants.Any(p => p.ParticipantId == User.Identity!.Name)
-            ? Ok(submission.ToModel())
+            ? submission.ToModel()
             : NotFound();
     }
 
@@ -100,6 +109,7 @@ public class SubmissionsController : ControllerBase
     public async Task<CreatedAtActionResult> Post(SubmissionModel submissionModel, CancellationToken cancellationToken = default)
     {
         var submission = submissionModel.ToEntity();
+        submission.SubmittedOn = DateTime.UtcNow;
 
         await _submissionsService.CreateAsync(submission, cancellationToken);
 
@@ -130,6 +140,8 @@ public class SubmissionsController : ControllerBase
         if (submission == null) return NotFound();
 
         updatedSubmissionModel.Id = submission.Id;
+        // The SubmittedOn is immutable
+        updatedSubmissionModel.SubmittedOn = submission.SubmittedOn;
 
         await _submissionsService.UpdateAsync(updatedSubmissionModel.ToEntity(), cancellationToken);
 
