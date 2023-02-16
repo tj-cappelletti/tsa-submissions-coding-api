@@ -85,12 +85,12 @@ public static class EntityExtensions
         };
     }
 
-    public static IList<SubmissionModel> ToModels(this IList<Submission> submissions)
+    public static List<SubmissionModel> ToModels(this IList<Submission> submissions)
     {
         return submissions.Select(submission => submission.ToModel()).ToList();
     }
 
-    public static IList<TestSetResultModel>? ToModels(this IList<TestSetResult>? testSetResults)
+    public static List<TestSetResultModel>? ToModels(this IList<TestSetResult>? testSetResults)
     {
         return testSetResults?.Select(testSetResult => testSetResult.ToModel()).ToList();
     }
