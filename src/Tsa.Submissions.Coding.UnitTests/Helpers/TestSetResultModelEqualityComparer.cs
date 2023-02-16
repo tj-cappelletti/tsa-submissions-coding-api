@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Tsa.Submissions.Coding.WebApi.Models;
 
 namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 
+[ExcludeFromCodeCoverage]
 internal class TestSetResultModelEqualityComparer : IEqualityComparer<TestSetResultModel?>, IEqualityComparer<IList<TestSetResultModel>?>
 {
     public bool Equals(TestSetResultModel? x, TestSetResultModel? y)
