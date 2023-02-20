@@ -51,7 +51,8 @@ public class SubmissionsController : ControllerBase
         }
 
         return submissions
-            .Where(_ => _.Team != null && _.Team.Id.AsString == team.Id)
+            // Team is required, if null, we are in a bad state
+            .Where(_ => _.Team!.Id.AsString == team.Id)
             .ToList()
             .ToModels();
     }
@@ -76,12 +77,8 @@ public class SubmissionsController : ControllerBase
 
         if (User.IsInRole(SubmissionRoles.Judge)) return submission.ToModel();
 
-        if (submission.Team == null)
-        {
-            return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedNullValue);
-        }
-
-        var team = await _teamsService.GetAsync(submission.Team.Id.AsString, cancellationToken);
+        // Team is required, if null, we are in a bad state
+        var team = await _teamsService.GetAsync(submission.Team!.Id.AsString, cancellationToken);
 
         if (team == null)
         {
