@@ -33,10 +33,12 @@ public static class EntityExtensions
             Id = submission.Id,
             IsFinalSubmission = submission.IsFinalSubmission,
             Language = submission.Language,
-            ProblemId = submission.Problem?.Id.AsString,
+            // Problem is required, if null, we are in a bad state
+            ProblemId = submission.Problem!.Id.AsString,
             Solution = submission.Solution,
             SubmittedOn = submission.SubmittedOn,
-            TeamId = submission.Team?.Id.AsString,
+            // Team is required, if null, we are in a bad state
+            TeamId = submission.Team!.Id.AsString,
             TestSetResults = submission.TestSetResults?.ToModels()
         };
     }
@@ -81,7 +83,8 @@ public static class EntityExtensions
         {
             Passed = testSetResult.Passed,
             RunDuration = testSetResult.RunDuration,
-            TestSetId = testSetResult.TestSet?.Id.AsString
+            // TestSet is required, if null, we are in a bad state
+            TestSetId = testSetResult.TestSet!.Id.AsString
         };
     }
 
