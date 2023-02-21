@@ -95,9 +95,13 @@ public class Startup
 
         services.Configure<SubmissionsDatabase>(Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection));
 
+        var mongoClientSettings = MongoClientSettings.FromConnectionString(Configuration.GetConnectionString(ConfigurationKeys.MongoDbConnectionString));
+        mongoClientSettings.ServerSelectionTimeout = new TimeSpan(0, 0, 0, 10);
+        mongoClientSettings.ConnectTimeout = new TimeSpan(0, 0, 0, 10);
+
         services.Add(
             new ServiceDescriptor(typeof(IMongoClient),
-                new MongoClient(Configuration.GetConnectionString(ConfigurationKeys.MongoDbConnectionString))));
+                new MongoClient(mongoClientSettings)));
 
         // Add MongoDB Services
         services.AddSingleton<IProblemsService, ProblemsService>();
