@@ -174,6 +174,71 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
+    public async void Get_By_Id_Should_Return_Failed_Dependency_When_Team_Not_Found()
+    {
+        // Arrange
+        var unexpectedMissingResourceApiError = ApiErrorResponseModel.UnexpectedMissingResource;
+
+        var submissionsTestData = new SubmissionsTestData();
+
+        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+
+        var submissionId = submission!.Id;
+
+        var teamsTestData = new TeamsTestData();
+        var team = teamsTestData
+            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
+            .Select(_ => _[0])
+            .Cast<Team>()
+            .Single(_ => _.Id == submission.Team?.Id.AsString);
+
+        var mockedSubmissionsService = new Mock<ISubmissionsService>();
+        mockedSubmissionsService
+            .Setup(_ => _.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
+            .ReturnsAsync(submission);
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns(team.Participants.First().ParticipantId);
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var submissionsController = new SubmissionsController(mockedSubmissionsService.Object, mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await submissionsController.Get(submissionId!);
+
+        // Assert
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.NotNull(actionResult.Result);
+
+        var objectResult = actionResult.Result as ObjectResult;
+
+        Assert.NotNull(objectResult);
+        Assert.NotNull(objectResult.Value);
+
+        var apiErrorResponseModel = objectResult.Value as ApiErrorResponseModel;
+        Assert.NotNull(apiErrorResponseModel);
+        Assert.Equal(unexpectedMissingResourceApiError, apiErrorResponseModel, new ApiErrorResponseModelEqualityComparer());
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public async void Get_By_Id_Should_Return_Not_Found()
     {
         // Arrange
@@ -189,6 +254,69 @@ public class SubmissionsControllerTest
         // Assert
         Assert.NotNull(actionResult);
         //Assert.IsType<NotFoundResult>(actionResult.Result);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Get_By_Id_Should_Return_Not_Found_For_Participant()
+    {
+        // Arrange
+        var submissionsTestData = new SubmissionsTestData();
+
+        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+
+        var submissionId = submission!.Id;
+
+        var teamsTestData = new TeamsTestData();
+        var team = teamsTestData
+            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
+            .Select(_ => _[0])
+            .Cast<Team>()
+            .Single(_ => _.Id == submission.Team?.Id.AsString);
+
+        var participantTeam = teamsTestData
+            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
+            .Select(_ => _[0])
+            .Cast<Team>()
+            .First(_ => _.Id != submission.Team?.Id.AsString);
+
+        var mockedSubmissionsService = new Mock<ISubmissionsService>();
+        mockedSubmissionsService
+            .Setup(_ => _.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
+            .ReturnsAsync(submission);
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService
+            .Setup(_ => _.GetAsync(It.Is(team.Id, new StringEqualityComparer())!, default))
+            .ReturnsAsync(team);
+
+        var identityMock = new Mock<IIdentity>();
+        identityMock.Setup(i => i.Name).Returns(participantTeam.Participants.First().ParticipantId);
+
+        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
+        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = claimsPrincipalMock.Object
+        };
+
+        var submissionsController = new SubmissionsController(mockedSubmissionsService.Object, mockedTeamsService.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            }
+        };
+
+        // Act
+        var actionResult = await submissionsController.Get(submissionId!);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        var notFoundResult = actionResult.Result as NotFoundResult;
+        Assert.NotNull(notFoundResult);
     }
 
     [Fact]
@@ -297,136 +425,6 @@ public class SubmissionsControllerTest
         Assert.NotNull(actionResult);
         Assert.NotNull(actionResult.Value);
         Assert.Equal(expectedSubmissionModel, actionResult.Value, new SubmissionModelEqualityComparer());
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Not_Found_For_Participant()
-    {
-        // Arrange
-        var submissionsTestData = new SubmissionsTestData();
-
-        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
-
-        var submissionId = submission!.Id;
-
-        var expectedSubmissionModel = submission.ToModel();
-
-        var teamsTestData = new TeamsTestData();
-        var team = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
-            .Cast<Team>()
-            .Single(_ => _.Id == submission.Team?.Id.AsString);
-
-        var participantTeam = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
-            .Cast<Team>()
-            .First(_ => _.Id != submission.Team?.Id.AsString);
-
-        var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService
-            .Setup(_ => _.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
-            .ReturnsAsync(submission);
-
-        var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService
-            .Setup(_ => _.GetAsync(It.Is(team.Id, new StringEqualityComparer())!, default))
-            .ReturnsAsync(team);
-
-        var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(participantTeam.Participants.First().ParticipantId);
-
-        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = claimsPrincipalMock.Object
-        };
-
-        var submissionsController = new SubmissionsController(mockedSubmissionsService.Object, mockedTeamsService.Object)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = httpContext
-            }
-        };
-
-        // Act
-        var actionResult = await submissionsController.Get(submissionId!);
-
-        // Assert
-        Assert.NotNull(actionResult);
-        var notFoundResult = actionResult.Result as NotFoundResult;
-        Assert.NotNull(notFoundResult);
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Failed_Dependency_When_Team_Not_Found()
-    {
-        // Arrange
-        var unexpectedMissingResourceApiError = ApiErrorResponseModel.UnexpectedMissingResource;
-
-        var submissionsTestData = new SubmissionsTestData();
-
-        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
-
-        var submissionId = submission!.Id;
-
-        var teamsTestData = new TeamsTestData();
-        var team = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
-            .Cast<Team>()
-            .Single(_ => _.Id == submission.Team?.Id.AsString);
-
-        var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService
-            .Setup(_ => _.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
-            .ReturnsAsync(submission);
-
-        var mockedTeamsService = new Mock<ITeamsService>();
-
-        var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(team.Participants.First().ParticipantId);
-
-        var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = claimsPrincipalMock.Object
-        };
-
-        var submissionsController = new SubmissionsController(mockedSubmissionsService.Object, mockedTeamsService.Object)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = httpContext
-            }
-        };
-
-        // Act
-        var actionResult = await submissionsController.Get(submissionId!);
-
-        // Assert
-        // Assert
-        Assert.NotNull(actionResult);
-        Assert.NotNull(actionResult.Result);
-
-        var objectResult = actionResult.Result as ObjectResult;
-
-        Assert.NotNull(objectResult);
-        Assert.NotNull(objectResult.Value);
-
-        var apiErrorResponseModel = objectResult.Value as ApiErrorResponseModel;
-        Assert.NotNull(apiErrorResponseModel);
-        Assert.Equal(unexpectedMissingResourceApiError, apiErrorResponseModel, new ApiErrorResponseModelEqualityComparer());
     }
 
     [Fact]
@@ -778,6 +776,64 @@ public class SubmissionsControllerTest
         Assert.IsType<NoContentResult>(actionResult);
 
         mockedSubmissionsService.Verify(_ => _.UpdateAsync(It.Is(updatedSubmission.ToEntity(), new SubmissionEqualityComparer()), default), Times.Once);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async void Put_Should_Return_No_Content_And_Ensure_Properties_Are_Immutable()
+    {
+        // Arrange
+        var submissionsTestData = new SubmissionsTestData();
+
+        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+
+        var id = submission!.Id;
+        const bool isFinalSubmission = true;
+        const string language = "Language";
+        const string problemId = "000000000000000000000001";
+        const string solution = "This is immutable and should not be the expected value";
+        var submittedOn = submission.SubmittedOn!.Value.AddDays(5);
+        const string teamId = "000000000000000000000001";
+
+        var controlSubmission = new SubmissionModel
+        {
+            Id = id,
+            IsFinalSubmission = isFinalSubmission,
+            Language = language,
+            ProblemId = problemId,
+            Solution = solution,
+            SubmittedOn = submittedOn,
+            TeamId = teamId
+        };
+
+        var updatedSubmission = new SubmissionModel
+        {
+            Id = id,
+            IsFinalSubmission = isFinalSubmission,
+            Language = language,
+            ProblemId = problemId,
+            Solution = solution,
+            SubmittedOn = submittedOn,
+            TeamId = teamId
+        };
+
+        var mockedSubmissionsService = new Mock<ISubmissionsService>();
+        mockedSubmissionsService.Setup(_ => _.GetAsync(It.Is(submission.Id, new StringEqualityComparer())!, default)).ReturnsAsync(submission);
+
+        var mockedTeamsService = new Mock<ITeamsService>();
+
+        var submissionsController = new SubmissionsController(mockedSubmissionsService.Object, mockedTeamsService.Object);
+
+        // Act
+        var actionResult = await submissionsController.Put(submission.Id!, updatedSubmission);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<NoContentResult>(actionResult);
+
+        mockedSubmissionsService.Verify(_ => _.UpdateAsync(It.Is(updatedSubmission.ToEntity(), new SubmissionEqualityComparer()), default), Times.Once);
+
+        Assert.NotEqual(controlSubmission, updatedSubmission, new SubmissionModelEqualityComparer());
     }
 
     [Fact]

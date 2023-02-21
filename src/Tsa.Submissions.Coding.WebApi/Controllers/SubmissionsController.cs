@@ -137,8 +137,10 @@ public class SubmissionsController : ControllerBase
         if (submission == null) return NotFound();
 
         updatedSubmissionModel.Id = submission.Id;
-        // The SubmittedOn is immutable
+
+        // The following values are immutable and should not be updated
         updatedSubmissionModel.SubmittedOn = submission.SubmittedOn;
+        updatedSubmissionModel.Solution = submission.Solution;
 
         await _submissionsService.UpdateAsync(updatedSubmissionModel.ToEntity(), cancellationToken);
 
