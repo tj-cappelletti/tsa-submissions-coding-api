@@ -10,7 +10,7 @@ namespace Tsa.Submissions.Coding.WebApi.Services;
 
 public class TestSetsService : MongoDbService<TestSet>, ITestSetsService
 {
-    public const string MongoDbCollectionName = "test-sets";
+    public const string MongoDbCollectionName = "test_sets";
 
     public string CollectionName => MongoDbCollectionName;
 

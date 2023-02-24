@@ -18,7 +18,7 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Services;
 [ExcludeFromCodeCoverage]
 public class TestSetsServiceTests
 {
-    private const string CollectionName = "test-sets";
+    private const string CollectionName = "test_sets";
     private const string DatabaseName = "submissions";
 
     [Fact]
