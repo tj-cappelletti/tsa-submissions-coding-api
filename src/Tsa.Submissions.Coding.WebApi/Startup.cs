@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -94,6 +95,14 @@ public class Startup
         }
 
         services.Configure<SubmissionsDatabase>(Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection));
+
+        var conventionPack = new ConventionPack
+        {
+            new CamelCaseElementNameConvention(),
+            new IgnoreExtraElementsConvention(true)
+        };
+
+        ConventionRegistry.Register("DefaultConventionPack", conventionPack, _ => true);
 
         var mongoClientSettings = MongoClientSettings.FromConnectionString(Configuration.GetConnectionString(ConfigurationKeys.MongoDbConnectionString));
         mongoClientSettings.ServerSelectionTimeout = new TimeSpan(0, 0, 0, 10);
