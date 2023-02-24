@@ -38,10 +38,13 @@ services:
   mongodb:
     hostname: mongodb.tsa.localdev.me
     environment:
+      MONGO_INITDB_DATABASE: submissions
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: rIMdEnfnHj395cFO
     ports:
       - 27017:27017
+    volumes:
+      - ../docker/mongodb:/docker-entrypoint-initdb.d
 
   mongo-express:
     environment:
