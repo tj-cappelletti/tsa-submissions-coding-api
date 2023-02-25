@@ -54,9 +54,9 @@ public static class EntityExtensions
         };
     }
 
-    public static TestSetInputModel ToModel(this TestSetValue testSetValue)
+    public static TestSetValueModel ToModel(this TestSetValue testSetValue)
     {
-        return new TestSetInputModel
+        return new TestSetValueModel
         {
             DataType = testSetValue.DataType,
             Index = testSetValue.Index,
@@ -113,7 +113,7 @@ public static class EntityExtensions
         return teams.Select(team => team.ToModel()).ToList();
     }
 
-    public static List<TestSetInputModel>? ToModels(this IList<TestSetValue>? testSetInputs)
+    public static List<TestSetValueModel>? ToModels(this IList<TestSetValue>? testSetInputs)
     {
         return testSetInputs?.Select(testSetInput => testSetInput.ToModel()).ToList();
     }

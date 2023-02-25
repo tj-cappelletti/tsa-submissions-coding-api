@@ -190,7 +190,7 @@ public class ModelExtensions
     public void ToEntity_For_TestSetInputModel_Should_Return_TestSetInput()
     {
         // Arrange
-        var testSetInputModel = new TestSetInputModel
+        var testSetInputModel = new TestSetValueModel
         {
             DataType = "Data Type",
             Index = 9999,
@@ -216,7 +216,7 @@ public class ModelExtensions
         var testSetModel = new TestSetModel
         {
             Id = "This is an ID",
-            Inputs = new List<TestSetInputModel>
+            Inputs = new List<TestSetValueModel>
             {
                 new()
                 {

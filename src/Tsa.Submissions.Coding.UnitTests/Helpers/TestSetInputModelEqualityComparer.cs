@@ -8,9 +8,9 @@ namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 
 //TODO: Turn into code generator
 [ExcludeFromCodeCoverage]
-internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetInputModel?>, IEqualityComparer<IList<TestSetInputModel>?>
+internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetValueModel?>, IEqualityComparer<IList<TestSetValueModel>?>
 {
-    public bool Equals(TestSetInputModel? x, TestSetInputModel? y)
+    public bool Equals(TestSetValueModel? x, TestSetValueModel? y)
     {
         if (ReferenceEquals(x, y)) return true;
         if (x is null) return false;
@@ -24,7 +24,7 @@ internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetInpu
             x.ValueAsJson == y.ValueAsJson;
     }
 
-    public bool Equals(IList<TestSetInputModel>? x, IList<TestSetInputModel>? y)
+    public bool Equals(IList<TestSetValueModel>? x, IList<TestSetValueModel>? y)
     {
         if (ReferenceEquals(x, y)) return true;
         if (x is null) return false;
@@ -41,12 +41,12 @@ internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetInpu
         return true;
     }
 
-    public int GetHashCode(TestSetInputModel obj)
+    public int GetHashCode(TestSetValueModel obj)
     {
         return HashCode.Combine(obj.DataType, obj.Index, obj.IsArray, obj.ValueAsJson);
     }
 
-    public int GetHashCode(IList<TestSetInputModel>? obj)
+    public int GetHashCode(IList<TestSetValueModel>? obj)
     {
         return obj == null ? 0 : obj.GetHashCode();
     }

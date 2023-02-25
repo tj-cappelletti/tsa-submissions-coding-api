@@ -9,11 +9,11 @@ using Tsa.Submissions.Coding.WebApi.Models;
 
 namespace Tsa.Submissions.Coding.WebApi.Validators;
 
-public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IList<TestSetInputModel>?>
+public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IList<TestSetValueModel>?>
 {
     public override string Name => "TestSetInputsPropertyValidator";
 
-    public override bool IsValid(ValidationContext<TestSetModel> context, IList<TestSetInputModel>? value)
+    public override bool IsValid(ValidationContext<TestSetModel> context, IList<TestSetValueModel>? value)
     {
         if (value == null || value.Count == 0)
         {
@@ -96,29 +96,29 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
         return true;
     }
 
-    private static bool ValueParsesToDataType(TestSetInputModel testSetInputModel)
+    private static bool ValueParsesToDataType(TestSetValueModel testSetValueModel)
     {
-        // This method should only be called after testSetInputModel.DataType
+        // This method should only be called after testSetValueModel.DataType
         // has been verified to have to be a valid value
-        var testSetInputDataType = Enum.Parse<TestSetValueDataTypes>(testSetInputModel.DataType!, true);
+        var testSetInputDataType = Enum.Parse<TestSetValueDataTypes>(testSetValueModel.DataType!, true);
 
         return testSetInputDataType switch
         {
-            TestSetValueDataTypes.Character => testSetInputModel.IsArray
-                ? IsValidJsonType<ValueAsCharacterArrayModel>(testSetInputModel.ValueAsJson!)
-                : IsValidJsonType<ValueAsCharacterModel>(testSetInputModel.ValueAsJson!),
+            TestSetValueDataTypes.Character => testSetValueModel.IsArray
+                ? IsValidJsonType<ValueAsCharacterArrayModel>(testSetValueModel.ValueAsJson!)
+                : IsValidJsonType<ValueAsCharacterModel>(testSetValueModel.ValueAsJson!),
 
-            TestSetValueDataTypes.Decimal => testSetInputModel.IsArray
-                ? IsValidJsonType<ValueAsDecimalArrayModel>(testSetInputModel.ValueAsJson)
-                : IsValidJsonType<ValueAsDecimalModel>(testSetInputModel.ValueAsJson),
+            TestSetValueDataTypes.Decimal => testSetValueModel.IsArray
+                ? IsValidJsonType<ValueAsDecimalArrayModel>(testSetValueModel.ValueAsJson)
+                : IsValidJsonType<ValueAsDecimalModel>(testSetValueModel.ValueAsJson),
 
-            TestSetValueDataTypes.Number => testSetInputModel.IsArray
-                ? IsValidJsonType<ValueAsNumberArrayModel>(testSetInputModel.ValueAsJson)
-                : IsValidJsonType<ValueAsNumberModel>(testSetInputModel.ValueAsJson),
+            TestSetValueDataTypes.Number => testSetValueModel.IsArray
+                ? IsValidJsonType<ValueAsNumberArrayModel>(testSetValueModel.ValueAsJson)
+                : IsValidJsonType<ValueAsNumberModel>(testSetValueModel.ValueAsJson),
 
-            TestSetValueDataTypes.String => testSetInputModel.IsArray
-                ? IsValidJsonType<ValueAsStringArrayModel>(testSetInputModel.ValueAsJson)
-                : IsValidJsonType<ValueAsStringModel>(testSetInputModel.ValueAsJson),
+            TestSetValueDataTypes.String => testSetValueModel.IsArray
+                ? IsValidJsonType<ValueAsStringArrayModel>(testSetValueModel.ValueAsJson)
+                : IsValidJsonType<ValueAsStringModel>(testSetValueModel.ValueAsJson),
 
             _ => throw new NotImplementedException($"Parsing for the `{testSetInputDataType}` data type is not supported")
         };
