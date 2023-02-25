@@ -23,7 +23,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000001",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -90,7 +90,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000002",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -117,7 +117,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000003",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -143,7 +143,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000004",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -181,7 +181,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000006",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -206,7 +206,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000007",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -233,7 +233,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000008",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -258,7 +258,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000009",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -285,7 +285,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000010",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -310,7 +310,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000011",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -337,7 +337,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000012",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -364,7 +364,7 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000012",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {

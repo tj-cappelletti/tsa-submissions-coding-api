@@ -54,14 +54,14 @@ public static class EntityExtensions
         };
     }
 
-    public static TestSetInputModel ToModel(this TestSetInput testSetInput)
+    public static TestSetInputModel ToModel(this TestSetValue testSetValue)
     {
         return new TestSetInputModel
         {
-            DataType = testSetInput.DataType,
-            Index = testSetInput.Index,
-            IsArray = testSetInput.IsArray,
-            ValueAsJson = testSetInput.ValueAsJson
+            DataType = testSetValue.DataType,
+            Index = testSetValue.Index,
+            IsArray = testSetValue.IsArray,
+            ValueAsJson = testSetValue.ValueAsJson
         };
     }
 
@@ -113,7 +113,7 @@ public static class EntityExtensions
         return teams.Select(team => team.ToModel()).ToList();
     }
 
-    public static List<TestSetInputModel>? ToModels(this IList<TestSetInput>? testSetInputs)
+    public static List<TestSetInputModel>? ToModels(this IList<TestSetValue>? testSetInputs)
     {
         return testSetInputs?.Select(testSetInput => testSetInput.ToModel()).ToList();
     }

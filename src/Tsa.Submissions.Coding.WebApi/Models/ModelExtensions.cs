@@ -8,7 +8,7 @@ namespace Tsa.Submissions.Coding.WebApi.Models;
 
 public static class ModelExtensions
 {
-    public static IList<TestSetInput>? ToEntities(this IList<TestSetInputModel>? testSetInputModels)
+    public static IList<TestSetValue>? ToEntities(this IList<TestSetInputModel>? testSetInputModels)
     {
         return testSetInputModels?.Select(testSetInputModel => testSetInputModel.ToEntity()).ToList();
     }
@@ -81,9 +81,9 @@ public static class ModelExtensions
         };
     }
 
-    public static TestSetInput ToEntity(this TestSetInputModel testSetInputModel)
+    public static TestSetValue ToEntity(this TestSetInputModel testSetInputModel)
     {
-        return new TestSetInput
+        return new TestSetValue
         {
             DataType = testSetInputModel.DataType,
             Index = testSetInputModel.Index,

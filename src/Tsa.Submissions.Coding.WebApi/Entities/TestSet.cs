@@ -13,7 +13,7 @@ public class TestSet : IMongoDbEntity
     [SwaggerSchema(ReadOnly = true)]
     public string? Id { get; set; }
 
-    public IList<TestSetInput>? Inputs { get; set; }
+    public IList<TestSetValue>? Inputs { get; set; }
 
     public bool IsPublic { get; set; }
 

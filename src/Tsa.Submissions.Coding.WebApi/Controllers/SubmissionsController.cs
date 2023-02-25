@@ -36,6 +36,7 @@ public class SubmissionsController : ControllerBase
     [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SubmissionModel>))]
+    [ProducesResponseType(StatusCodes.Status424FailedDependency, Type = typeof(ApiErrorResponseModel))]
     public async Task<ActionResult<IList<SubmissionModel>>> Get(CancellationToken cancellationToken = default)
     {
         var submissions = await _submissionsService.GetAsync(cancellationToken);
@@ -101,11 +102,12 @@ public class SubmissionsController : ControllerBase
     [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationSubmissionDetails))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<CreatedAtActionResult> Post(SubmissionModel submissionModel, CancellationToken cancellationToken = default)
     {
         var submission = submissionModel.ToEntity();
+        submission.Id = null;
         submission.SubmittedOn = DateTime.UtcNow;
 
         await _submissionsService.CreateAsync(submission, cancellationToken);
@@ -127,7 +129,7 @@ public class SubmissionsController : ControllerBase
     [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPut("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationSubmissionDetails))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put(string id, SubmissionModel updatedSubmissionModel, CancellationToken cancellationToken = default)

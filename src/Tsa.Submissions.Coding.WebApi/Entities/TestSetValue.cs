@@ -1,6 +1,6 @@
 ﻿namespace Tsa.Submissions.Coding.WebApi.Entities;
 
-public class TestSetInput
+public class TestSetValue
 {
     public string? DataType { get; set; }
 

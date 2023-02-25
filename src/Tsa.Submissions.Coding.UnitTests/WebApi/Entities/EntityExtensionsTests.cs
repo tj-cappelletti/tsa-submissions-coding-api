@@ -171,7 +171,7 @@ public class EntityExtensions
         var testSet = new TestSet
         {
             Id = "This is an ID",
-            Inputs = new List<TestSetInput>
+            Inputs = new List<TestSetValue>
             {
                 new()
                 {
@@ -230,7 +230,7 @@ public class EntityExtensions
         var testSet = new TestSet
         {
             Id = "This is an ID",
-            Inputs = new List<TestSetInput>
+            Inputs = new List<TestSetValue>
             {
                 new()
                 {
@@ -282,7 +282,7 @@ public class EntityExtensions
     public void ToModel_For_TestSetInput_Should_Return_TestSetInputModel()
     {
         // Arrange
-        var testSetInput = new TestSetInput
+        var testSetInput = new TestSetValue
         {
             DataType = "Data Type",
             Index = 9999,
@@ -490,7 +490,7 @@ public class EntityExtensions
             new()
             {
                 Id = "000000000000000000000000",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
@@ -521,7 +521,7 @@ public class EntityExtensions
             new()
             {
                 Id = "000000000000000000000001",
-                Inputs = new List<TestSetInput>
+                Inputs = new List<TestSetValue>
                 {
                     new()
                     {
