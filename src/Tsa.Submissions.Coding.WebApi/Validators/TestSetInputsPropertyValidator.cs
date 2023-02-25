@@ -77,7 +77,7 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
 
     private static bool IsValidDataType(string dataType)
     {
-        return Enum.TryParse<TestSetInputDataTypes>(dataType, true, out _);
+        return Enum.TryParse<TestSetValueDataTypes>(dataType, true, out _);
     }
 
     private static bool IsValidJsonType<T>(string? jsonValue)
@@ -100,23 +100,23 @@ public class TestSetInputsPropertyValidator : PropertyValidator<TestSetModel, IL
     {
         // This method should only be called after testSetInputModel.DataType
         // has been verified to have to be a valid value
-        var testSetInputDataType = Enum.Parse<TestSetInputDataTypes>(testSetInputModel.DataType!, true);
+        var testSetInputDataType = Enum.Parse<TestSetValueDataTypes>(testSetInputModel.DataType!, true);
 
         return testSetInputDataType switch
         {
-            TestSetInputDataTypes.Character => testSetInputModel.IsArray
+            TestSetValueDataTypes.Character => testSetInputModel.IsArray
                 ? IsValidJsonType<ValueAsCharacterArrayModel>(testSetInputModel.ValueAsJson!)
                 : IsValidJsonType<ValueAsCharacterModel>(testSetInputModel.ValueAsJson!),
 
-            TestSetInputDataTypes.Decimal => testSetInputModel.IsArray
+            TestSetValueDataTypes.Decimal => testSetInputModel.IsArray
                 ? IsValidJsonType<ValueAsDecimalArrayModel>(testSetInputModel.ValueAsJson)
                 : IsValidJsonType<ValueAsDecimalModel>(testSetInputModel.ValueAsJson),
 
-            TestSetInputDataTypes.Number => testSetInputModel.IsArray
+            TestSetValueDataTypes.Number => testSetInputModel.IsArray
                 ? IsValidJsonType<ValueAsNumberArrayModel>(testSetInputModel.ValueAsJson)
                 : IsValidJsonType<ValueAsNumberModel>(testSetInputModel.ValueAsJson),
 
-            TestSetInputDataTypes.String => testSetInputModel.IsArray
+            TestSetValueDataTypes.String => testSetInputModel.IsArray
                 ? IsValidJsonType<ValueAsStringArrayModel>(testSetInputModel.ValueAsJson)
                 : IsValidJsonType<ValueAsStringModel>(testSetInputModel.ValueAsJson),
 
