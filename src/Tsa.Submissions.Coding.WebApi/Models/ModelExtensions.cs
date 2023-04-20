@@ -8,9 +8,14 @@ namespace Tsa.Submissions.Coding.WebApi.Models;
 
 public static class ModelExtensions
 {
-    public static IList<TestSetInput>? ToEntities(this IList<TestSetInputModel>? testSetInputModels)
+    public static IList<TestSetValue>? ToEntities(this IList<TestSetValueModel>? testSetInputModels)
     {
         return testSetInputModels?.Select(testSetInputModel => testSetInputModel.ToEntity()).ToList();
+    }
+
+    public static IList<TestSetResult>? ToEntities(this IList<TestSetResultModel>? testSetResultModels)
+    {
+        return testSetResultModels?.Select(testSetResultModel => testSetResultModel.ToEntity()).ToList();
     }
 
     public static List<Participant> ToEntities(this IList<ParticipantModel> participants)
@@ -38,6 +43,21 @@ public static class ModelExtensions
         };
     }
 
+    public static Submission ToEntity(this SubmissionModel submissionModel)
+    {
+        return new Submission
+        {
+            Id = submissionModel.Id,
+            IsFinalSubmission = submissionModel.IsFinalSubmission,
+            Language = submissionModel.Language,
+            Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, submissionModel.ProblemId),
+            Solution = submissionModel.Solution,
+            SubmittedOn = submissionModel.SubmittedOn,
+            Team = new MongoDBRef(TeamsService.MongoDbCollectionName, submissionModel.TeamId),
+            TestSetResults = submissionModel.TestSetResults.ToEntities()
+        };
+    }
+
     public static Team ToEntity(this TeamModel teamModel)
     {
         return new Team
@@ -61,14 +81,24 @@ public static class ModelExtensions
         };
     }
 
-    public static TestSetInput ToEntity(this TestSetInputModel testSetInputModel)
+    public static TestSetValue ToEntity(this TestSetValueModel testSetValueModel)
     {
-        return new TestSetInput
+        return new TestSetValue
         {
-            DataType = testSetInputModel.DataType,
-            Index = testSetInputModel.Index,
-            IsArray = testSetInputModel.IsArray,
-            ValueAsJson = testSetInputModel.ValueAsJson
+            DataType = testSetValueModel.DataType,
+            Index = testSetValueModel.Index,
+            IsArray = testSetValueModel.IsArray,
+            ValueAsJson = testSetValueModel.ValueAsJson
+        };
+    }
+
+    public static TestSetResult ToEntity(this TestSetResultModel testSetResultModel)
+    {
+        return new TestSetResult
+        {
+            Passed = testSetResultModel.Passed,
+            RunDuration = testSetResultModel.RunDuration,
+            TestSet = new MongoDBRef(TestSetsService.MongoDbCollectionName, testSetResultModel.TestSetId)
         };
     }
 }

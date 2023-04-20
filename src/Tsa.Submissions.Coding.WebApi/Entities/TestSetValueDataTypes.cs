@@ -1,6 +1,6 @@
 ﻿namespace Tsa.Submissions.Coding.WebApi.Entities;
 
-public enum TestSetInputDataTypes
+public enum TestSetValueDataTypes
 {
     Character,
     Decimal,

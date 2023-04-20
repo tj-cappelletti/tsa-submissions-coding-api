@@ -6,11 +6,10 @@ using Tsa.Submissions.Coding.WebApi.Models;
 
 namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 
-//TODO: Turn into code generator
 [ExcludeFromCodeCoverage]
-internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetValueModel?>, IEqualityComparer<IList<TestSetValueModel>?>
+internal class TestSetResultModelEqualityComparer : IEqualityComparer<TestSetResultModel?>, IEqualityComparer<IList<TestSetResultModel>?>
 {
-    public bool Equals(TestSetValueModel? x, TestSetValueModel? y)
+    public bool Equals(TestSetResultModel? x, TestSetResultModel? y)
     {
         if (ReferenceEquals(x, y)) return true;
         if (x is null) return false;
@@ -18,13 +17,12 @@ internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetValu
         if (x.GetType() != y.GetType()) return false;
 
         return
-            x.DataType == y.DataType &&
-            x.Index == y.Index &&
-            x.IsArray == y.IsArray &&
-            x.ValueAsJson == y.ValueAsJson;
+            x.Passed == y.Passed &&
+            x.RunDuration == y.RunDuration &&
+            x.TestSetId == y.TestSetId;
     }
 
-    public bool Equals(IList<TestSetValueModel>? x, IList<TestSetValueModel>? y)
+    public bool Equals(IList<TestSetResultModel>? x, IList<TestSetResultModel>? y)
     {
         if (ReferenceEquals(x, y)) return true;
         if (x is null) return false;
@@ -33,7 +31,7 @@ internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetValu
 
         foreach (var leftTestInputModel in x)
         {
-            var rightTestSetInputModel = y.SingleOrDefault(_ => _.Index == leftTestInputModel.Index);
+            var rightTestSetInputModel = y.SingleOrDefault(_ => _.TestSetId == leftTestInputModel.TestSetId);
 
             if (!Equals(leftTestInputModel, rightTestSetInputModel)) return false;
         }
@@ -41,12 +39,12 @@ internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetValu
         return true;
     }
 
-    public int GetHashCode(TestSetValueModel obj)
+    public int GetHashCode(TestSetResultModel obj)
     {
-        return HashCode.Combine(obj.DataType, obj.Index, obj.IsArray, obj.ValueAsJson);
+        return HashCode.Combine(obj.Passed, obj.RunDuration, obj.TestSetId);
     }
 
-    public int GetHashCode(IList<TestSetValueModel>? obj)
+    public int GetHashCode(IList<TestSetResultModel>? obj)
     {
         return obj == null ? 0 : obj.GetHashCode();
     }

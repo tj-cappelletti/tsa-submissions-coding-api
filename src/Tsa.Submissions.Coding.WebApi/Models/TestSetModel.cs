@@ -6,7 +6,7 @@ public class TestSetModel
 {
     public string? Id { get; set; }
 
-    public IList<TestSetInputModel>? Inputs { get; set; }
+    public IList<TestSetValueModel>? Inputs { get; set; }
 
     public bool IsPublic { get; set; }
 

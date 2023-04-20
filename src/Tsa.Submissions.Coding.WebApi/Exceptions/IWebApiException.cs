@@ -7,5 +7,5 @@ public interface IWebApiException
 {
     HttpStatusCode HttpStatusCode { get; }
 
-    ApiErrorResponse ToApiErrorResponseModel();
+    ApiErrorResponseModel ToApiErrorResponseModel();
 }

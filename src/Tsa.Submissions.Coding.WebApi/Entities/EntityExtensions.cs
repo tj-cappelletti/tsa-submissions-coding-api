@@ -26,6 +26,23 @@ public static class EntityExtensions
         };
     }
 
+    public static SubmissionModel ToModel(this Submission submission)
+    {
+        return new SubmissionModel
+        {
+            Id = submission.Id,
+            IsFinalSubmission = submission.IsFinalSubmission,
+            Language = submission.Language,
+            // Problem is required, if null, we are in a bad state
+            ProblemId = submission.Problem!.Id.AsString,
+            Solution = submission.Solution,
+            SubmittedOn = submission.SubmittedOn,
+            // Team is required, if null, we are in a bad state
+            TeamId = submission.Team!.Id.AsString,
+            TestSetResults = submission.TestSetResults?.ToModels()
+        };
+    }
+
     public static TeamModel ToModel(this Team team)
     {
         return new TeamModel
@@ -37,14 +54,14 @@ public static class EntityExtensions
         };
     }
 
-    public static TestSetInputModel ToModel(this TestSetInput testSetInput)
+    public static TestSetValueModel ToModel(this TestSetValue testSetValue)
     {
-        return new TestSetInputModel
+        return new TestSetValueModel
         {
-            DataType = testSetInput.DataType,
-            Index = testSetInput.Index,
-            IsArray = testSetInput.IsArray,
-            ValueAsJson = testSetInput.ValueAsJson
+            DataType = testSetValue.DataType,
+            Index = testSetValue.Index,
+            IsArray = testSetValue.IsArray,
+            ValueAsJson = testSetValue.ValueAsJson
         };
     }
 
@@ -58,6 +75,27 @@ public static class EntityExtensions
             Name = testSet.Name,
             ProblemId = testSet.Problem?.Id.AsString
         };
+    }
+
+    public static TestSetResultModel ToModel(this TestSetResult testSetResult)
+    {
+        return new TestSetResultModel
+        {
+            Passed = testSetResult.Passed,
+            RunDuration = testSetResult.RunDuration,
+            // TestSet is required, if null, we are in a bad state
+            TestSetId = testSetResult.TestSet!.Id.AsString
+        };
+    }
+
+    public static List<SubmissionModel> ToModels(this IList<Submission> submissions)
+    {
+        return submissions.Select(submission => submission.ToModel()).ToList();
+    }
+
+    public static List<TestSetResultModel>? ToModels(this IList<TestSetResult>? testSetResults)
+    {
+        return testSetResults?.Select(testSetResult => testSetResult.ToModel()).ToList();
     }
 
     public static List<ParticipantModel> ToModels(this IList<Participant> participants)
@@ -75,7 +113,7 @@ public static class EntityExtensions
         return teams.Select(team => team.ToModel()).ToList();
     }
 
-    public static List<TestSetInputModel>? ToModels(this IList<TestSetInput>? testSetInputs)
+    public static List<TestSetValueModel>? ToModels(this IList<TestSetValue>? testSetInputs)
     {
         return testSetInputs?.Select(testSetInput => testSetInput.ToModel()).ToList();
     }

@@ -579,7 +579,7 @@ public class TestSetsControllerTests
         var newTestSet = new TestSetModel
         {
             Id = "000000000000000000000001",
-            Inputs = new List<TestSetInputModel>
+            Inputs = new List<TestSetValueModel>
             {
                 new()
                 {
@@ -639,7 +639,7 @@ public class TestSetsControllerTests
         var newTestSet = new TestSetModel
         {
             Id = "000000000000000000000001",
-            Inputs = new List<TestSetInputModel>
+            Inputs = new List<TestSetValueModel>
             {
                 new()
                 {

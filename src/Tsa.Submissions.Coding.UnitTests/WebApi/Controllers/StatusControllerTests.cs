@@ -18,7 +18,9 @@ public class StatusControllerTests
     private static void AssertServiceStatus(ServicesStatusModel servicesStatusModel, PingableServiceFailures pingableServiceFailures)
     {
         Assert.Equal(servicesStatusModel.ProblemsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Problems));
+        Assert.Equal(servicesStatusModel.SubmissionsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Submissions));
         Assert.Equal(servicesStatusModel.TeamsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Teams));
+        Assert.Equal(servicesStatusModel.TestSetsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.TestSets));
     }
 
     private static IList<IPingableService> BuildHealthyPingableServices()
@@ -90,16 +92,24 @@ public class StatusControllerTests
     }
 
     [Theory]
-    // Use this tool to generate the permutations
-    // https://www.easyunitconverter.com/permutation-calculator
 
     #region Inline Data
 
+    // Generate each set here: https://planetcalc.com/3757/
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.Teams |
+                PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems)]
+    [InlineData(PingableServiceFailures.Submissions)]
     [InlineData(PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.TestSets)]
 
@@ -137,11 +147,21 @@ public class StatusControllerTests
 
     #region Inline Data
 
+    // Generate each set here: https://planetcalc.com/3757/
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.Teams |
+                PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.TestSets)]
+    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.Teams)]
+    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems)]
+    [InlineData(PingableServiceFailures.Submissions)]
     [InlineData(PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.TestSets)]
 
@@ -176,9 +196,12 @@ public class StatusControllerTests
         AssertServiceStatus(servicesStatus, pingableServiceFailures);
     }
 
-    private static Type[] GetServiceTypes()
+    private static IEnumerable<Type> GetServiceTypes()
     {
-        return new[] { typeof(ProblemsService), typeof(TeamsService), typeof(TestSetsService) };
+        yield return typeof(ProblemsService);
+        yield return typeof(SubmissionsService);
+        yield return typeof(TeamsService);
+        yield return typeof(TestSetsService);
     }
 
     [Fact]
@@ -350,15 +373,14 @@ public class StatusControllerTests
 [Flags]
 public enum PingableServiceFailures
 {
-    None = 0,
     Problems = 1 << 0,
-    Teams = 1 << 1,
-    TestSets = 1 << 2
+    Submissions = 1 << 1,
+    Teams = 1 << 2,
+    TestSets = 1 << 3
 }
 
 public enum ServiceFailureType
 {
-    None,
     ExceptionThrown,
     PingFailed
 }

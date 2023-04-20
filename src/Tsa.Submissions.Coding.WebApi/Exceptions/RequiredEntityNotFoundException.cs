@@ -16,9 +16,9 @@ public class RequiredEntityNotFoundException : Exception, IWebApiException
         HttpStatusCode = HttpStatusCode.NotFound;
     }
 
-    public ApiErrorResponse ToApiErrorResponseModel()
+    public ApiErrorResponseModel ToApiErrorResponseModel()
     {
-        return new ApiErrorResponse
+        return new ApiErrorResponseModel
         {
             ErrorCode = (int)ErrorCodes.RequiredAttributeNotFound,
             Message = Message

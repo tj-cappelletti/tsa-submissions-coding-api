@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using Moq;
 using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.UnitTests.ExtensionMethods;
+using Tsa.Submissions.Coding.UnitTests.Helpers;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Services;
@@ -95,7 +96,6 @@ public class ProblemsServiceTest
         var problem = problemsTestData.First(_ => (ProblemDataIssues)_[1] == ProblemDataIssues.None)[0] as Problem;
 
         var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
-        //mockedMongoCollection.Setup(_=>_.InsertOneAsync())
 
         var mockedMongoDatabase = new Mock<IMongoDatabase>();
         mockedMongoDatabase
@@ -117,15 +117,6 @@ public class ProblemsServiceTest
                 DatabaseName = DatabaseName
             });
 
-        Func<Problem, bool> validateProblem = problemToValidate =>
-        {
-            var descriptionsMatch = problemToValidate.Description == problem!.Description;
-            var idsMatch = problemToValidate.Id == problem.Id;
-            var isActiveMatch = problemToValidate.IsActive == problem.IsActive;
-
-            return descriptionsMatch && idsMatch && isActiveMatch;
-        };
-
         var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
 
         // Act
@@ -134,7 +125,7 @@ public class ProblemsServiceTest
         // Assert
         mockedMongoCollection
             .Verify(_ =>
-                _.InsertOneAsync(It.Is<Problem>(c => validateProblem(c)), null, CancellationToken.None), Times.Once);
+                _.InsertOneAsync(It.Is(problem, new ProblemEqualityComparer())!, null, CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -264,6 +255,7 @@ public class ProblemsServiceTest
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.Equal(problems.Count, result.Count);
+        Assert.Equal(problems, result, new ProblemEqualityComparer());
     }
 
     [Fact]
@@ -331,7 +323,7 @@ public class ProblemsServiceTest
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(expectedProblem, result);
+        Assert.Equal(expectedProblem, result, new ProblemEqualityComparer());
     }
 
     [Fact]
@@ -397,6 +389,7 @@ public class ProblemsServiceTest
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedProblems.Count, result.Count);
+        Assert.Equal(expectedProblems, result, new ProblemEqualityComparer());
     }
 
 

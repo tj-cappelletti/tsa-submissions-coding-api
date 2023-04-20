@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -90,6 +91,61 @@ public class ModelExtensions
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
+    public void ToEntity_For_SubmissionModel_Should_Return_Submission()
+    {
+        // Arrange
+        var submissionModel = new SubmissionModel
+        {
+            Id = "000000000000000000000000",
+            IsFinalSubmission = true,
+            Language = "csharp",
+            ProblemId = "00000000000000000000000A",
+            Solution = "The solution",
+            SubmittedOn = DateTime.Now.AddHours(-5),
+            TeamId = "00000000000000000000000B",
+            TestSetResults = new List<TestSetResultModel>
+            {
+                new()
+                {
+                    Passed = true,
+                    RunDuration = new TimeSpan(0, 0, 5, 0),
+                    TestSetId = "000000000000000000000010"
+                },
+                new()
+                {
+                    Passed = true,
+                    RunDuration = new TimeSpan(0, 0, 5, 0),
+                    TestSetId = "000000000000000000000011"
+                }
+            }
+        };
+
+        // Act
+        var submission = submissionModel.ToEntity();
+
+        Assert.Equal(submissionModel.Id, submission.Id);
+        Assert.Equal(submissionModel.IsFinalSubmission, submission.IsFinalSubmission);
+        Assert.Equal(submissionModel.Language, submission.Language);
+        Assert.Equal(submissionModel.ProblemId, submission.Problem?.Id.AsString);
+        Assert.Equal(submissionModel.Solution, submission.Solution);
+        Assert.Equal(submissionModel.SubmittedOn, submission.SubmittedOn);
+        Assert.Equal(submissionModel.TeamId, submission.Team?.Id.AsString);
+        Assert.NotNull(submission.TestSetResults);
+        Assert.Equal(submissionModel.TestSetResults.Count, submission.TestSetResults.Count);
+
+        foreach (var testSetResultModel in submissionModel.TestSetResults)
+        {
+            var testSetResult = submission.TestSetResults.SingleOrDefault(_ => _.TestSet?.Id.AsString == testSetResultModel.TestSetId);
+
+            Assert.NotNull(testSetResult);
+            Assert.Equal(testSetResultModel.Passed, testSetResult.Passed);
+            Assert.Equal(testSetResultModel.RunDuration, testSetResult.RunDuration);
+            Assert.Equal(testSetResultModel.TestSetId, testSetResult.TestSet?.Id.AsString);
+        }
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public void ToEntity_For_TeamModel_Should_Return_Team()
     {
         // Arrange
@@ -134,7 +190,7 @@ public class ModelExtensions
     public void ToEntity_For_TestSetInputModel_Should_Return_TestSetInput()
     {
         // Arrange
-        var testSetInputModel = new TestSetInputModel
+        var testSetInputModel = new TestSetValueModel
         {
             DataType = "Data Type",
             Index = 9999,
@@ -160,7 +216,7 @@ public class ModelExtensions
         var testSetModel = new TestSetModel
         {
             Id = "This is an ID",
-            Inputs = new List<TestSetInputModel>
+            Inputs = new List<TestSetValueModel>
             {
                 new()
                 {
@@ -209,5 +265,26 @@ public class ModelExtensions
 
         Assert.Equal(testSetModel.Name, testSet.Name);
         Assert.Equal(testSetModel.ProblemId, testSet.Problem?.Id.AsString);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToEntity_For_TestSetResultModel_Should_Return_TestSetResult()
+    {
+        // Arrange
+        var testSetResultModel = new TestSetResultModel
+        {
+            Passed = true,
+            RunDuration = new TimeSpan(0, 0, 5, 0),
+            TestSetId = "000000000000000000000010"
+        };
+
+        // Act
+        var testSetResult = testSetResultModel.ToEntity();
+
+        // Assert
+        Assert.Equal(testSetResultModel.Passed, testSetResult.Passed);
+        Assert.Equal(testSetResultModel.RunDuration, testSetResult.RunDuration);
+        Assert.Equal(testSetResultModel.TestSetId, testSetResult.TestSet?.Id.AsString);
     }
 }
