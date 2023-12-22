@@ -14,10 +14,10 @@ services:
     image: rabbitmq:3-management
 
   mongodb:
-    image: mongo
+    image: mongo:latest
 
   mongo-express:
-    image: mongo-express
+    image: mongo-express:1.0-18
     depends_on:
     - mongodb
 
