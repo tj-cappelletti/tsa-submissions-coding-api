@@ -1,0 +1,73 @@
+name: Continuous Integration Workflow
+
+on:
+  push:
+    paths:
+      - '.github/workflows/continuous-integration-workflow.yml'
+      - 'src/**'
+
+  pull_request:
+    paths:
+      - '.github/workflows/continuous-integration-workflow.yml'
+      - 'src/**'
+
+  workflow_dispatch:
+
+env:
+  DOCKER_REPO: ghcr.io/${{ github.actor }}
+
+jobs:
+  gitVersionJob:
+    name: CI - GitVersion Workflow
+    uses: webstorm-tech/workflows/.github/workflows/gitversion-workflow.yml@v5
+
+  buildApplicationJob:
+    name: CI - Build Workflow
+    needs: gitVersionJob
+    uses: webstorm-tech/workflows/.github/workflows/dotnet-build-app-workflow.yml@v5
+    with:
+      artifactName: web-api
+      dotnetVersion: '8.0.x'
+      semVer: ${{ needs.gitVersionJob.outputs.semVer }}
+      sendToCodecov: true
+      solutionFile: src/Tsa.Submissions.Coding.sln
+      unitTestProjectFile: Tsa.Submissions.Coding.UnitTests.csproj
+      unitTestProjectFolder: src/Tsa.Submissions.Coding.UnitTests
+      publishProjectFile: Tsa.Submissions.Coding.WebApi.csproj
+      publishProjectFolder: src/Tsa.Submissions.Coding.WebApi
+    secrets: inherit
+
+  verifyCodeStyleJob:
+    name: CI - Verify Code Style Workflow
+    uses: webstorm-tech/workflows/.github/workflows/dotnet-verify-code-style-workflow.yml@v5
+    with:
+      dotnetVersion: '8.0.x'
+      runner: windows-latest
+      solutionFile: ./src/Tsa.Submissions.Coding.sln
+    secrets: inherit
+  
+  buildDockerContainerJob:
+    name: CI - Build Docker Container
+    needs: [gitVersionJob, buildApplicationJob]
+    uses: webstorm-tech/workflows/.github/workflows/docker-build-container-workflow.yml@v5
+    with:
+      dockerfile: src/Tsa.Submissions.Coding.WebApi/Dockerfile
+      dockerNamespace: tsa/submissions/coding/webapi
+      dockerRegistry: ghcr.io
+      dockerRepository: tj-cappelletti
+      dockerWorkingDirectory: src/
+      majorVersion: ${{ needs.gitVersionJob.outputs.majorReleaseLabel }}
+      majorMinorVersion: ${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }}
+      pushContainerImage: ${{ github.event_name != 'pull_request' }}
+      semVer: ${{ needs.gitVersionJob.outputs.semVer }}
+    secrets: inherit
+
+  tagRepositoryJob:
+    name: CI - Tag Repository
+    if: github.ref == 'refs/heads/main'
+    needs: [gitVersionJob]
+    uses: webstorm-tech/workflows/.github/workflows/github-tag-repo-workflow.yml@v5
+    with:
+      semVer: ${{ needs.gitVersionJob.outputs.semVer }}
+    secrets: inherit
+  
