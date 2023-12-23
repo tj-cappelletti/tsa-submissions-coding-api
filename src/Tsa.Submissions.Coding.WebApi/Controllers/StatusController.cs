@@ -16,7 +16,7 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers;
 [Produces("application/json")]
 public class StatusController : ControllerBase
 {
-    private readonly List<IPingableService> _pingableServices = new();
+    private readonly List<IPingableService> _pingableServices = [];
 
     public StatusController(IEnumerable<IPingableService> pingableServices)
     {

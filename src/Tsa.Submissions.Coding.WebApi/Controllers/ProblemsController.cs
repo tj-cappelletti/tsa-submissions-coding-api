@@ -65,7 +65,7 @@ public class ProblemsController : ControllerBase
 
         var problemModels = new List<ProblemModel>();
 
-        if (expandTestSets && problems.Any())
+        if (expandTestSets && problems.Count != 0)
         {
             foreach (var problem in problems)
             {
@@ -74,7 +74,7 @@ public class ProblemsController : ControllerBase
                 var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
 
                 problemModel.TestSets = User.IsInRole(SubmissionRoles.Participant)
-                    ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+                    ? testSets.ToModels().Where(testSetModel => testSetModel.IsPublic).ToList()
                     : testSets.ToModels();
 
                 problemModels.Add(problemModel);
@@ -114,7 +114,7 @@ public class ProblemsController : ControllerBase
         var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
 
         problemModel.TestSets = User.IsInRole(SubmissionRoles.Participant)
-            ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+            ? testSets.ToModels().Where(testSetModel => testSetModel.IsPublic).ToList()
             : testSets.ToModels();
 
         return problemModel;
@@ -141,7 +141,7 @@ public class ProblemsController : ControllerBase
         var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
 
         return User.IsInRole(SubmissionRoles.Participant)
-            ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+            ? testSets.ToModels().Where(testSetModel => testSetModel.IsPublic).ToList()
             : testSets.ToModels();
     }
 

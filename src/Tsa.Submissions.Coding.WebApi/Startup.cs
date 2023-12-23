@@ -28,14 +28,9 @@ using Tsa.Submissions.Coding.WebApi.Validators;
 
 namespace Tsa.Submissions.Coding.WebApi;
 
-public class Startup
+public class Startup(IConfiguration configuration)
 {
-    public IConfiguration Configuration { get; }
-
-    public Startup(IConfiguration configuration)
-    {
-        Configuration = configuration;
-    }
+    public IConfiguration Configuration { get; } = configuration;
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
@@ -53,7 +48,7 @@ public class Startup
             });
 
             // In a development setting, all containers use the ASP.NET development certificate
-            // Since this is a self signed certificate, the root CA must be trusted
+            // Since this is a self-signed certificate, the root CA must be trusted
             // The Docker Compose mounts a volume in the container for the root CA certificate
             // This code block updates the trusted root CA so ASP.NET development certificates work
             var dockerContainer = Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y";
@@ -148,7 +143,8 @@ public class Startup
                 };
             });
 
-        services.AddAuthorization(configuration => { configuration.AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role)); });
+        services.AddAuthorizationBuilder()
+            .AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role));
 
         // Setup Controllers
         services
