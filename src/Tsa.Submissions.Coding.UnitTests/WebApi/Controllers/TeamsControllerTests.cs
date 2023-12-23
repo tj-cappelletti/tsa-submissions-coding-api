@@ -534,7 +534,7 @@ public class TeamsControllerTests
         Assert.NotNull(actionResult);
         Assert.NotNull(actionResult.Value);
         Assert.NotEmpty(actionResult.Value!);
-        Assert.Equal(1, actionResult.Value!.Count);
+        Assert.Single(actionResult.Value!);
 
         var actualTeam = actionResult.Value![0];
 

@@ -9,6 +9,8 @@ namespace Tsa.Submissions.Coding.WebApi.Middleware;
 [ExcludeFromCodeCoverage]
 public class AuthorizeCheckOperationFilter : IOperationFilter
 {
+    private static readonly string[] Item = ["tsa.coding.submissions.read", "tsa.coding.submissions.create"];
+
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         operation.Security = new List<OpenApiSecurityRequirement>
@@ -24,7 +26,7 @@ public class AuthorizeCheckOperationFilter : IOperationFilter
                             Id = "oauth2"
                         }
                     }
-                ] = new[] { "tsa.coding.submissions.read", "tsa.coding.submissions.create" }
+                ] = Item
             }
         };
     }
