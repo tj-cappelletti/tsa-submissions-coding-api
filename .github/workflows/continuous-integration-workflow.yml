@@ -60,7 +60,8 @@ jobs:
       majorMinorVersion: ${{ needs.gitVersionJob.outputs.majorMinorReleaseLabel }}
       pushContainerImage: ${{ github.event_name != 'pull_request' }}
       semVer: ${{ needs.gitVersionJob.outputs.semVer }}
-    secrets: inherit
+    secrets:
+      REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   tagRepositoryJob:
     name: CI - Tag Repository
@@ -69,5 +70,4 @@ jobs:
     uses: webstorm-tech/workflows/.github/workflows/github-tag-repo-workflow.yml@v5
     with:
       semVer: ${{ needs.gitVersionJob.outputs.semVer }}
-    secrets: inherit
   
