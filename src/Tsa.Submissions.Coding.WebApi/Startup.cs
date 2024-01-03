@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using FluentValidation;
@@ -20,10 +21,12 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Tsa.Submissions.Coding.WebApi.Authentication;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Middleware;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
+using Tsa.Submissions.Coding.WebApi.Swagger;
 using Tsa.Submissions.Coding.WebApi.Validators;
 
 namespace Tsa.Submissions.Coding.WebApi;
@@ -38,37 +41,7 @@ public class Startup(IConfiguration configuration)
         {
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Tsa.Submissions.Coding.WebApi v1");
-
-                options.OAuthClientId("tsa.submissions.coding.api.swagger");
-                options.OAuthAppName("TSA Coding Submissions Web UI");
-                options.OAuthUsePkce();
-            });
-
-            // In a development setting, all containers use the ASP.NET development certificate
-            // Since this is a self-signed certificate, the root CA must be trusted
-            // The Docker Compose mounts a volume in the container for the root CA certificate
-            // This code block updates the trusted root CA so ASP.NET development certificates work
-            var dockerContainer = Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y";
-
-            if (dockerContainer)
-            {
-                var updateCaCertificatesProcess = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        Arguments = "update-ca-certificates",
-                        CreateNoWindow = true,
-                        FileName = "/bin/bash",
-                        UseShellExecute = false
-                    }
-                };
-
-                updateCaCertificatesProcess.Start();
-                updateCaCertificatesProcess.WaitForExit();
-            }
+            app.UseSwaggerUI();
         }
 
         app.UseHttpsRedirection();
@@ -84,11 +57,6 @@ public class Startup(IConfiguration configuration)
 
     public void ConfigureServices(IServiceCollection services)
     {
-        if (Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y")
-        {
-            services.AddCors();
-        }
-
         services.Configure<SubmissionsDatabase>(Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection));
 
         var conventionPack = new ConventionPack
@@ -107,17 +75,49 @@ public class Startup(IConfiguration configuration)
             new ServiceDescriptor(typeof(IMongoClient),
                 new MongoClient(mongoClientSettings)));
 
+        var assemblyTypes = Assembly.GetExecutingAssembly().GetTypes();
+
         // Add MongoDB Services
-        services.AddSingleton<IProblemsService, ProblemsService>();
-        services.AddSingleton<ISubmissionsService, SubmissionsService>();
-        services.AddSingleton<ITeamsService, TeamsService>();
-        services.AddSingleton<ITestSetsService, TestSetsService>();
+        const string servicesNamespace = "Tsa.Submissions.Coding.WebApi.Services";
+        var mongoDbServiceTypes = assemblyTypes
+            .Where(type => type.Namespace == servicesNamespace && type is { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
+            .ToList();
+
+        var mongoEntityServiceInterfaceType = typeof(IMongoEntityService<>);
+        var pingableServiceInterfaceType = typeof(IPingableService);
+
+        foreach (var mongoDbServiceType in mongoDbServiceTypes)
+        {
+            var interfaceType = mongoDbServiceType
+                .GetInterfaces()
+                .SingleOrDefault(type =>
+                    type.Name != mongoEntityServiceInterfaceType.Name &&
+                    type.Name != pingableServiceInterfaceType.Name);
+
+            if(interfaceType == null) continue;
+
+            services.AddScoped(interfaceType, mongoDbServiceType);
+        }
 
         // Add Pingable Services - Should match MongoDB Services
-        services.AddSingleton<IPingableService, ProblemsService>();
-        services.AddSingleton<IPingableService, SubmissionsService>();
-        services.AddSingleton<IPingableService, TeamsService>();
-        services.AddSingleton<IPingableService, TestSetsService>();
+        var pingableServiceType = typeof(IPingableService);
+        var pingableServices = assemblyTypes
+            .Where(type => pingableServiceType.IsAssignableFrom(type) && type is { IsInterface: false, IsAbstract: false })
+            .ToList();
+
+        foreach (var pingableService in pingableServices)
+        {
+            services.AddSingleton(typeof(IPingableService), pingableService);
+        }
+
+        // Add Redis Service
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = Configuration.GetConnectionString(ConfigurationKeys.RedisConnectionString);
+            options.InstanceName = "Tsa.Submissions.Coding.WebApi";
+        });
+
+        services.AddSingleton<ICacheService, CacheService>();
 
         // Add Validators
         services.AddScoped<IValidator<ProblemModel>, ProblemModelValidator>();
@@ -130,18 +130,8 @@ public class Startup(IConfiguration configuration)
             .Build();
 
         services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.Authority = Configuration["Authentication:Authority"];
-
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    //TODO: Find what static property this could pull from (likely in IdentityServer's libraries)
-                    NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
-                    ValidateAudience = false
-                };
-            });
+            .AddAuthentication(TsaAuthenticationOptions.DefaultScheme)
+            .AddScheme<TsaAuthenticationOptions, TsaAuthenticationHandler>(TsaAuthenticationOptions.DefaultScheme, _ => { });
 
         services.AddAuthorizationBuilder()
             .AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role));
@@ -164,30 +154,7 @@ public class Startup(IConfiguration configuration)
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
-            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Tsa.Submissions.Coding.WebApi", Version = "v1" });
-
-            options.EnableAnnotations();
-
-            //TODO: Make a special "Swagger" API client for this
-            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.OAuth2,
-                Flows = new OpenApiOAuthFlows
-                {
-                    AuthorizationCode = new OpenApiOAuthFlow
-                    {
-                        AuthorizationUrl = new Uri($"{Configuration["Authentication:Authority"]}/connect/authorize"),
-                        TokenUrl = new Uri($"{Configuration["Authentication:Authority"]}/connect/token"),
-                        Scopes = new Dictionary<string, string>
-                        {
-                            { "tsa.submissions.coding.read", "Display/read coding submissions" },
-                            { "tsa.submissions.coding.create", "Create coding submissions" }
-                        }
-                    }
-                }
-            });
-
-            options.OperationFilter<AuthorizeCheckOperationFilter>();
+            options.OperationFilter<ApiKeyHeaderFilter>();
         });
     }
 }
