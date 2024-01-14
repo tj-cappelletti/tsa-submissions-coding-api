@@ -26,6 +26,15 @@ public class AuthenticationController : ControllerBase
         _usersService = usersService;
     }
 
+    private static string GenerateApiKey()
+    {
+        ReadOnlySpan<char> apiKeyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        var randomString = RandomNumberGenerator.GetString(apiKeyCharacters, ApiKeyLength);
+
+        return $"tsa_{randomString}";
+    }
+
     [AllowAnonymous]
     [HttpPost]
     public async Task<IActionResult> Post(AuthenticationModel authenticationModel, CancellationToken cancellationToken = default)
@@ -48,21 +57,15 @@ public class AuthenticationController : ControllerBase
 
         apiKey = GenerateApiKey();
 
-        await _cacheService.SetAsync(apiKey, userId, new TimeSpan(0,2,0,0), cancellationToken);
-        await _cacheService.SetAsync(userId, apiKey, new TimeSpan(0,2,0,0), cancellationToken);
+        await _cacheService.SetAsync(apiKey, userId, new TimeSpan(0, 2, 0, 0), cancellationToken);
+        await _cacheService.SetAsync(userId, apiKey, new TimeSpan(0, 2, 0, 0), cancellationToken);
 
         string? uri = null;
         return Created(uri, new AuthenticationModel
         {
             ApiKey = apiKey,
+            Role = user.Role,
             UserName = user.UserName
         });
-    }
-
-    private static string GenerateApiKey()
-    {
-        ReadOnlySpan<char> apiKeyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-        return RandomNumberGenerator.GetString(apiKeyCharacters, ApiKeyLength);
     }
 }
