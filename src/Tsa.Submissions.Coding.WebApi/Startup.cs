@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,15 +12,12 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Tsa.Submissions.Coding.WebApi.Authentication;
 using Tsa.Submissions.Coding.WebApi.Configuration;
-using Tsa.Submissions.Coding.WebApi.Middleware;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Tsa.Submissions.Coding.WebApi.Swagger;
@@ -80,7 +74,8 @@ public class Startup(IConfiguration configuration)
         // Add MongoDB Services
         const string servicesNamespace = "Tsa.Submissions.Coding.WebApi.Services";
         var mongoDbServiceTypes = assemblyTypes
-            .Where(type => type.Namespace == servicesNamespace && type is { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
+            .Where(type => type.Namespace == servicesNamespace && type is
+                { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
             .ToList();
 
         var mongoEntityServiceInterfaceType = typeof(IMongoEntityService<>);
@@ -94,7 +89,7 @@ public class Startup(IConfiguration configuration)
                     type.Name != mongoEntityServiceInterfaceType.Name &&
                     type.Name != pingableServiceInterfaceType.Name);
 
-            if(interfaceType == null) continue;
+            if (interfaceType == null) continue;
 
             services.AddScoped(interfaceType, mongoDbServiceType);
         }
