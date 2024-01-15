@@ -54,17 +54,6 @@ public static class EntityExtensions
         };
     }
 
-    public static TestSetValueModel ToModel(this TestSetValue testSetValue)
-    {
-        return new TestSetValueModel
-        {
-            DataType = testSetValue.DataType,
-            Index = testSetValue.Index,
-            IsArray = testSetValue.IsArray,
-            ValueAsJson = testSetValue.ValueAsJson
-        };
-    }
-
     public static TestSetModel ToModel(this TestSet testSet)
     {
         return new TestSetModel
@@ -88,14 +77,33 @@ public static class EntityExtensions
         };
     }
 
-    public static List<SubmissionModel> ToModels(this IList<Submission> submissions)
+    public static TestSetValueModel ToModel(this TestSetValue testSetValue)
     {
-        return submissions.Select(submission => submission.ToModel()).ToList();
+        return new TestSetValueModel
+        {
+            DataType = testSetValue.DataType,
+            Index = testSetValue.Index,
+            IsArray = testSetValue.IsArray,
+            ValueAsJson = testSetValue.ValueAsJson
+        };
     }
 
-    public static List<TestSetResultModel>? ToModels(this IList<TestSetResult>? testSetResults)
+    public static UserModel ToModel(this User user)
     {
-        return testSetResults?.Select(testSetResult => testSetResult.ToModel()).ToList();
+        var userModel= new UserModel
+        {
+            Id = user.Id,
+            Role = user.Role,
+            UserName = user.UserName
+        };
+
+        if(user.Team != null)
+            userModel.Team = new TeamModel
+            {
+                Id = user.Team.Id.AsString
+            };
+
+        return userModel;
     }
 
     public static List<ParticipantModel> ToModels(this IList<Participant> participants)
@@ -108,9 +116,24 @@ public static class EntityExtensions
         return problems.Select(problem => problem.ToModel()).ToList();
     }
 
+    public static List<SubmissionModel> ToModels(this IList<Submission> submissions)
+    {
+        return submissions.Select(submission => submission.ToModel()).ToList();
+    }
+
     public static List<TeamModel> ToModels(this IList<Team> teams)
     {
         return teams.Select(team => team.ToModel()).ToList();
+    }
+
+    public static List<TestSetModel> ToModels(this IList<TestSet> testSets)
+    {
+        return testSets.Select(testSet => testSet.ToModel()).ToList();
+    }
+
+    public static List<TestSetResultModel>? ToModels(this IList<TestSetResult>? testSetResults)
+    {
+        return testSetResults?.Select(testSetResult => testSetResult.ToModel()).ToList();
     }
 
     public static List<TestSetValueModel>? ToModels(this IList<TestSetValue>? testSetInputs)
@@ -118,8 +141,8 @@ public static class EntityExtensions
         return testSetInputs?.Select(testSetInput => testSetInput.ToModel()).ToList();
     }
 
-    public static List<TestSetModel> ToModels(this IList<TestSet> testSets)
+    public static List<UserModel> ToModels(this IList<User> users)
     {
-        return testSets.Select(testSet => testSet.ToModel()).ToList();
+        return users.Select(user => user.ToModel()).ToList();
     }
 }

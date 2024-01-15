@@ -43,6 +43,24 @@ public static class ModelExtensions
         };
     }
 
+    public static User ToEntity(this UserModel userModel, string? passwordHash = default)
+    {
+        var user = new User
+        {
+            Id = userModel.Id,
+            PasswordHash = passwordHash,
+            Role = userModel.Role,
+            UserName = userModel.UserName
+        };
+
+        if (userModel.Team != null)
+        {
+            user.Team = new MongoDBRef(TeamsService.MongoDbCollectionName, userModel.Team.Id);
+        }
+
+        return user;
+    }
+
     public static Submission ToEntity(this SubmissionModel submissionModel)
     {
         return new Submission

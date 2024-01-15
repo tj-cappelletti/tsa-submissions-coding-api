@@ -1,40 +1,6 @@
 version: '3.9'
 
 services:
-  db:
-    hostname: db.tsa.localdev.me
-    environment:
-      SA_PASSWORD: "rIMdEnfnHj395cFO"
-      ACCEPT_EULA: "Y"
-    ports:
-      - "1433:1433"
-
-  identity:
-    hostname: identity.tsa.localdev.me
-    command: --CREATE_DB true --DB_SEED_SOURCE system --DB_SEED_SOURCE_LOCATION /data/identity-server-seed-data.json
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
-      ASPNETCORE_URLS: "https://+:44301"
-      APSNETCORE_HTTPS_PORT: "44301"
-      ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
-      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/identityServerCertificate.pfx"
-      ConnectionStrings:TsaIdentityServer: "Server=db.tsa.localdev.me;Database=tsa-identity-server;User=sa;Password=rIMdEnfnHj395cFO;"
-      DOCKER_CONTAINER: "Y"
-    expose:
-      - "8001"
-      - "44301"
-    ports:
-      - "44301:44301"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ../docker/certs:/https:ro
-      - ../../data:/data:ro
-
-  rabbitmq:
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-
   mongodb:
     hostname: mongodb.tsa.localdev.me
     environment:
@@ -54,6 +20,16 @@ services:
     ports:
       - 8081:8081
 
+  rabbitmq:
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  redis:
+    hostname: redis.tsa.localdev.me
+    ports:
+    - "6379:6379"
+
   webapi:
     hostname: api.tsa.localdev.me
     environment:
@@ -63,9 +39,6 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/apiCertificate.pfx"
       DOCKER_CONTAINER: "Y"
-      ConnectionStrings__SubmissionsContext: "Server=db.tsa.localdev.me;Database=tsa-coding-submissions;User=sa;Password=rIMdEnfnHj395cFO;"
-      Authentication__Authority: "https://identity.tsa.localdev.me:44301"
-      Authentication__ClientSecret: "a673bbae-71e4-4962-a623-665689c4dd34"
     expose:
       - "44300"
     ports:
