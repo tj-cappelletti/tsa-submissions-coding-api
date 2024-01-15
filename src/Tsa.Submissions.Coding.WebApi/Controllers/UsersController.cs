@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -72,7 +71,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Post(UserModel userModel, CancellationToken cancellationToken = default)
     {
         var passwordHash = BC.HashPassword(userModel.Password);
-        
+
         var user = userModel.ToEntity(passwordHash);
 
         await _usersService.CreateAsync(user, cancellationToken);
