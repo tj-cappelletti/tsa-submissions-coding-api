@@ -20,7 +20,7 @@ public class RequiredEntityNotFoundException : Exception, IWebApiException
     {
         return new ApiErrorResponseModel
         {
-            ErrorCode = (int)ErrorCodes.RequiredAttributeNotFound,
+            ErrorCode = (int)ErrorCodes.RequiredEntityNotFound,
             Message = Message
         };
     }
