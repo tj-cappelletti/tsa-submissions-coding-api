@@ -3,13 +3,15 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 
 namespace Tsa.Submissions.Coding.WebApi.Authentication;
 
-public class TsaAuthenticationHandler :AuthenticationHandler<TsaAuthenticationOptions>
+public class TsaAuthenticationHandler : AuthenticationHandler<TsaAuthenticationOptions>
 {
     private readonly ICacheService _cacheService;
     private readonly IUsersService _usersService;
@@ -24,7 +26,7 @@ public class TsaAuthenticationHandler :AuthenticationHandler<TsaAuthenticationOp
         _cacheService = cacheService;
         _usersService = usersService;
     }
- 
+
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         if (!Request.Headers.TryGetValue(Options.ApiKeyHeaderName, out var apiKeyHeaderValues))
@@ -51,7 +53,7 @@ public class TsaAuthenticationHandler :AuthenticationHandler<TsaAuthenticationOp
             return AuthenticateResult.Fail($"Invalid {Options.ApiKeyHeaderName}");
         }
 
-        var user = await _usersService.GetAsync(userId) ?? throw new InvalidOperationException($"User not found: {userId}");
+        var user = await _usersService.GetAsync(userId) ?? throw new InvalidOperationException($"The user with ID '{userId}' was not found but an API key exists for them.");
 
         var claims = new[]
         {
@@ -64,5 +66,12 @@ public class TsaAuthenticationHandler :AuthenticationHandler<TsaAuthenticationOp
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         return AuthenticateResult.Success(new AuthenticationTicket(claimsPrincipal, Scheme.Name));
+    }
+
+    protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
+    {
+        var unauthorized = ApiErrorResponseModel.Unauthorized;
+
+        await Context.Response.WriteAsJsonAsync(unauthorized);
     }
 }
