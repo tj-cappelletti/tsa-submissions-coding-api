@@ -71,19 +71,26 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     public async Task<IActionResult> Post(UserModel userModel, CancellationToken cancellationToken = default)
     {
-        var user = new User
-        {
-            PasswordHash = BC.HashPassword(userModel.Password),
-            Role = userModel.Role,
-            UserName = userModel.UserName
-        };
-
-        if(userModel.Team != null)
-            user.Team = new MongoDBRef(nameof(Team), userModel.Team.Id);
+        var passwordHash = BC.HashPassword(userModel.Password);
+        
+        var user = userModel.ToEntity(passwordHash);
 
         await _usersService.CreateAsync(user, cancellationToken);
 
-        return CreatedAtAction(nameof(Get), new {id = user.Id}, user.ToModel());
+        return CreatedAtAction(nameof(Get), new { id = user.Id }, user.ToModel());
+    }
+
+    [Authorize(Roles = SubmissionRoles.Judge)]
+    [HttpPost("batch")]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
+    public async Task<IActionResult> Post(UserModel[] userModels, CancellationToken cancellationToken = default)
+    {
+        foreach (var userModel in userModels)
+        {
+            await Post(userModel, cancellationToken);
+        }
+
+        return Created();
     }
 
     [Authorize(Roles = SubmissionRoles.Judge)]
@@ -96,16 +103,23 @@ public class UsersController : ControllerBase
 
         if (user == null) return NotFound();
 
-        var passwordHash = BC.HashPassword(updatedUserModel.Password);
-
         updatedUserModel.Id = user.Id;
+
+        var passwordHash = user.PasswordHash;
+
+        if (updatedUserModel.Password != null)
+        {
+            passwordHash = BC.HashPassword(updatedUserModel.Password);
+        }
 
         await _usersService.UpdateAsync(updatedUserModel.ToEntity(passwordHash), cancellationToken);
 
         var apiKey = await _cacheService.GetAsync<string?>(user.Id!, cancellationToken);
 
         if (apiKey != null)
+        {
             await _cacheService.RemoveAsync(apiKey, cancellationToken);
+        }
 
         return NoContent();
     }
