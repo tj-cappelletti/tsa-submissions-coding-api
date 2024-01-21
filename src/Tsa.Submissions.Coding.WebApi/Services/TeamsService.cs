@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Entities;
@@ -16,6 +18,17 @@ public class TeamsService : MongoDbService<Team>, ITeamsService
     public TeamsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
         mongoClient,
         options.Value.DatabaseName,
-        MongoDbCollectionName)
-    { }
+        MongoDbCollectionName) { }
+
+    public async Task<bool> ExistsAsync(string? schoolNumber, string? teamNumber, CancellationToken cancellationToken = default)
+    {
+        var filterDefinition =
+            Builders<Team>.Filter.And(
+                Builders<Team>.Filter.Eq(team => team.SchoolNumber, schoolNumber),
+                Builders<Team>.Filter.Eq(team => team.TeamNumber, teamNumber));
+
+        var cursor = await EntityCollection.FindAsync(filterDefinition, cancellationToken: cancellationToken);
+
+        return await cursor.AnyAsync(cancellationToken);
+    }
 }
