@@ -43,6 +43,6 @@ public class ApiErrorResponseTest
 
         // Assert
         Assert.Equal((int)ErrorCodes.UnexpectedNullValue, apiErrorResponse.ErrorCode);
-        Assert.Equal("A dependent resource could not be loaded while making this call.", apiErrorResponse.Message);
+        Assert.Equal("A required value was unexpectedly missing.", apiErrorResponse.Message);
     }
 }
