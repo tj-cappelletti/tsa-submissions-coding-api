@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -169,9 +170,9 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Delete_Should_Return_No_Content()
+    public async Task Delete_Should_Return_No_Content()
     {
-        // Arrange
+        // ArrangeE
         var teamsTestData = new TeamsTestData();
 
         var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
@@ -192,7 +193,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Delete_Should_Return_Not_Found()
+    public async Task Delete_Should_Return_Not_Found()
     {
         // Arrange
         var mockedTeamsService = new Mock<ITeamsService>();
@@ -209,7 +210,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Not_Found()
+    public async Task Get_By_Id_Should_Return_Not_Found()
     {
         // Arrange
         var mockedTeamsService = new Mock<ITeamsService>();
@@ -226,7 +227,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Not_Found_For_Participant_Role()
+    public async Task Get_By_Id_Should_Return_Not_Found_For_Participant_Role()
     {
         // Arrange
         var teamsTestData = new TeamsTestData();
@@ -267,7 +268,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Ok_For_Judge_Role()
+    public async Task Get_By_Id_Should_Return_Ok_For_Judge_Role()
     {
         // Arrange
         var teamsTestData = new TeamsTestData();
@@ -317,7 +318,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Ok_For_Participant_Role()
+    public async Task Get_By_Id_Should_Return_Ok_For_Participant_Role()
     {
         // Arrange
         var teamsTestData = new TeamsTestData();
@@ -371,7 +372,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Empty_For_Judge()
+    public async Task Get_Should_Return_Ok_When_Empty_For_Judge()
     {
         // Arrange
         var emptyTeamsList = new List<Team>();
@@ -407,7 +408,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Empty_For_Participant()
+    public async Task Get_Should_Return_Ok_When_Empty_For_Participant()
     {
         // Arrange
         var emptyTeamsList = new List<Team>();
@@ -447,7 +448,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Not_Empty_For_Judge()
+    public async Task Get_Should_Return_Ok_When_Not_Empty_For_Judge()
     {
         // Arrange
         var teamsTestData = new TeamsTestData();
@@ -490,7 +491,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Not_Empty_For_Participant()
+    public async Task Get_Should_Return_Ok_When_Not_Empty_For_Participant()
     {
         // Arrange
         var teamsTestData = new TeamsTestData();
@@ -545,7 +546,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Post_Should_Return_Created()
+    public async Task Post_Should_Return_Created()
     {
         // Arrange
         var newTeam = new TeamModel
@@ -586,7 +587,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Put_Should_Return_No_Content()
+    public async Task Put_Should_Return_No_Content()
     {
         // Arrange
         var teamsTestData = new TeamsTestData();
@@ -631,7 +632,7 @@ public class TeamsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Put_Should_Return_Not_Found()
+    public async Task Put_Should_Return_Not_Found()
     {
         // Arrange
         var mockedTeamsService = new Mock<ITeamsService>();

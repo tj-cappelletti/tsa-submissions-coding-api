@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -177,7 +178,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Delete_Should_Return_No_Content()
+    public async Task Delete_Should_Return_No_Content()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -202,7 +203,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Delete_Should_Return_Not_Found()
+    public async Task Delete_Should_Return_Not_Found()
     {
         // Arrange
         var mockedProblemsService = new Mock<IProblemsService>();
@@ -221,7 +222,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Not_Found()
+    public async Task Get_By_Id_Should_Return_Not_Found()
     {
         // Arrange
         var mockedProblemsService = new Mock<IProblemsService>();
@@ -240,7 +241,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Ok()
+    public async Task Get_By_Id_Should_Return_Ok()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -266,7 +267,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Ok_With_Test_Sets_Expanded_For_Judge()
+    public async Task Get_By_Id_Should_Return_Ok_With_Test_Sets_Expanded_For_Judge()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -327,7 +328,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Ok_With_Test_Sets_Expanded_For_Participant()
+    public async Task Get_By_Id_Should_Return_Ok_With_Test_Sets_Expanded_For_Participant()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -391,7 +392,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Empty()
+    public async Task Get_Should_Return_Ok_When_Empty()
     {
         // Arrange
         var emptyProblemsList = new List<Problem>();
@@ -415,7 +416,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Not_Empty()
+    public async Task Get_Should_Return_Ok_When_Not_Empty()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -447,7 +448,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_With_Test_Sets_Expanded_For_Judge()
+    public async Task Get_Should_Return_Ok_With_Test_Sets_Expanded_For_Judge()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -524,7 +525,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_With_Test_Sets_Expanded_For_Participant()
+    public async Task Get_Should_Return_Ok_With_Test_Sets_Expanded_For_Participant()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -601,7 +602,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void GetTestSets_Should_Return_Not_Found()
+    public async Task GetTestSets_Should_Return_Not_Found()
     {
         // Arrange
         var mockedProblemsService = new Mock<IProblemsService>();
@@ -620,7 +621,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void GetTestSets_Should_Return_Ok_When_Empty_For_Judge()
+    public async Task GetTestSets_Should_Return_Ok_When_Empty_For_Judge()
     {
         // Arrange
         var testSetsTestData = new TestSetsTestData();
@@ -670,7 +671,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void GetTestSets_Should_Return_Ok_When_Empty_For_Participant()
+    public async Task GetTestSets_Should_Return_Ok_When_Empty_For_Participant()
     {
         // Arrange
         var testSetsTestData = new TestSetsTestData();
@@ -720,7 +721,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void GetTestSets_Should_Return_Ok_When_Not_Empty_For_Judge()
+    public async Task GetTestSets_Should_Return_Ok_When_Not_Empty_For_Judge()
     {
         // Arrange
         var testSetsTestData = new TestSetsTestData();
@@ -777,7 +778,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void GetTestSets_Should_Return_Ok_When_Not_Empty_For_Participant()
+    public async Task GetTestSets_Should_Return_Ok_When_Not_Empty_For_Participant()
     {
         // Arrange
         var testSetsTestData = new TestSetsTestData();
@@ -836,7 +837,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Post_Should_Return_Created()
+    public async Task Post_Should_Return_Created()
     {
         // Arrange
         var newProblem = new ProblemModel
@@ -866,7 +867,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Put_Should_Return_No_Content()
+    public async Task Put_Should_Return_No_Content()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -900,7 +901,7 @@ public class ProblemsControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Put_Should_Return_Not_Found()
+    public async Task Put_Should_Return_Not_Found()
     {
         // Arrange
         var mockedProblemsService = new Mock<IProblemsService>();

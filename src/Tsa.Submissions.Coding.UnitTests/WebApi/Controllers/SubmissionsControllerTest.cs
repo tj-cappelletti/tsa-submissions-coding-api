@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -174,7 +175,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Failed_Dependency_When_Team_Not_Found()
+    public async Task Get_By_Id_Should_Return_Failed_Dependency_When_Team_Not_Found()
     {
         // Arrange
         var unexpectedMissingResourceApiError = ApiErrorResponseModel.UnexpectedMissingResource;
@@ -239,7 +240,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Not_Found()
+    public async Task Get_By_Id_Should_Return_Not_Found()
     {
         // Arrange
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
@@ -258,7 +259,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Not_Found_For_Participant()
+    public async Task Get_By_Id_Should_Return_Not_Found_For_Participant()
     {
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
@@ -321,7 +322,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Ok_For_Judge()
+    public async Task Get_By_Id_Should_Return_Ok_For_Judge()
     {
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
@@ -370,7 +371,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_By_Id_Should_Return_Ok_For_Participant()
+    public async Task Get_By_Id_Should_Return_Ok_For_Participant()
     {
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
@@ -429,7 +430,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Failed_Dependency_When_Team_Not_Found()
+    public async Task Get_Should_Return_Failed_Dependency_When_Team_Not_Found()
     {
         // Arrange
         var unexpectedMissingResourceApiError = ApiErrorResponseModel.UnexpectedMissingResource;
@@ -504,7 +505,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Empty_For_Judge()
+    public async Task Get_Should_Return_Ok_When_Empty_For_Judge()
     {
         // Arrange
         var emptySubmissionsList = new List<Submission>();
@@ -546,7 +547,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Empty_For_Participant()
+    public async Task Get_Should_Return_Ok_When_Empty_For_Participant()
     {
         // Arrange
         var emptySubmissionsList = new List<Submission>();
@@ -600,7 +601,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Not_Empty_For_Judge()
+    public async Task Get_Should_Return_Ok_When_Not_Empty_For_Judge()
     {
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
@@ -650,7 +651,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Not_Empty_For_Participant()
+    public async Task Get_Should_Return_Ok_When_Not_Empty_For_Participant()
     {
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
@@ -712,7 +713,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Post_Should_Return_Created()
+    public async Task Post_Should_Return_Created()
     {
         // Arrange
         var newSubmission = new SubmissionModel
@@ -743,7 +744,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Put_Should_Return_No_Content()
+    public async Task Put_Should_Return_No_Content()
     {
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
@@ -780,7 +781,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Put_Should_Return_No_Content_And_Ensure_Properties_Are_Immutable()
+    public async Task Put_Should_Return_No_Content_And_Ensure_Properties_Are_Immutable()
     {
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
@@ -838,7 +839,7 @@ public class SubmissionsControllerTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Put_Should_Return_Not_Found()
+    public async Task Put_Should_Return_Not_Found()
     {
         // Arrange
         var mockedSubmissionsService = new Mock<ISubmissionsService>();

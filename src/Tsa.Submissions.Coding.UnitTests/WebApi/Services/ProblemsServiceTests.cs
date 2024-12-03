@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Moq;
@@ -88,7 +89,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void CreateAsync_Should_Insert_New_Entity()
+    public async Task CreateAsync_Should_Insert_New_Entity()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -130,7 +131,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void ExistsAsync_Should_Return_True()
+    public async Task ExistsAsync_Should_Return_True()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -197,7 +198,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void GetAsync_Should_Get_All_Entities()
+    public async Task GetAsync_Should_Get_All_Entities()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -260,7 +261,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void GetAsync_Should_Get_Entity_By_Id()
+    public async Task GetAsync_Should_Get_Entity_By_Id()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -328,7 +329,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void GetAsync_Should_Get_Entity_By_Ids()
+    public async Task GetAsync_Should_Get_Entity_By_Ids()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -395,7 +396,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Ping_Should_Return_False()
+    public async Task Ping_Should_Return_False()
     {
         // Arrange
         var mockedMongoDatabase = new Mock<IMongoDatabase>();
@@ -425,7 +426,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Ping_Should_Return_True()
+    public async Task Ping_Should_Return_True()
     {
         // Arrange
         var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
@@ -464,7 +465,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void RemoveAsync_Should_Delete_Entity_By_Id()
+    public async Task RemoveAsync_Should_Delete_Entity_By_Id()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
@@ -556,7 +557,7 @@ public class ProblemsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void UpdateAsync_Should_Replace_Entity_By_Id()
+    public async Task UpdateAsync_Should_Replace_Entity_By_Id()
     {
         // Arrange
         var problemsTestData = new ProblemsTestData();
