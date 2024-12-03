@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FluentValidation;
 using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -31,7 +32,7 @@ public class UserModelValidator : AbstractValidator<UserModel>
 
                 if (!password.Any(char.IsDigit))
                 {
-                    context.AddFailure("The password must contain at least one digit.");
+                    context.AddFailure("The password must contain at least one number.");
                 }
 
                 if (!password.Any(IsSpecialCharacter))
@@ -47,7 +48,8 @@ public class UserModelValidator : AbstractValidator<UserModel>
 
         RuleFor(user => user.Team)
             .NotNull()
-            .WithMessage("A user must be associated with a team.");
+            .When(user => string.Equals(user.Role, SubmissionRoles.Judge, StringComparison.InvariantCultureIgnoreCase))
+            .WithMessage("A participant must be associated with a team.");
 
         RuleFor(user => user.UserName)
             .NotEmpty()
