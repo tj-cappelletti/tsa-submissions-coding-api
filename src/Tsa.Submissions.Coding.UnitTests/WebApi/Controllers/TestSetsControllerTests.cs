@@ -580,8 +580,8 @@ public class TestSetsControllerTests
         var newTestSet = new TestSetModel
         {
             Id = "000000000000000000000001",
-            Inputs = new List<TestSetValueModel>
-            {
+            Inputs =
+            [
                 new()
                 {
                     IsArray = false,
@@ -589,7 +589,7 @@ public class TestSetsControllerTests
                     Index = 0,
                     ValueAsJson = "{ \"value\": \"string a\" }"
                 }
-            },
+            ],
             IsPublic = true,
             Name = "Test Set #1",
             ProblemId = "000000000000000000000001"
@@ -640,8 +640,8 @@ public class TestSetsControllerTests
         var newTestSet = new TestSetModel
         {
             Id = "000000000000000000000001",
-            Inputs = new List<TestSetValueModel>
-            {
+            Inputs =
+            [
                 new()
                 {
                     IsArray = false,
@@ -649,7 +649,7 @@ public class TestSetsControllerTests
                     Index = 0,
                     ValueAsJson = "{ \"value\": \"string a\" }"
                 }
-            },
+            ],
             IsPublic = true,
             Name = "Test Set #1",
             ProblemId = "000000000000000000000001"

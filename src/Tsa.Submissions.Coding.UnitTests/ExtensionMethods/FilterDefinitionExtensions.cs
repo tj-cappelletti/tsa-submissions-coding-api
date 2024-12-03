@@ -13,7 +13,7 @@ public static class FilterDefinitionExtensions
         var serializerRegistry = BsonSerializer.SerializerRegistry;
         var documentSerializer = serializerRegistry.GetSerializer<TDocument>();
 
-        var args = new RenderArgs<TDocument>(documentSerializer,serializerRegistry);
+        var args = new RenderArgs<TDocument>(documentSerializer, serializerRegistry);
 
         return filter.Render(args).ToJson();
     }

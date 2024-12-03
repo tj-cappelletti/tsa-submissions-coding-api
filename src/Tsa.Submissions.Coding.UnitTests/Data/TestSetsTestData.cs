@@ -23,8 +23,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000001",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "character",
@@ -77,7 +77,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         IsArray = true,
                         ValueAsJson = "{ \"value\": [ \"string a\", \"string b\", \"string c\" ] }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #1",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000001")
@@ -90,8 +90,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000002",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "string",
@@ -104,7 +104,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 1,
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = false,
                 Name = "Test Set #2",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000001")
@@ -117,8 +117,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000003",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "string",
@@ -131,7 +131,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 1,
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000002")
             },
@@ -143,8 +143,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000004",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "string",
@@ -157,7 +157,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 1,
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #4"
             },
@@ -181,8 +181,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000006",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         Index = 0,
@@ -193,7 +193,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 1,
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #6",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
@@ -206,8 +206,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000007",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "dog",
@@ -220,7 +220,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 1,
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #7",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
@@ -233,8 +233,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000008",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "string",
@@ -245,7 +245,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         DataType = "number",
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #8",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
@@ -258,8 +258,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000009",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "string",
@@ -272,7 +272,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 0,
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #2",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
@@ -285,8 +285,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000010",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "string",
@@ -297,7 +297,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         DataType = "number",
                         Index = 1
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #10",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
@@ -310,8 +310,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000011",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "number",
@@ -324,7 +324,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 1,
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #11",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
@@ -337,8 +337,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000012",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "string",
@@ -351,7 +351,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 1,
                         ValueAsJson = "Try me"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #12",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
@@ -364,8 +364,8 @@ public class TestSetsTestData : IEnumerable<object[]>
             new TestSet
             {
                 Id = "000000000000000000000012",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "string",
@@ -378,7 +378,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                         Index = 2,
                         ValueAsJson = "{ \"value\": 1 }"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #2",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")

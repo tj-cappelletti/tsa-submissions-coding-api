@@ -32,8 +32,8 @@ public class EntityExtensions
 
         if (includeTestTests)
         {
-            submission.TestSetResults = new List<TestSetResult>
-            {
+            submission.TestSetResults =
+            [
                 new()
                 {
                     Passed = true,
@@ -46,7 +46,7 @@ public class EntityExtensions
                     RunDuration = new TimeSpan(0, 0, 5, 0),
                     TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
                 }
-            };
+            ];
         }
 
         // Act
@@ -130,8 +130,8 @@ public class EntityExtensions
         var team = new Team
         {
             Id = "This is an ID",
-            Participants = new List<Participant>
-            {
+            Participants =
+            [
                 new()
                 {
                     ParticipantNumber = "001",
@@ -142,7 +142,7 @@ public class EntityExtensions
                     ParticipantNumber = "002",
                     SchoolNumber = "1234"
                 }
-            },
+            ],
             SchoolNumber = "1234",
             TeamNumber = "901"
         };
@@ -171,8 +171,8 @@ public class EntityExtensions
         var testSet = new TestSet
         {
             Id = "This is an ID",
-            Inputs = new List<TestSetValue>
-            {
+            Inputs =
+            [
                 new()
                 {
                     DataType = "Data Type #1",
@@ -194,7 +194,7 @@ public class EntityExtensions
                     IsArray = true,
                     ValueAsJson = "ValueAsJson #3"
                 }
-            },
+            ],
             IsPublic = true,
             Name = "Test Set #1",
             Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
@@ -230,8 +230,8 @@ public class EntityExtensions
         var testSet = new TestSet
         {
             Id = "This is an ID",
-            Inputs = new List<TestSetValue>
-            {
+            Inputs =
+            [
                 new()
                 {
                     DataType = "Data Type #1",
@@ -250,7 +250,7 @@ public class EntityExtensions
                     Index = 3,
                     ValueAsJson = "ValueAsJson #3"
                 }
-            },
+            ],
             IsPublic = true,
             Name = "Test Set #1",
             Problem = null
@@ -338,8 +338,8 @@ public class EntityExtensions
                 Solution = "The solution in C#",
                 SubmittedOn = DateTime.Now.AddHours(-5),
                 Team = new MongoDBRef("teams", "00000000000000000000000B"),
-                TestSetResults = new List<TestSetResult>
-                {
+                TestSetResults =
+                [
                     new()
                     {
                         Passed = true,
@@ -352,7 +352,7 @@ public class EntityExtensions
                         RunDuration = new TimeSpan(0, 0, 5, 0),
                         TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
                     }
-                }
+                ]
             },
             new()
             {
@@ -363,8 +363,8 @@ public class EntityExtensions
                 Solution = "The solution in Java",
                 SubmittedOn = DateTime.Now.AddHours(-4),
                 Team = new MongoDBRef("teams", "00000000000000000000000C"),
-                TestSetResults = new List<TestSetResult>
-                {
+                TestSetResults =
+                [
                     new()
                     {
                         Passed = true,
@@ -377,7 +377,7 @@ public class EntityExtensions
                         RunDuration = new TimeSpan(0, 0, 5, 0),
                         TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
                     }
-                }
+                ]
             }
         };
 
@@ -490,8 +490,8 @@ public class EntityExtensions
             new()
             {
                 Id = "000000000000000000000000",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "Data Type #1",
@@ -513,7 +513,7 @@ public class EntityExtensions
                         IsArray = true,
                         ValueAsJson = "ValueAsJson #3"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #1",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
@@ -521,8 +521,8 @@ public class EntityExtensions
             new()
             {
                 Id = "000000000000000000000001",
-                Inputs = new List<TestSetValue>
-                {
+                Inputs =
+                [
                     new()
                     {
                         DataType = "Data Type #4",
@@ -544,7 +544,7 @@ public class EntityExtensions
                         IsArray = true,
                         ValueAsJson = "ValueAsJson #6"
                     }
-                },
+                ],
                 IsPublic = true,
                 Name = "Test Set #2",
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")

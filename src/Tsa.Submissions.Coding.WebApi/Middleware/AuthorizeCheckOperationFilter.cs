@@ -13,8 +13,8 @@ public class AuthorizeCheckOperationFilter : IOperationFilter
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        operation.Security = new List<OpenApiSecurityRequirement>
-        {
+        operation.Security =
+        [
             new()
             {
                 [
@@ -28,6 +28,6 @@ public class AuthorizeCheckOperationFilter : IOperationFilter
                     }
                 ] = Item
             }
-        };
+        ];
     }
 }

@@ -18,6 +18,6 @@ public class TeamModel
 
     public TeamModel()
     {
-        Participants = new List<ParticipantModel>();
+        Participants = [];
     }
 }

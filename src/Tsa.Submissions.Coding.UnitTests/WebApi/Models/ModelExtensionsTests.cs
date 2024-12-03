@@ -103,8 +103,8 @@ public class ModelExtensions
             Solution = "The solution",
             SubmittedOn = DateTime.Now.AddHours(-5),
             TeamId = "00000000000000000000000B",
-            TestSetResults = new List<TestSetResultModel>
-            {
+            TestSetResults =
+            [
                 new()
                 {
                     Passed = true,
@@ -117,7 +117,7 @@ public class ModelExtensions
                     RunDuration = new TimeSpan(0, 0, 5, 0),
                     TestSetId = "000000000000000000000011"
                 }
-            }
+            ]
         };
 
         // Act
@@ -152,8 +152,8 @@ public class ModelExtensions
         var teamModel = new TeamModel
         {
             Id = "This is an ID",
-            Participants = new List<ParticipantModel>
-            {
+            Participants =
+            [
                 new()
                 {
                     ParticipantNumber = "001",
@@ -164,7 +164,7 @@ public class ModelExtensions
                     ParticipantNumber = "002",
                     SchoolNumber = "1234"
                 }
-            },
+            ],
             SchoolNumber = "1234",
             TeamNumber = "901"
         };
@@ -216,8 +216,8 @@ public class ModelExtensions
         var testSetModel = new TestSetModel
         {
             Id = "This is an ID",
-            Inputs = new List<TestSetValueModel>
-            {
+            Inputs =
+            [
                 new()
                 {
                     DataType = "Data Type #1",
@@ -239,7 +239,7 @@ public class ModelExtensions
                     IsArray = true,
                     ValueAsJson = "ValueAsJson #3"
                 }
-            },
+            ],
             IsPublic = true,
             Name = "Test Set #1",
             ProblemId = "000000000000000000000000"

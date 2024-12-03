@@ -90,14 +90,14 @@ public static class EntityExtensions
 
     public static UserModel ToModel(this User user)
     {
-        var userModel= new UserModel
+        var userModel = new UserModel
         {
             Id = user.Id,
             Role = user.Role,
             UserName = user.UserName
         };
 
-        if(user.Team != null)
+        if (user.Team != null)
             userModel.Team = new TeamModel
             {
                 Id = user.Team.Id.AsString

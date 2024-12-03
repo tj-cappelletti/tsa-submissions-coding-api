@@ -36,11 +36,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
@@ -58,11 +58,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000002",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "003" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "004" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "902"
                 },
@@ -80,11 +80,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000003",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "005" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "006" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "903"
                 },
@@ -102,11 +102,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000004",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9001", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9001", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9001",
                     TeamNumber = "901"
                 },
@@ -124,11 +124,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000005",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9001", ParticipantNumber = "003" },
                         new() { SchoolNumber = "9001", ParticipantNumber = "004" }
-                    },
+                    ],
                     SchoolNumber = "9001",
                     TeamNumber = "902"
                 },
@@ -146,11 +146,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000006",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9001", ParticipantNumber = "005" },
                         new() { SchoolNumber = "9001", ParticipantNumber = "006" }
-                    },
+                    ],
                     SchoolNumber = "9001",
                     TeamNumber = "903"
                 },
@@ -168,11 +168,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
@@ -190,11 +190,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
@@ -212,11 +212,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
@@ -234,11 +234,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
@@ -256,11 +256,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
@@ -277,11 +277,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
@@ -299,11 +299,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
@@ -332,11 +332,11 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
-                    Participants = new List<ParticipantModel>
-                    {
+                    Participants =
+                    [
                         new() { SchoolNumber = "9000", ParticipantNumber = "001" },
                         new() { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    },
+                    ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },

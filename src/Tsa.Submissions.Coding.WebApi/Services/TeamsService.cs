@@ -18,7 +18,8 @@ public class TeamsService : MongoDbService<Team>, ITeamsService
     public TeamsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
         mongoClient,
         options.Value.DatabaseName,
-        MongoDbCollectionName) { }
+        MongoDbCollectionName)
+    { }
 
     public async Task<bool> ExistsAsync(string? schoolNumber, string? teamNumber, CancellationToken cancellationToken = default)
     {

@@ -17,7 +17,8 @@ public sealed class UsersService : MongoDbService<User>, IUsersService
     public UsersService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
         mongoClient,
         options.Value.DatabaseName,
-        MongoDbCollectionName) { }
+        MongoDbCollectionName)
+    { }
 
     public async Task<User?> GetByUserNameAsync(string? userName)
     {

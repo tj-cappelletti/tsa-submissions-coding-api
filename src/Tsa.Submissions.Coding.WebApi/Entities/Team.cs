@@ -21,6 +21,6 @@ public class Team : IMongoDbEntity
 
     public Team()
     {
-        Participants = new List<Participant>();
+        Participants = [];
     }
 }

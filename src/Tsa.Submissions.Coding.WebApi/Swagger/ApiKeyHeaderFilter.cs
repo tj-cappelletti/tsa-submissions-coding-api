@@ -19,7 +19,7 @@ public class ApiKeyHeaderFilter : IOperationFilter
 
         var tsaAuthenticationOptions = new TsaAuthenticationOptions();
 
-        operation.Parameters ??= new List<OpenApiParameter>();
+        operation.Parameters ??= [];
 
         operation.Parameters.Add(new OpenApiParameter
         {
