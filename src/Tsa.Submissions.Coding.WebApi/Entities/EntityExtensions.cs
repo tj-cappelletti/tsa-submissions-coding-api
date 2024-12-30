@@ -47,6 +47,7 @@ public static class EntityExtensions
     {
         return new TeamModel
         {
+            CompetitionLevel = team.CompetitionLevel.ToString(),
             Id = team.Id,
             Participants = team.Participants.ToModels(),
             SchoolNumber = team.SchoolNumber,

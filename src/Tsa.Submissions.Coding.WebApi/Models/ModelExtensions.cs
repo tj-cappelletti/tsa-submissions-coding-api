@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Entities;
@@ -80,6 +81,9 @@ public static class ModelExtensions
     {
         return new Team
         {
+            // CompetitionLevel is required, if null, we are in a bad state
+            // TeamModelValidator will ensure that this is not null
+            CompetitionLevel = Enum.Parse<CompetitionLevel>(teamModel.CompetitionLevel!),
             Id = teamModel.Id,
             Participants = teamModel.Participants.ToEntities(),
             SchoolNumber = teamModel.SchoolNumber,
