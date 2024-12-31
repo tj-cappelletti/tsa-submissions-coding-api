@@ -28,29 +28,29 @@ public class TeamModelValidatorTests
 
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidParticipants))
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.Participants);
+            testValidationResult.ShouldHaveValidationErrorFor(model => model.Participants);
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.Participants);
+            testValidationResult.ShouldNotHaveValidationErrorFor(model => model.Participants);
         }
 
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidSchoolNumber))
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.SchoolNumber);
+            testValidationResult.ShouldHaveValidationErrorFor(model => model.SchoolNumber);
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.SchoolNumber);
+            testValidationResult.ShouldNotHaveValidationErrorFor(model => model.SchoolNumber);
         }
 
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidTeamNumber))
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.TeamNumber);
+            testValidationResult.ShouldHaveValidationErrorFor(model => model.TeamNumber);
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.TeamNumber);
+            testValidationResult.ShouldNotHaveValidationErrorFor(model => model.TeamNumber);
         }
     }
 }
