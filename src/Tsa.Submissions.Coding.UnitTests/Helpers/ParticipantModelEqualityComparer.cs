@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Tsa.Submissions.Coding.WebApi.Models;
 
 namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 
+//TODO: Turn into code generator
+[ExcludeFromCodeCoverage]
 internal class ParticipantModelEqualityComparer : IEqualityComparer<ParticipantModel?>, IEqualityComparer<IList<ParticipantModel>?>
 {
     public bool Equals(ParticipantModel? x, ParticipantModel? y)
