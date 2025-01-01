@@ -10,7 +10,6 @@ using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Exceptions;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
-using BC = BCrypt.Net.BCrypt;
 
 namespace Tsa.Submissions.Coding.WebApi.Controllers;
 
@@ -28,11 +27,6 @@ public class UsersController : ControllerBase
         _cacheService = cacheService;
         _teamsService = teamsService;
         _usersService = usersService;
-    }
-
-    public async Task CreateUser(User user, CancellationToken cancellationToken)
-    {
-        await _usersService.CreateAsync(user, cancellationToken);
     }
 
     private NotFoundObjectResult CreateUserNotFoundError(string id)
@@ -145,7 +139,7 @@ public class UsersController : ControllerBase
 
         var user = userModel.ToEntity(passwordHash);
 
-        await CreateUser(user, cancellationToken);
+        await _usersService.CreateAsync(user, cancellationToken);
 
         return CreatedAtAction(nameof(Get), new { id = user.Id }, user.ToModel());
     }
@@ -172,7 +166,7 @@ public class UsersController : ControllerBase
         foreach (var userModel in userModels)
         {
             var actionResult = await Post(userModel, cancellationToken);
-
+            // TODO: Add logic to return what was successful and what was not
             if (actionResult is not CreatedAtActionResult createdAtActionResult) throw new Exception("Failed to create user");
 
             createdUserModels.Add((UserModel)createdAtActionResult.Value!);

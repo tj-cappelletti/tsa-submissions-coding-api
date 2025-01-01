@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
-using BC = BCrypt.Net.BCrypt;
 
 namespace Tsa.Submissions.Coding.WebApi.Controllers;
 
