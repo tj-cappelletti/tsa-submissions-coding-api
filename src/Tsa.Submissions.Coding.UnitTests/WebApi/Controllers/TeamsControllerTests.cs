@@ -551,6 +551,7 @@ public class TeamsControllerTests
         // Arrange
         var newTeam = new TeamModel
         {
+            CompetitionLevel = "MiddleSchool",
             Id = "12345",
             Participants = new[] { new ParticipantModel { ParticipantNumber = "123", SchoolNumber = "1234" } },
             SchoolNumber = "1234",
@@ -596,6 +597,7 @@ public class TeamsControllerTests
 
         var updatedTeam = new TeamModel
         {
+            CompetitionLevel = "MiddleSchool",
             Id = team!.Id,
             Participants = new[] { new ParticipantModel { ParticipantNumber = "123", SchoolNumber = "1234" } },
             SchoolNumber = "1234",
