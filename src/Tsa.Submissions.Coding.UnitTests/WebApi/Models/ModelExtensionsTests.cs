@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Tsa.Submissions.Coding.UnitTests.Helpers;
+using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Xunit;
 
@@ -151,15 +153,16 @@ public class ModelExtensions
         // Arrange
         var teamModel = new TeamModel
         {
+            CompetitionLevel = "MiddleSchool",
             Id = "This is an ID",
             Participants =
             [
-                new()
+                new ParticipantModel
                 {
                     ParticipantNumber = "001",
                     SchoolNumber = "1234"
                 },
-                new()
+                new ParticipantModel
                 {
                     ParticipantNumber = "002",
                     SchoolNumber = "1234"
@@ -169,10 +172,32 @@ public class ModelExtensions
             TeamNumber = "901"
         };
 
+        var expectedTeam = new Team
+        {
+            CompetitionLevel = Enum.Parse<CompetitionLevel>(teamModel.CompetitionLevel),
+            Id = teamModel.Id,
+            Participants =
+            [
+                new Participant
+                {
+                    ParticipantNumber = teamModel.Participants[0].ParticipantNumber,
+                    SchoolNumber = teamModel.Participants[0].SchoolNumber
+                },
+                new Participant
+                {
+                    ParticipantNumber = teamModel.Participants[1].ParticipantNumber,
+                    SchoolNumber = teamModel.Participants[1].SchoolNumber
+                }
+            ],
+            SchoolNumber = teamModel.SchoolNumber,
+            TeamNumber =teamModel.TeamNumber
+        };
+
         // Act
         var team = teamModel.ToEntity();
 
         // Assert
+        Assert.Equal(teamModel.CompetitionLevel, team.CompetitionLevel.ToString(), new StringEqualityComparer());
         Assert.Equal(teamModel.Id, team.Id);
         Assert.Equal(teamModel.SchoolNumber, team.SchoolNumber);
         Assert.Equal(teamModel.TeamNumber, team.TeamNumber);
@@ -181,7 +206,7 @@ public class ModelExtensions
 
         foreach (var participant in team.Participants)
         {
-            Assert.Contains(teamModel.Participants, _ => _.ParticipantId == participant.ParticipantId);
+            Assert.Contains(teamModel.Participants, participantModel => participantModel.ParticipantId == participant.ParticipantId);
         }
     }
 
