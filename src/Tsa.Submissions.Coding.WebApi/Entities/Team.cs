@@ -7,7 +7,7 @@ namespace Tsa.Submissions.Coding.WebApi.Entities;
 
 public class Team : IMongoDbEntity
 {
-    public CompetitionLevel CompetitionLevel { get; set; }
+    public CompetitionLevel? CompetitionLevel { get; set; }
 
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
