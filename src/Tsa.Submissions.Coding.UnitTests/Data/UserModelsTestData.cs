@@ -24,7 +24,359 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Role = "judge",
                 UserName = "judge01"
             },
-            UserModelsDataIssues.None
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = null,
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb ",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb!",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb\"",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb$",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb%",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb&",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb'",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb(",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb)",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb*",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb,",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb-",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb.",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb/",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb:",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb;",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb<",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb=",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb>",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb?",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb@",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb[",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb\\",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb]",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb^",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb_",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb`",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb{",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb|",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb~",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
+        ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Password = "Aaaa1Bbbb}",
+                Role = "judge",
+                UserName = "judge01"
+            },
+            UserModelDataIssues.None
         ];
 
         yield return
@@ -38,15 +390,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.None
+            UserModelDataIssues.None
         ];
 
         yield return
@@ -60,15 +412,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000002",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "003" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "004" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "003" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "004" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "902"
                 },
                 UserName = "9000-902"
             },
-            UserModelsDataIssues.None
+            UserModelDataIssues.None
         ];
 
         yield return
@@ -82,15 +434,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000003",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "005" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "006" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "005" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "006" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "903"
                 },
                 UserName = "9000-903"
             },
-            UserModelsDataIssues.None
+            UserModelDataIssues.None
         ];
 
         yield return
@@ -104,15 +456,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000004",
                     Participants =
                     [
-                        new() { SchoolNumber = "9001", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9001", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9001", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9001", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9001",
                     TeamNumber = "901"
                 },
                 UserName = "9001-901"
             },
-            UserModelsDataIssues.None
+            UserModelDataIssues.None
         ];
 
         yield return
@@ -126,15 +478,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000005",
                     Participants =
                     [
-                        new() { SchoolNumber = "9001", ParticipantNumber = "003" },
-                        new() { SchoolNumber = "9001", ParticipantNumber = "004" }
+                        new ParticipantModel { SchoolNumber = "9001", ParticipantNumber = "003" },
+                        new ParticipantModel { SchoolNumber = "9001", ParticipantNumber = "004" }
                     ],
                     SchoolNumber = "9001",
                     TeamNumber = "902"
                 },
                 UserName = "9001-902"
             },
-            UserModelsDataIssues.None
+            UserModelDataIssues.None
         ];
 
         yield return
@@ -148,15 +500,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000006",
                     Participants =
                     [
-                        new() { SchoolNumber = "9001", ParticipantNumber = "005" },
-                        new() { SchoolNumber = "9001", ParticipantNumber = "006" }
+                        new ParticipantModel { SchoolNumber = "9001", ParticipantNumber = "005" },
+                        new ParticipantModel { SchoolNumber = "9001", ParticipantNumber = "006" }
                     ],
                     SchoolNumber = "9001",
                     TeamNumber = "903"
                 },
                 UserName = "9001-903"
             },
-            UserModelsDataIssues.None
+            UserModelDataIssues.None
         ];
 
         yield return
@@ -170,15 +522,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.PasswordLength
+            UserModelDataIssues.PasswordLength
         ];
 
         yield return
@@ -192,15 +544,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.PasswordMissingUppercase
+            UserModelDataIssues.PasswordMissingUppercase
         ];
 
         yield return
@@ -214,15 +566,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.PasswordMissingLowercase
+            UserModelDataIssues.PasswordMissingLowercase
         ];
 
         yield return
@@ -236,15 +588,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.PasswordMissingNumber
+            UserModelDataIssues.PasswordMissingNumber
         ];
 
         yield return
@@ -258,15 +610,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.PasswordMissingSpecialCharacter
+            UserModelDataIssues.PasswordMissingSpecialCharacter
         ];
 
         yield return
@@ -279,15 +631,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.RoleNotValid
+            UserModelDataIssues.RoleNotValid
         ];
 
         yield return
@@ -301,15 +653,15 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.RoleNotValid
+            UserModelDataIssues.RoleNotValid
         ];
 
         yield return
@@ -320,7 +672,7 @@ public class UserModelsTestData : IEnumerable<object[]>
                 Role = "participant",
                 UserName = "9000-901"
             },
-            UserModelsDataIssues.ParticipantMissingTeam
+            UserModelDataIssues.ParticipantMissingTeam
         ];
 
         yield return
@@ -334,28 +686,28 @@ public class UserModelsTestData : IEnumerable<object[]>
                     Id = "000000000000000000000001",
                     Participants =
                     [
-                        new() { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new() { SchoolNumber = "9000", ParticipantNumber = "002" }
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
+                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
                     ],
                     SchoolNumber = "9000",
                     TeamNumber = "901"
                 },
                 UserName = ""
             },
-            UserModelsDataIssues.UserNameNotValid
+            UserModelDataIssues.UserNameNotValid
         ];
     }
 }
 
 [Flags]
-public enum UserModelsDataIssues
+public enum UserModelDataIssues
 {
     None = 0,
     PasswordLength = 1 << 0,
-    PasswordMissingUppercase = 1 << 1,
-    PasswordMissingLowercase = 1 << 2,
-    PasswordMissingNumber = 1 << 3,
-    PasswordMissingSpecialCharacter = 1 << 4,
+    PasswordMissingLowercase = 1 << 1,
+    PasswordMissingNumber = 1 << 2,
+    PasswordMissingSpecialCharacter = 1 << 3,
+    PasswordMissingUppercase = 1 << 4,
     RoleNotValid = 1 << 5,
     ParticipantMissingTeam = 1 << 6,
     UserNameNotValid = 1 << 7
