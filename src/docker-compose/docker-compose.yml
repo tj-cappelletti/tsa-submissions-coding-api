@@ -10,7 +10,7 @@ services:
     - mongodb
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:4-management
 
   redis:
     image: redis:latest
@@ -22,4 +22,5 @@ services:
       dockerfile: ../Tsa.Submissions.Coding.WebApi/Dockerfile
     depends_on:
     - rabbitmq
+    - redis
     - mongodb
