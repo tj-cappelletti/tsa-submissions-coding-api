@@ -144,7 +144,8 @@ process {
     }
 
     Write-Output "Converting Root CA Binary DER Format to Base64-Encoded"
-    openssl x509 -inform DER -in "$rootCaCertificateOutputPath\publicRootCaCertificate.cer" -out "$rootCaCertificateOutputPath\publicRootCaCertificate.crt"
+    # openssl x509 -inform DER -in "$rootCaCertificateOutputPath\publicRootCaCertificate.cer" -out "$rootCaCertificateOutputPath\publicRootCaCertificate.crt"
+    certutil -encode "$rootCaCertificateOutputPath\publicRootCaCertificate.cer" "$rootCaCertificateOutputPath\publicRootCaCertificate.crt"
 }
     
 end {
