@@ -22,8 +22,9 @@ services:
 
   rabbitmq:
     ports:
-      - "15672:15672"
-      - "5672:5672"
+      - 5672:5672
+      - 8080:8080
+      - 15672:15672
 
   redis:
     hostname: redis.tsa.localdev.me
