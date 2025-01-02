@@ -132,6 +132,19 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Post(UserModel userModel, CancellationToken cancellationToken = default)
     {
+        if (userModel.Password == null)
+        {
+            var validationProblemDetails = new ValidationProblemDetails()
+            {
+                Title = "The user to create is not in a valid state and cannot be created.",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = "The password is required."
+            };
+
+            validationProblemDetails.Errors.Add("password", new[] { "The password is required." });
+
+            return BadRequest(validationProblemDetails);
+        }
         // Team is required and is enforced in the model validation
         await EnsureTeamExists(userModel.Team!, cancellationToken);
 
