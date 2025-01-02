@@ -190,7 +190,7 @@ public class ModelExtensions
                 }
             ],
             SchoolNumber = teamModel.SchoolNumber,
-            TeamNumber =teamModel.TeamNumber
+            TeamNumber = teamModel.TeamNumber
         };
 
         // Act
