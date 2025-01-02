@@ -43,12 +43,13 @@ public class UserModelValidator : AbstractValidator<UserModel>
 
         RuleFor(user => user.Role)
             .NotEmpty()
-            .IsEnumName(typeof(SubmissionRoles))
-            .WithMessage("A user must have a valid role.");
+            .Must(role => string.Equals(role, SubmissionRoles.Judge, StringComparison.CurrentCultureIgnoreCase) ||
+                          string.Equals(role, SubmissionRoles.Participant, StringComparison.CurrentCultureIgnoreCase))
+            .WithMessage("A user must have a valid role of 'Judge' or 'Participant'.");
 
         RuleFor(user => user.Team)
             .NotNull()
-            .When(user => string.Equals(user.Role, SubmissionRoles.Judge, StringComparison.InvariantCultureIgnoreCase))
+            .When(user => string.Equals(user.Role, SubmissionRoles.Participant, StringComparison.InvariantCultureIgnoreCase))
             .WithMessage("A participant must be associated with a team.");
 
         RuleFor(user => user.UserName)
