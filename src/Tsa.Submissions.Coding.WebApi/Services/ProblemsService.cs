@@ -15,7 +15,7 @@ public class ProblemsService : MongoDbService<Problem>, IProblemsService
 
     public ProblemsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
         mongoClient,
-        options.Value.DatabaseName,
+        options.Value.Name!,
         MongoDbCollectionName)
     { }
 }
