@@ -1,10 +1,23 @@
-﻿// If the values are null, that means the app was miss configured
-// If the app was miss configured, let the error bubble up
-
-#pragma warning disable CS8618
-namespace Tsa.Submissions.Coding.WebApi.Configuration;
+﻿namespace Tsa.Submissions.Coding.WebApi.Configuration;
 
 public class SubmissionsDatabase
 {
-    public string DatabaseName { get; set; }
+    public string? Host { get; set; }
+
+    public string? Name { get; set; }
+
+    public string? Password { get; set; }
+
+    public int Port { get; set; }
+
+    public string? Username { get; set; }
+
+    public bool IsValid()
+    {
+        return !string.IsNullOrWhiteSpace(Host) &&
+               !string.IsNullOrWhiteSpace(Name) &&
+               !string.IsNullOrWhiteSpace(Username) &&
+               !string.IsNullOrWhiteSpace(Password) &&
+               Port > 0;
+    }
 }
