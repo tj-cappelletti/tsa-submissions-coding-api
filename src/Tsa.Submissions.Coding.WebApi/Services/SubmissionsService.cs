@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Entities;
@@ -13,9 +14,10 @@ public class SubmissionsService : MongoDbService<Submission>, ISubmissionsServic
 
     public string ServiceName => "Submissions";
 
-    public SubmissionsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
+    public SubmissionsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options, ILogger<SubmissionsService> logger) : base(
         mongoClient,
         options.Value.Name!,
-        MongoDbCollectionName)
+        MongoDbCollectionName,
+        logger)
     { }
 }

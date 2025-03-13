@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Configuration;
@@ -15,10 +16,11 @@ public class TeamsService : MongoDbService<Team>, ITeamsService
 
     public string ServiceName => "Teams";
 
-    public TeamsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
+    public TeamsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options, ILogger<TeamsService> logger) : base(
         mongoClient,
         options.Value.Name!,
-        MongoDbCollectionName)
+        MongoDbCollectionName,
+        logger)
     { }
 
     public async Task<bool> ExistsAsync(string? schoolNumber, string? teamNumber, CancellationToken cancellationToken = default)

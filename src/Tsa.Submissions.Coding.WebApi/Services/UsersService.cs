@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Configuration;
@@ -14,10 +15,11 @@ public sealed class UsersService : MongoDbService<User>, IUsersService
 
     public string ServiceName => "Users";
 
-    public UsersService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
+    public UsersService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options, ILogger<UsersService> logger) : base(
         mongoClient,
         options.Value.Name!,
-        MongoDbCollectionName)
+        MongoDbCollectionName,
+        logger)
     { }
 
     public async Task<User?> GetByUserNameAsync(string? userName)
