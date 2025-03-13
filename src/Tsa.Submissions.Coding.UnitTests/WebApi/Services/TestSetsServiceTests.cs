@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Moq;
@@ -21,6 +22,8 @@ public class TestSetsServiceTests
 {
     private const string CollectionName = "test_sets";
     private const string DatabaseName = "submissions";
+
+    private readonly Mock<ILogger<TestSetsService>> _mockedLogger = new();
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
@@ -44,11 +47,11 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.Equal(CollectionName, testSetsService.CollectionName);
@@ -76,11 +79,11 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.NotNull(testSetsService);
@@ -115,7 +118,7 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         Func<TestSet, bool> validateTestSet = testSetToValidate =>
@@ -129,7 +132,7 @@ public class TestSetsServiceTests
             return inputsMatch && idsMatch && isPublicMatch && namesMatch && problemsMatch;
         };
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         await testSetsService.CreateAsync(testSet!);
@@ -195,10 +198,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await testSetsService.ExistsAsync(expectedTestSet.Id!);
@@ -255,10 +258,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await testSetsService.GetAsync();
@@ -325,10 +328,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await testSetsService.GetAsync(problem);
@@ -394,10 +397,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await testSetsService.GetAsync(expectedTestSet.Id!);
@@ -459,10 +462,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await testSetsService.GetAsync(ids);
@@ -491,10 +494,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await testSetsService.PingAsync();
@@ -530,10 +533,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await testSetsService.PingAsync();
@@ -585,10 +588,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         await testSetsService.RemoveAsync(expectedTestSet);
@@ -624,11 +627,11 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.Equal("TestSets", testSetsService.ServiceName);
@@ -674,10 +677,10 @@ public class TestSetsServiceTests
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
-        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var testSetsService = new TestSetsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object, _mockedLogger.Object);
 
         // Act
         await testSetsService.UpdateAsync(expectedTestSet, default);

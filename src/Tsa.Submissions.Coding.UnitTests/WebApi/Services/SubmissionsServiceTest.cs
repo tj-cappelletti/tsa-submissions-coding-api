@@ -45,7 +45,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
@@ -77,7 +77,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
@@ -115,7 +115,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -184,7 +184,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -244,7 +244,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -314,7 +314,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -379,7 +379,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -412,7 +412,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -451,7 +451,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -506,7 +506,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -545,7 +545,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
@@ -595,7 +595,7 @@ public class SubmissionsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var submissionsService = new SubmissionsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);

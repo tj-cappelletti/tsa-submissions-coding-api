@@ -44,7 +44,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
@@ -76,7 +76,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
@@ -115,7 +115,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         Func<Team, bool> validateTeam = teamToValidate =>
@@ -197,7 +197,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -257,7 +257,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -326,7 +326,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -391,7 +391,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -423,7 +423,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -462,7 +462,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -517,7 +517,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
@@ -556,7 +556,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         // Act
@@ -606,7 +606,7 @@ public class TeamsServiceTest
             .Setup(_ => _.Value)
             .Returns(new SubmissionsDatabase
             {
-                DatabaseName = DatabaseName
+                Name = DatabaseName
             });
 
         var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
