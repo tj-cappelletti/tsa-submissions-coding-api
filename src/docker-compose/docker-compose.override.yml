@@ -35,18 +35,10 @@ services:
     hostname: api.tsa.localdev.me
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
-      ASPNETCORE_URLS: "https://+:44300"
-      APSNETCORE_HTTPS_PORT: "44300"
-      ASPNETCORE_Kestrel__Certificates__Default__Password: "b05e4983-84e0-447d-97c0-3fdf5b91ddb4"
-      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/apiCertificate.pfx"
       DOCKER_CONTAINER: "Y"
     expose:
-      - "44300"
+      - "8080"
     ports:
-      - "44300:44300"
+      - "80:8080"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ../docker/certs:/https:ro
-      - type: bind
-        source: ../docker/certs/publicRootCaCertificate.crt
-        target: /usr/local/share/ca-certificates/publicRootCaCertificate.crt
