@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using Microsoft.Extensions.Logging;
 using Tsa.Submissions.Coding.WebApi.Entities;
 
 namespace Tsa.Submissions.Coding.WebApi.Services;
@@ -11,13 +12,16 @@ namespace Tsa.Submissions.Coding.WebApi.Services;
 public abstract class MongoDbService<T> where T : IMongoDbEntity
 {
     protected IMongoCollection<T> EntityCollection;
+    protected ILogger<MongoDbService<T>> Logger;
     protected IMongoDatabase MongoDatabase;
 
-    protected MongoDbService(IMongoClient mongoClient, string databaseName, string collectionName)
+    protected MongoDbService(IMongoClient mongoClient, string databaseName, string collectionName, ILogger<MongoDbService<T>> logger)
     {
         MongoDatabase = mongoClient.GetDatabase(databaseName);
-
+        
         EntityCollection = MongoDatabase.GetCollection<T>(collectionName);
+
+        Logger = logger;
     }
 
     public async Task CreateAsync(T entity, CancellationToken cancellationToken = default)
@@ -27,7 +31,7 @@ public abstract class MongoDbService<T> where T : IMongoDbEntity
 
     public async Task<bool> ExistsAsync(string id, CancellationToken cancellationToken = default)
     {
-        var filterDefinition = Builders<T>.Filter.Eq(_ => _.Id, id);
+        var filterDefinition = Builders<T>.Filter.Eq(mongoDbEntity => mongoDbEntity.Id, id);
 
         var cursor = await EntityCollection.FindAsync(filterDefinition, null, cancellationToken);
 
@@ -45,7 +49,7 @@ public abstract class MongoDbService<T> where T : IMongoDbEntity
 
     public async Task<List<T>> GetAsync(IEnumerable<string> ids, CancellationToken cancellationToken = default)
     {
-        var filterDefinition = Builders<T>.Filter.In(_ => _.Id, ids);
+        var filterDefinition = Builders<T>.Filter.In(mongoDbEntity => mongoDbEntity.Id, ids);
 
         var cursor = await EntityCollection.FindAsync(filterDefinition, null, cancellationToken);
 
@@ -56,7 +60,7 @@ public abstract class MongoDbService<T> where T : IMongoDbEntity
 
     public async Task<T?> GetAsync(string id, CancellationToken cancellationToken = default)
     {
-        var filterDefinition = Builders<T>.Filter.Eq(_ => _.Id, id);
+        var filterDefinition = Builders<T>.Filter.Eq(mongoDbEntity => mongoDbEntity.Id, id);
 
         var cursor = await EntityCollection.FindAsync(filterDefinition, null, cancellationToken);
 
@@ -73,8 +77,9 @@ public abstract class MongoDbService<T> where T : IMongoDbEntity
         {
             await EntityCollection.Database.RunCommandAsync((Command<BsonDocument>)"{ping:1}", cancellationToken: cancellationToken);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            Logger.LogError(exception, "Error pinging MongoDB database {DatabaseName}", MongoDatabase.DatabaseNamespace.DatabaseName);
             successful = false;
         }
 
@@ -83,14 +88,14 @@ public abstract class MongoDbService<T> where T : IMongoDbEntity
 
     public async Task RemoveAsync(T entity, CancellationToken cancellationToken = default)
     {
-        var filterDefinition = Builders<T>.Filter.Eq(_ => _.Id, entity.Id);
+        var filterDefinition = Builders<T>.Filter.Eq(mongoDbEntity => mongoDbEntity.Id, entity.Id);
 
         await EntityCollection.DeleteOneAsync(filterDefinition, null, cancellationToken);
     }
 
     public async Task UpdateAsync(T entity, CancellationToken cancellationToken)
     {
-        var filterDefinition = Builders<T>.Filter.Eq(_ => _.Id, entity.Id);
+        var filterDefinition = Builders<T>.Filter.Eq(mongoDbEntity => mongoDbEntity.Id, entity.Id);
 
         var replaceOptions = new ReplaceOptions
         {
