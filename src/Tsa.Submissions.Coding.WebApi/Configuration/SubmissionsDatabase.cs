@@ -4,6 +4,8 @@ public class SubmissionsDatabase
 {
     public string? Host { get; set; }
 
+    public string? LoginDatabase { get; set; }
+
     public string? Name { get; set; }
 
     public string? Password { get; set; }
@@ -15,6 +17,7 @@ public class SubmissionsDatabase
     public bool IsValid()
     {
         return !string.IsNullOrWhiteSpace(Host) &&
+               !string.IsNullOrWhiteSpace(LoginDatabase) &&
                !string.IsNullOrWhiteSpace(Name) &&
                !string.IsNullOrWhiteSpace(Username) &&
                !string.IsNullOrWhiteSpace(Password) &&
