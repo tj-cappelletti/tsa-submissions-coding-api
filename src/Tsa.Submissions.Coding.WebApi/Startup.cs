@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Tsa.Submissions.Coding.WebApi.Authentication;
@@ -38,8 +39,6 @@ public class Startup(IConfiguration configuration)
             app.UseSwaggerUI();
         }
 
-        app.UseHttpsRedirection();
-
         app.UseRouting();
 
         app.UseAuthentication();
@@ -51,7 +50,16 @@ public class Startup(IConfiguration configuration)
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.Configure<SubmissionsDatabase>(Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection));
+        var submissionsDatabaseSection = Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection);
+
+        var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>();
+
+        if (submissionsDatabase == null || !submissionsDatabase.IsValid())
+        {
+            throw new InvalidOperationException("Invalid configuration the Submissions database.");
+        }
+
+        services.Configure<SubmissionsDatabase>(submissionsDatabaseSection);
 
         var conventionPack = new ConventionPack
         {
@@ -61,9 +69,20 @@ public class Startup(IConfiguration configuration)
 
         ConventionRegistry.Register("DefaultConventionPack", conventionPack, _ => true);
 
-        var mongoClientSettings = MongoClientSettings.FromConnectionString(Configuration.GetConnectionString(ConfigurationKeys.MongoDbConnectionString));
-        mongoClientSettings.ServerSelectionTimeout = new TimeSpan(0, 0, 0, 10);
-        mongoClientSettings.ConnectTimeout = new TimeSpan(0, 0, 0, 10);
+        var mongoCredential = MongoCredential.CreateCredential(
+            submissionsDatabase.LoginDatabase,
+            submissionsDatabase.Username,
+            submissionsDatabase.Password);
+
+
+        var mongoClientSettings = new MongoClientSettings
+        {
+            ConnectTimeout = new TimeSpan(0, 0, 0, 10),
+            Credential = mongoCredential,
+            Scheme = ConnectionStringScheme.MongoDB,
+            Server = new MongoServerAddress(submissionsDatabase.Host, submissionsDatabase.Port),
+            ServerSelectionTimeout = new TimeSpan(0, 0, 0, 10)
+        };
 
         services.Add(
             new ServiceDescriptor(typeof(IMongoClient),
@@ -75,7 +94,7 @@ public class Startup(IConfiguration configuration)
         const string servicesNamespace = "Tsa.Submissions.Coding.WebApi.Services";
         var mongoDbServiceTypes = assemblyTypes
             .Where(type => type.Namespace == servicesNamespace && type is
-            { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
+                { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
             .ToList();
 
         var mongoEntityServiceInterfaceType = typeof(IMongoEntityService<>);
