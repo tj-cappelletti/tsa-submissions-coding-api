@@ -74,7 +74,7 @@ public class ProblemsController : ControllerBase
                 var testSets = await _testSetsService.GetAsync(problem, cancellationToken);
 
                 problemModel.TestSets = User.IsInRole(SubmissionRoles.Participant)
-                    ? testSets.ToModels().Where(testSetModel => testSetModel.IsPublic).ToList()
+                    ? testSets.Where(testSet => testSet.IsPublic).ToModels()
                     : testSets.ToModels();
 
                 problemModels.Add(problemModel);
