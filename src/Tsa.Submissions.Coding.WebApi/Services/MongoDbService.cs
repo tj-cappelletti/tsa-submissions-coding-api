@@ -1,24 +1,31 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Threading;
-using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Entities;
 
 namespace Tsa.Submissions.Coding.WebApi.Services;
 
 public abstract class MongoDbService<T> where T : IMongoDbEntity
 {
+    
     protected IMongoCollection<T> EntityCollection;
     protected ILogger<MongoDbService<T>> Logger;
     protected IMongoDatabase MongoDatabase;
 
+    private readonly string _collectionName;
+    private readonly string _databaseName;
+
     protected MongoDbService(IMongoClient mongoClient, string databaseName, string collectionName, ILogger<MongoDbService<T>> logger)
     {
+        _collectionName = collectionName;
+        _databaseName = databaseName;
+
         MongoDatabase = mongoClient.GetDatabase(databaseName);
-        
+
         EntityCollection = MongoDatabase.GetCollection<T>(collectionName);
 
         Logger = logger;
@@ -79,7 +86,8 @@ public abstract class MongoDbService<T> where T : IMongoDbEntity
         }
         catch (Exception exception)
         {
-            Logger.LogError(exception, "Error pinging MongoDB database {DatabaseName}", MongoDatabase.DatabaseNamespace.DatabaseName);
+            Logger.LogError(exception, "Error pinging the MongoDb collection {Collection} in the database {DatabaseName}",
+                _collectionName, _databaseName);
             successful = false;
         }
 
