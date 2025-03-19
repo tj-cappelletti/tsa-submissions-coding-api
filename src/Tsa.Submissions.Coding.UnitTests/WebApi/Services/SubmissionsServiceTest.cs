@@ -95,12 +95,12 @@ public class SubmissionsServiceTest
             .Cast<Submission>()
             .Last();
 
-        var submissions = new List<Submission>
+        var expectedSubmissions = new List<Submission>
         {
             expectedSubmission
         };
 
-        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(submissions);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedSubmissions);
 
         var filterDefinitionJson = Builders<Submission>.Filter.Eq(submission => submission.Id, expectedSubmission.Id).RenderToJson();
 
@@ -129,13 +129,13 @@ public class SubmissionsServiceTest
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
 
-        var submissions = submissionsTestData
+        var expectedSubmissions = submissionsTestData
             .Where(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)
             .Select(submissionTestData => submissionTestData[0])
             .Cast<Submission>()
             .ToList();
 
-        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(submissions);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedSubmissions);
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
@@ -154,8 +154,7 @@ public class SubmissionsServiceTest
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Equal(submissions.Count, result.Count);
-        Assert.Equal(submissions, result, new SubmissionEqualityComparer());
+        Assert.Equal(expectedSubmissions, result, new SubmissionEqualityComparer());
     }
 
     [Fact]
@@ -171,12 +170,12 @@ public class SubmissionsServiceTest
             .Cast<Submission>()
             .Last();
 
-        var submissions = new List<Submission>
+        var expectedSubmissions = new List<Submission>
         {
             expectedSubmission
         };
 
-        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(submissions);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedSubmissions);
 
         var filterDefinitionJson = Builders<Submission>.Filter.Eq(submission => submission.Id, expectedSubmission.Id).RenderToJson();
 
@@ -234,7 +233,6 @@ public class SubmissionsServiceTest
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(expectedSubmissions.Count, result.Count);
         Assert.Equal(expectedSubmissions, result, new SubmissionEqualityComparer());
     }
 
