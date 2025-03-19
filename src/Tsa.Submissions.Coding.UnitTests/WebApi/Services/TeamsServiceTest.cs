@@ -4,12 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Moq;
 using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.UnitTests.ExtensionMethods;
-using Tsa.Submissions.Coding.WebApi.Configuration;
+using Tsa.Submissions.Coding.UnitTests.Helpers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
@@ -20,35 +21,21 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Services;
 public class TeamsServiceTest
 {
     private const string CollectionName = "teams";
-    private const string DatabaseName = "pos";
+    private const string DatabaseName = "submissions";
+
+    private readonly Mock<ILogger<TeamsService>> _mockedLogger = new();
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
     public void Collection_Name_Should_Be_Teams()
     {
         // Arrange
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
+        var (_, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
-
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object);
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
         // Act
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.Equal("teams", teamsService.CollectionName);
@@ -59,28 +46,12 @@ public class TeamsServiceTest
     public void Constructor_Should_Instantiate_Base_Class()
     {
         // Arrange
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
+        var (_, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
-
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object);
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
         // Act
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.NotNull(teamsService);
@@ -93,53 +64,21 @@ public class TeamsServiceTest
         // Arrange
         var teamsTestData = new TeamsTestData();
 
-        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+        var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
-        //mockedMongoCollection.Setup(_=>_.InsertOneAsync())
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        Func<Team, bool> validateTeam = teamToValidate =>
-        {
-            var idsMatch = teamToValidate.Id == team!.Id;
-            var schoolNumbersMatch = teamToValidate.SchoolNumber == team.SchoolNumber;
-            var teamNumbersMatch = teamToValidate.TeamNumber == team.TeamNumber;
-
-            var participantsMatch = teamToValidate.Participants.Count == team.Participants.Count &&
-                                    teamToValidate.Participants[0].ParticipantNumber == team.Participants[0].ParticipantNumber &&
-                                    teamToValidate.Participants[0].SchoolNumber == team.Participants[0].SchoolNumber;
-
-            return idsMatch && participantsMatch && schoolNumbersMatch && teamNumbersMatch;
-        };
-
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         await teamsService.CreateAsync(team!);
 
         // Assert
         mockedMongoCollection
-            .Verify(_ =>
-                _.InsertOneAsync(It.Is<Team>(c => validateTeam(c)), null, CancellationToken.None), Times.Once);
+            .Verify(mongoCollection =>
+                mongoCollection.InsertOneAsync(It.Is(team, new TeamEqualityComparer())!, null, CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -150,57 +89,30 @@ public class TeamsServiceTest
         var teamsTestData = new TeamsTestData();
 
         var expectedTeam = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
             .Cast<Team>()
             .Last();
 
-        var teams = new List<Team>
+        var expectedTeams = new List<Team>
         {
             expectedTeam
         };
 
-        var mockedAsyncCursor = new Mock<IAsyncCursor<Team>>();
-        mockedAsyncCursor.Setup(_ => _.Current).Returns(teams);
-        mockedAsyncCursor
-            .SetupSequence(_ => _.MoveNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedTeams);
 
-        var filterDefinitionJson = Builders<Team>.Filter.Eq(_ => _.Id, expectedTeam.Id).RenderToJson();
+        var filterDefinitionJson = Builders<Team>.Filter.Eq(team => team.Id, expectedTeam.Id).RenderToJson();
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
-        mockedMongoCollection
-            .Setup(_ => _.FindAsync(
-                It.Is<FilterDefinition<Team>>(filter => filter.RenderToJson().Equals(filterDefinitionJson)),
-                It.IsAny<FindOptions<Team, Team>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedAsyncCursor.Object)
-            .Verifiable();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, filterDefinitionJson, mockedAsyncCursor);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await teamsService.ExistsAsync(expectedTeam.Id!);
@@ -216,51 +128,24 @@ public class TeamsServiceTest
         // Arrange
         var teamsTestData = new TeamsTestData();
 
-        var teams = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+        var expectedTeams = teamsTestData
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
             .Cast<Team>()
             .ToList();
 
-        var mockedAsyncCursor = new Mock<IAsyncCursor<Team>>();
-        mockedAsyncCursor.Setup(_ => _.Current).Returns(teams);
-        mockedAsyncCursor
-            .SetupSequence(_ => _.MoveNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedTeams);
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
-        mockedMongoCollection
-            .Setup(_ => _.FindAsync(
-                Builders<Team>.Filter.Empty,
-                It.IsAny<FindOptions<Team, Team>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedAsyncCursor.Object)
-            .Verifiable();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, mockedAsyncCursor);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await teamsService.GetAsync();
@@ -268,7 +153,7 @@ public class TeamsServiceTest
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Equal(teams.Count, result.Count);
+        Assert.Equal(expectedTeams, result, new TeamEqualityComparer());
     }
 
     [Fact]
@@ -279,64 +164,37 @@ public class TeamsServiceTest
         var teamsTestData = new TeamsTestData();
 
         var expectedTeam = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
             .Cast<Team>()
             .Last();
 
-        var teams = new List<Team>
+        var expectedTeams = new List<Team>
         {
             expectedTeam
         };
 
-        var mockedAsyncCursor = new Mock<IAsyncCursor<Team>>();
-        mockedAsyncCursor.Setup(_ => _.Current).Returns(teams);
-        mockedAsyncCursor
-            .SetupSequence(_ => _.MoveNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedTeams);
 
-        var filterDefinitionJson = Builders<Team>.Filter.Eq(_ => _.Id, expectedTeam.Id).RenderToJson();
+        var filterDefinitionJson = Builders<Team>.Filter.Eq(team => team.Id, expectedTeam.Id).RenderToJson();
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
-        mockedMongoCollection
-            .Setup(_ => _.FindAsync(
-                It.Is<FilterDefinition<Team>>(filter => filter.RenderToJson().Equals(filterDefinitionJson)),
-                It.IsAny<FindOptions<Team, Team>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedAsyncCursor.Object)
-            .Verifiable();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, filterDefinitionJson, mockedAsyncCursor);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await teamsService.GetAsync(expectedTeam.Id!);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(expectedTeam, result);
+        Assert.Equal(expectedTeam, result, new TeamEqualityComparer());
     }
 
     [Fact]
@@ -347,61 +205,34 @@ public class TeamsServiceTest
         var teamsTestData = new TeamsTestData();
 
         var expectedTeams = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
             .Cast<Team>()
             .ToList();
 
-        var ids = expectedTeams.Select(_ => _.Id).Cast<string>().ToList();
+        var ids = expectedTeams.Select(team => team.Id).Cast<string>().ToList();
 
-        var mockedAsyncCursor = new Mock<IAsyncCursor<Team>>();
-        mockedAsyncCursor.Setup(_ => _.Current).Returns(expectedTeams);
-        mockedAsyncCursor
-            .SetupSequence(_ => _.MoveNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedTeams);
 
-        var filterDefinitionJson = Builders<Team>.Filter.In(_ => _.Id, ids).RenderToJson();
+        var filterDefinitionJson = Builders<Team>.Filter.In(team => team.Id, ids).RenderToJson();
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
-        mockedMongoCollection
-            .Setup(_ => _.FindAsync(
-                It.Is<FilterDefinition<Team>>(filter => filter.RenderToJson().Equals(filterDefinitionJson)),
-                It.IsAny<FindOptions<Team, Team>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedAsyncCursor.Object)
-            .Verifiable();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, filterDefinitionJson, mockedAsyncCursor);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await teamsService.GetAsync(ids);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(expectedTeams.Count, result.Count);
+        Assert.Equal(expectedTeams, result, new TeamEqualityComparer());
     }
 
 
@@ -410,23 +241,15 @@ public class TeamsServiceTest
     public async Task Ping_Should_Return_False()
     {
         // Arrange
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Submission>(DatabaseName, CollectionName);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var expectedPingCommand = (Command<BsonDocument>)"{ping:1}";
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
+        MockHelpers.SetupMockedMongoCollectionRunCommandAsyncThrowsException(mockedMongoCollection, expectedPingCommand);
 
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
+
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await teamsService.PingAsync();
@@ -440,32 +263,15 @@ public class TeamsServiceTest
     public async Task Ping_Should_Return_True()
     {
         // Arrange
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        mockedMongoCollection
-            .Setup(_ => _.Database)
-            .Returns(mockedMongoDatabase.Object);
+        var expectedPingCommand = (Command<BsonDocument>)"{ping:1}";
 
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionRunCommandAsync(mockedMongoCollection, expectedPingCommand);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await teamsService.PingAsync();
@@ -482,12 +288,12 @@ public class TeamsServiceTest
         var teamsTestData = new TeamsTestData();
 
         var expectedTeam = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
             .Cast<Team>()
             .Last();
 
-        var expectedFilterDefinitionJson = Builders<Team>.Filter.Eq(_ => _.Id, expectedTeam.Id).RenderToJson();
+        var expectedFilterDefinitionJson = Builders<Team>.Filter.Eq(team => team.Id, expectedTeam.Id).RenderToJson();
 
         Func<FilterDefinition<Team>, bool> validateFilterDefinitionFunc = filterDefinition =>
         {
@@ -499,35 +305,18 @@ public class TeamsServiceTest
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         await teamsService.RemoveAsync(expectedTeam);
 
         // Assert
         mockedMongoCollection
-            .Verify(_ => _.DeleteOneAsync(
+            .Verify(mongoCollection => mongoCollection.DeleteOneAsync(
                     It.Is<FilterDefinition<Team>>(fd => validateFilterDefinitionFunc(fd)),
                     null,
                     It.IsAny<CancellationToken>()),
@@ -539,28 +328,12 @@ public class TeamsServiceTest
     public void ServiceName_Name_Should_Be_Teams()
     {
         // Arrange
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
+        var (_, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
-
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object);
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
         // Act
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.Equal("Teams", teamsService.ServiceName);
@@ -574,12 +347,12 @@ public class TeamsServiceTest
         var teamsTestData = new TeamsTestData();
 
         var expectedTeam = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
             .Cast<Team>()
             .Last();
 
-        var expectedFilterDefinitionJson = Builders<Team>.Filter.Eq(_ => _.Id, expectedTeam.Id).RenderToJson();
+        var expectedFilterDefinitionJson = Builders<Team>.Filter.Eq(team => team.Id, expectedTeam.Id).RenderToJson();
 
         Func<FilterDefinition<Team>, bool> validateFilterDefinitionFunc = filterDefinition =>
         {
@@ -588,35 +361,18 @@ public class TeamsServiceTest
             return expectedFilterDefinitionJson == filterDefinitionJson;
         };
 
-        var mockedMongoCollection = new Mock<IMongoCollection<Team>>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(_ => _.GetCollection<Team>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(_ => _.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(_ => _.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var teamsService = new TeamsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         await teamsService.UpdateAsync(expectedTeam, default);
 
         // Assert
         mockedMongoCollection
-            .Verify(_ => _.ReplaceOneAsync(
+            .Verify(mongoCollection => mongoCollection.ReplaceOneAsync(
                     It.Is<FilterDefinition<Team>>(fd => validateFilterDefinitionFunc(fd)),
                     expectedTeam,
                     It.IsAny<ReplaceOptions>(),
