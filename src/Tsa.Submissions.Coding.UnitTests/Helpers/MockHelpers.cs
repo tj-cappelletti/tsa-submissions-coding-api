@@ -12,9 +12,13 @@ namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 
 internal static class MockHelpers
 {
-    public static Mock<IAsyncCursor<T>> CreateMockedAsyncCursor<T>(IEnumerable<T> documents)
+    public static Mock<IAsyncCursor<T>> CreateMockedAsyncCursor<T>(List<T> documents)
     {
         var mockedAsyncCursor = new Mock<IAsyncCursor<T>>();
+
+        mockedAsyncCursor
+            .Setup(cursor => cursor.Current)
+            .Returns(documents);
 
         mockedAsyncCursor
             .SetupSequence(cursor => cursor.MoveNext(It.IsAny<CancellationToken>()))
@@ -22,8 +26,9 @@ internal static class MockHelpers
             .Returns(false);
 
         mockedAsyncCursor
-            .Setup(cursor => cursor.Current)
-            .Returns(documents);
+            .SetupSequence(asyncCursor => asyncCursor.MoveNextAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
+            .ReturnsAsync(false);
 
         return mockedAsyncCursor;
     }
