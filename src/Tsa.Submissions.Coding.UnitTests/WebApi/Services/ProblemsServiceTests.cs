@@ -4,13 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Moq;
 using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.UnitTests.ExtensionMethods;
 using Tsa.Submissions.Coding.UnitTests.Helpers;
-using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
@@ -21,35 +21,21 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Services;
 public class ProblemsServiceTest
 {
     private const string CollectionName = "problems";
-    private const string DatabaseName = "pos";
+    private const string DatabaseName = "submissions";
+
+    private readonly Mock<ILogger<ProblemsService>> _mockedLogger = new();
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
     public void Collection_Name_Should_Be_Problems()
     {
         // Arrange
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
+        var (_, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
-
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object);
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
         // Act
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.Equal("problems", problemsService.CollectionName);
@@ -60,28 +46,12 @@ public class ProblemsServiceTest
     public void Constructor_Should_Instantiate_Base_Class()
     {
         // Arrange
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
+        var (_, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
-
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object);
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
         // Act
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.NotNull(problemsService);
@@ -96,29 +66,11 @@ public class ProblemsServiceTest
 
         var problem = problemsTestData.First(problemTestData => (ProblemDataIssues)problemTestData[1] == ProblemDataIssues.None)[0] as Problem;
 
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         await problemsService.CreateAsync(problem!);
@@ -147,47 +99,20 @@ public class ProblemsServiceTest
             expectedProblem
         };
 
-        var mockedAsyncCursor = new Mock<IAsyncCursor<Problem>>();
-        mockedAsyncCursor.Setup(asyncCursor => asyncCursor.Current).Returns(problems);
-        mockedAsyncCursor
-            .SetupSequence(asyncCursor => asyncCursor.MoveNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(problems);
 
         var filterDefinitionJson = Builders<Problem>.Filter.Eq(problem => problem.Id, expectedProblem.Id).RenderToJson();
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
-        mockedMongoCollection
-            .Setup(mongoCollection => mongoCollection.FindAsync(
-                It.Is<FilterDefinition<Problem>>(filter => filter.RenderToJson().Equals(filterDefinitionJson)),
-                It.IsAny<FindOptions<Problem, Problem>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedAsyncCursor.Object)
-            .Verifiable();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, filterDefinitionJson, mockedAsyncCursor);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await problemsService.ExistsAsync(expectedProblem.Id!);
@@ -209,45 +134,18 @@ public class ProblemsServiceTest
             .Cast<Problem>()
             .ToList();
 
-        var mockedAsyncCursor = new Mock<IAsyncCursor<Problem>>();
-        mockedAsyncCursor.Setup(asyncCursor => asyncCursor.Current).Returns(problems);
-        mockedAsyncCursor
-            .SetupSequence(asyncCursor => asyncCursor.MoveNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(problems);
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
-        mockedMongoCollection
-            .Setup(mongoCollection => mongoCollection.FindAsync(
-                Builders<Problem>.Filter.Empty,
-                It.IsAny<FindOptions<Problem, Problem>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedAsyncCursor.Object)
-            .Verifiable();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, mockedAsyncCursor);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await problemsService.GetAsync();
@@ -277,47 +175,20 @@ public class ProblemsServiceTest
             expectedProblem
         };
 
-        var mockedAsyncCursor = new Mock<IAsyncCursor<Problem>>();
-        mockedAsyncCursor.Setup(asyncCursor => asyncCursor.Current).Returns(problems);
-        mockedAsyncCursor
-            .SetupSequence(asyncCursor => asyncCursor.MoveNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(problems);
 
         var filterDefinitionJson = Builders<Problem>.Filter.Eq(problem => problem.Id, expectedProblem.Id).RenderToJson();
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
-        mockedMongoCollection
-            .Setup(mongoCollection => mongoCollection.FindAsync(
-                It.Is<FilterDefinition<Problem>>(filter => filter.RenderToJson().Equals(filterDefinitionJson)),
-                It.IsAny<FindOptions<Problem, Problem>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedAsyncCursor.Object)
-            .Verifiable();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, filterDefinitionJson, mockedAsyncCursor);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await problemsService.GetAsync(expectedProblem.Id!);
@@ -342,47 +213,20 @@ public class ProblemsServiceTest
 
         var ids = expectedProblems.Select(problem => problem.Id).Cast<string>().ToList();
 
-        var mockedAsyncCursor = new Mock<IAsyncCursor<Problem>>();
-        mockedAsyncCursor.Setup(asyncCursor => asyncCursor.Current).Returns(expectedProblems);
-        mockedAsyncCursor
-            .SetupSequence(asyncCursor => asyncCursor.MoveNextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .ReturnsAsync(false);
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedProblems);
 
         var filterDefinitionJson = Builders<Problem>.Filter.In(problem => problem.Id, ids).RenderToJson();
 
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
-        mockedMongoCollection
-            .Setup(mongoCollection => mongoCollection.FindAsync(
-                It.Is<FilterDefinition<Problem>>(filter => filter.RenderToJson().Equals(filterDefinitionJson)),
-                It.IsAny<FindOptions<Problem, Problem>>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(mockedAsyncCursor.Object)
-            .Verifiable();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, filterDefinitionJson, mockedAsyncCursor);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await problemsService.GetAsync(ids);
@@ -393,29 +237,20 @@ public class ProblemsServiceTest
         Assert.Equal(expectedProblems, result, new ProblemEqualityComparer());
     }
 
-
     [Fact]
     [Trait("TestCategory", "UnitTest")]
     public async Task Ping_Should_Return_False()
     {
         // Arrange
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var expectedPingCommand = (Command<BsonDocument>)"{ping:1}";
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
+        MockHelpers.SetupMockedMongoCollectionRunCommandAsyncThrowsException(mockedMongoCollection, expectedPingCommand);
 
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
+
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await problemsService.PingAsync();
@@ -429,32 +264,15 @@ public class ProblemsServiceTest
     public async Task Ping_Should_Return_True()
     {
         // Arrange
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        mockedMongoCollection
-            .Setup(mongoCollection => mongoCollection.Database)
-            .Returns(mockedMongoDatabase.Object);
+        var expectedPingCommand = (Command<BsonDocument>)"{ping:1}";
 
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        MockHelpers.SetupMockedMongoCollectionRunCommandAsync(mockedMongoCollection, expectedPingCommand);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         var result = await problemsService.PingAsync();
@@ -488,28 +306,11 @@ public class ProblemsServiceTest
         // If you get this error:
         // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
         // The predicate for FindAsync changed and is causing an error
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         await problemsService.RemoveAsync(expectedProblem);
@@ -528,28 +329,12 @@ public class ProblemsServiceTest
     public void ServiceName_Name_Should_Be_Problems()
     {
         // Arrange
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
+        var (_, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
-
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object);
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
         // Act
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Assert
         Assert.Equal("Problems", problemsService.ServiceName);
@@ -577,28 +362,11 @@ public class ProblemsServiceTest
             return expectedFilterDefinitionJson == filterDefinitionJson;
         };
 
-        var mockedMongoCollection = new Mock<IMongoCollection<Problem>>();
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Problem>(DatabaseName, CollectionName);
 
-        var mockedMongoDatabase = new Mock<IMongoDatabase>();
-        mockedMongoDatabase
-            .Setup(mongoDatabase => mongoDatabase.GetCollection<Problem>(It.Is<string>(collectionName => collectionName == CollectionName), null))
-            .Returns(mockedMongoCollection.Object);
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
 
-        var mockedMongoClient = new Mock<IMongoClient>();
-        mockedMongoClient
-            .Setup(mongoClient => mongoClient.GetDatabase(It.Is<string>(databaseName => databaseName == DatabaseName), null))
-            .Returns(mockedMongoDatabase.Object)
-            .Verifiable();
-
-        var mockedPointOfSalesOptions = new Mock<IOptions<SubmissionsDatabase>>();
-        mockedPointOfSalesOptions
-            .Setup(options => options.Value)
-            .Returns(new SubmissionsDatabase
-            {
-                Name = DatabaseName
-            });
-
-        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedPointOfSalesOptions.Object);
+        var problemsService = new ProblemsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
 
         // Act
         await problemsService.UpdateAsync(expectedProblem, default);
