@@ -475,7 +475,7 @@ public class EntityExtensions
         };
 
         // Act
-        var actualSubmissionModels = Coding.WebApi.Entities.EntityExtensions.ToModels(submissions);
+        var actualSubmissionModels = submissions.ToModels();
 
         // Assert
         Assert.Equal(expectedSubmissionModels, actualSubmissionModels, new SubmissionModelEqualityComparer());
@@ -519,7 +519,7 @@ public class EntityExtensions
         };
 
         // Act
-        var actualTestSetResultModels = Coding.WebApi.Entities.EntityExtensions.ToModels(testSetResults);
+        var actualTestSetResultModels = testSetResults.ToModels();
 
         // Assert
         Assert.Equal(expectedTestSetResultModels, actualTestSetResultModels, new TestSetResultModelEqualityComparer());
@@ -636,7 +636,7 @@ public class EntityExtensions
         }
 
         // Act
-        var actualTestSetModels = Coding.WebApi.Entities.EntityExtensions.ToModels(testSets);
+        var actualTestSetModels = testSets.ToModels();
 
         // Assert
         Assert.Equal(expectedTestSetModels, actualTestSetModels, new TestSetModelEqualityComparer());
