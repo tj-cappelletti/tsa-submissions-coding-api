@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Tsa.Submissions.Coding.WebApi.Services;
 
@@ -17,14 +19,18 @@ public class CacheService : ICacheService
 
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        var value = await _distributedCache.GetStringAsync(key, cancellationToken);
+        var value = await _distributedCache.GetAsync(key, cancellationToken);
 
-        return value is null ? default : JsonConvert.DeserializeObject<T>(value);
+        if (value is null) return default;
+
+        var valueAsString = Encoding.UTF8.GetString(value, 0, value.Length);
+
+        return JsonConvert.DeserializeObject<T>(valueAsString);
     }
 
     public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
-        var value = await _distributedCache.GetStringAsync(key, cancellationToken);
+        var value = await _distributedCache.GetAsync(key, cancellationToken);
 
         if (value is null) return;
 
@@ -40,6 +46,10 @@ public class CacheService : ICacheService
             options.AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow.Value;
         }
 
-        await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(value), options, cancellationToken);
+        var serializedObject = JsonConvert.SerializeObject(value);
+
+        var valueAsBytes = Encoding.UTF8.GetBytes(serializedObject);
+
+        await _distributedCache.SetAsync(key, valueAsBytes, options, cancellationToken);
     }
 }
