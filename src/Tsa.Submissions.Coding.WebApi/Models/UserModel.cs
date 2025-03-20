@@ -2,6 +2,8 @@
 
 public class UserModel
 {
+    public int? ExternalId { get; set; }
+
     public string? Id { get; set; }
 
     public string? Role { get; set; }

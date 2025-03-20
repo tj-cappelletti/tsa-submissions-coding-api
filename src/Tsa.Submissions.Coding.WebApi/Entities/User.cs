@@ -7,6 +7,8 @@ namespace Tsa.Submissions.Coding.WebApi.Entities;
 
 public class User : IMongoDbEntity
 {
+    public int? ExternalId { get; set; }
+
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     [SwaggerSchema(ReadOnly = true)]

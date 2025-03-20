@@ -20,6 +20,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1001,
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -30,326 +31,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Role = "judge",
-                UserName = "judge01"
-            },
-            UserModelDataIssues.None
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
+                ExternalId = 1002,
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -371,6 +53,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1003,
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -392,6 +75,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1004,
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -413,6 +97,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1005,
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -434,6 +119,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1006,
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -455,6 +141,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1007,
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -476,6 +163,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1008,
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
@@ -496,6 +184,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1009,
                 Role = "dog",
                 Team = new TeamModel
                 {
@@ -517,6 +206,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1010,
                 Role = "participant",
                 UserName = "9000-901"
             },
@@ -527,6 +217,7 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
+                ExternalId = 1011,
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -543,6 +234,27 @@ public class UserModelsTestData : IEnumerable<object[]>
             },
             UserModelDataIssues.UserNameNotValid
         ];
+
+        yield return
+        [
+            new UserModel
+            {
+                Role = "participant",
+                Team = new TeamModel
+                {
+                    Id = "000000000000000000000006",
+                    Participants =
+                    [
+                        new ParticipantModel { SchoolNumber = "9001", ParticipantNumber = "005" },
+                        new ParticipantModel { SchoolNumber = "9001", ParticipantNumber = "006" }
+                    ],
+                    SchoolNumber = "9001",
+                    TeamNumber = "903"
+                },
+                UserName = "9001-903"
+            },
+            UserModelDataIssues.MissingExternalId
+        ];
     }
 }
 
@@ -552,5 +264,6 @@ public enum UserModelDataIssues
     None = 0,
     RoleNotValid = 1 << 1,
     ParticipantMissingTeam = 1 << 2,
-    UserNameNotValid = 1 << 3
+    UserNameNotValid = 1 << 3,
+    MissingExternalId = 1 << 4,
 }

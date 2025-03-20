@@ -39,5 +39,23 @@ public class UserModelValidatorTests
         {
             testValidationResult.ShouldNotHaveValidationErrorFor(user => user.Team);
         }
+
+        if (userModelDataIssues == UserModelDataIssues.UserNameNotValid)
+        {
+            testValidationResult.ShouldHaveValidationErrorFor(user => user.UserName);
+        }
+        else
+        {
+            testValidationResult.ShouldNotHaveValidationErrorFor(user => user.UserName);
+        }
+
+        if (userModelDataIssues == UserModelDataIssues.MissingExternalId)
+        {
+            testValidationResult.ShouldHaveValidationErrorFor(user => user.ExternalId);
+        }
+        else
+        {
+            testValidationResult.ShouldNotHaveValidationErrorFor(user => user.ExternalId);
+        }
     }
 }

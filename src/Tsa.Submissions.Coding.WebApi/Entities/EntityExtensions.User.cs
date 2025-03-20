@@ -10,6 +10,7 @@ public static partial class EntityExtensions
     {
         var userModel = new UserModel
         {
+            ExternalId = user.ExternalId,
             Id = user.Id,
             Role = user.Role,
             UserName = user.UserName

@@ -10,6 +10,7 @@ public static partial class ModelExtensions
     {
         var user = new User
         {
+            ExternalId = userModel.ExternalId,
             Id = userModel.Id,
             Role = userModel.Role,
             UserName = userModel.UserName

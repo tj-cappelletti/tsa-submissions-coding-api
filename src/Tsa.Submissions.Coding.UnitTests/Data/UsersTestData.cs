@@ -21,6 +21,7 @@ public class UsersTestData : IEnumerable<object[]>
         [
             new User
             {
+                ExternalId = 1001,
                 Id = "000000000000000000000001",
                 Role = "judge",
                 UserName = "judge01"
@@ -32,6 +33,7 @@ public class UsersTestData : IEnumerable<object[]>
         [
             new User
             {
+                ExternalId = 1002,
                 Id = "000000000000000000000002",
                 Role = "participant",
                 Team = new MongoDBRef("teams", "000000000000000000000001"),
