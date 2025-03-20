@@ -17,7 +17,6 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Tsa.Submissions.Coding.WebApi.Authentication;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
@@ -143,10 +142,6 @@ public class Startup(IConfiguration configuration)
         var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
             .RequireAuthenticatedUser()
             .Build();
-
-        services
-            .AddAuthentication(TsaAuthenticationOptions.DefaultScheme)
-            .AddScheme<TsaAuthenticationOptions, TsaAuthenticationHandler>(TsaAuthenticationOptions.DefaultScheme, _ => { });
 
         services.AddAuthorizationBuilder()
             .AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role));
