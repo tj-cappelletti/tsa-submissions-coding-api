@@ -33,7 +33,7 @@ public class UserEqualityComparer : IEqualityComparer<User?>, IEqualityComparer<
 
         foreach (var leftProblem in x)
         {
-            var rightProblem = y.SingleOrDefault(_ => _.Id == leftProblem.Id);
+            var rightProblem = y.SingleOrDefault(user => user.Id == leftProblem.Id);
 
             if (!Equals(leftProblem, rightProblem)) return false;
         }
