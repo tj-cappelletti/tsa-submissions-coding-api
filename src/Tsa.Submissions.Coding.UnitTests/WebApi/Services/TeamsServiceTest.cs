@@ -83,7 +83,7 @@ public class TeamsServiceTest
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async Task ExistsAsync_Should_Return_True()
+    public async Task ExistsAsync_By_Id_Should_Return_True()
     {
         // Arrange
         var teamsTestData = new TeamsTestData();
@@ -116,6 +116,49 @@ public class TeamsServiceTest
 
         // Act
         var result = await teamsService.ExistsAsync(expectedTeam.Id!);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async Task GetAsync_By_SchoolNumber_And_TeamNumber_Should_Return_True()
+    {
+        // Arrange
+        var teamsTestData = new TeamsTestData();
+
+        var expectedTeam = teamsTestData
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
+            .Cast<Team>()
+            .Last();
+
+        var expectedTeams = new List<Team>
+        {
+            expectedTeam
+        };
+
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedTeams);
+
+        var filterDefinitionJson = Builders<Team>.Filter.And(
+                Builders<Team>.Filter.Eq(team => team.SchoolNumber, expectedTeam.SchoolNumber),
+                Builders<Team>.Filter.Eq(team => team.TeamNumber, expectedTeam.TeamNumber))
+            .RenderToJson();
+
+        // If you get this error:
+        // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
+        // The predicate for FindAsync changed and is causing an error
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
+
+        MockHelpers.SetupMockedMongoCollectionFindAsync(mockedMongoCollection, filterDefinitionJson, mockedAsyncCursor);
+
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
+
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
+
+        // Act
+        var result = await teamsService.ExistsAsync(expectedTeam.SchoolNumber, expectedTeam.TeamNumber);
 
         // Assert
         Assert.True(result);
