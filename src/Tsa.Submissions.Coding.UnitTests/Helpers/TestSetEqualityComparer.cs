@@ -16,12 +16,13 @@ internal class TestSetEqualityComparer : IEqualityComparer<TestSet?>, IEqualityC
         if (y is null) return false;
         if (x.GetType() != y.GetType()) return false;
 
-        return
-            x.Id == y.Id &&
-            _testSetValueEqualityComparer.Equals(x.Inputs, y.Inputs) &&
-            x.IsPublic == y.IsPublic &&
-            x.Name == y.Name &&
-            x.Problem?.Id.AsString == y.Problem?.Id.AsString;
+        var idsMatch = x.Id == y.Id;
+        var inputsMatch = _testSetValueEqualityComparer.Equals(x.Inputs, y.Inputs);
+        var isPublicMatch = x.IsPublic == y.IsPublic;
+        var nameMatch = x.Name == y.Name;
+        var problemMatch = x.Problem?.Id.AsString == y.Problem?.Id.AsString;
+
+        return idsMatch && inputsMatch && isPublicMatch && nameMatch && problemMatch;
     }
 
     public bool Equals(IList<TestSet>? x, IList<TestSet>? y)
