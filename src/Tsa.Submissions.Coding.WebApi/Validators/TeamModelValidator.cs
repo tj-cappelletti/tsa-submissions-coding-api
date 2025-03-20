@@ -21,10 +21,10 @@ public class TeamModelValidator : AbstractValidator<TeamModel>
             .NotEmpty()
             .Matches(ValidSchoolNumberRegEx)
             .WithMessage("The School Number is required and must be 4 digits in length and start with a 1 for Middle School and 2 for High School")
-            .Must(schoolNumber => schoolNumber.StartsWith("1"))
+            .Must(schoolNumber => schoolNumber.StartsWith('1'))
             .When(team => string.Equals(team.CompetitionLevel, CompetitionLevel.MiddleSchool.ToString(), StringComparison.CurrentCultureIgnoreCase), ApplyConditionTo.CurrentValidator)
             .WithMessage("The School Number must start with a 1 when the competition level is Middle School")
-            .Must(schoolNumber => schoolNumber.StartsWith("2"))
+            .Must(schoolNumber => schoolNumber.StartsWith('2'))
             .When(team => string.Equals(team.CompetitionLevel, CompetitionLevel.HighSchool.ToString(), StringComparison.CurrentCultureIgnoreCase), ApplyConditionTo.CurrentValidator)
             .WithMessage("The School Number must start with a 2 when the competition level is High School");
 
