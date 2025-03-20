@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using MongoDB.Driver;
 using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.UnitTests.Helpers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
+using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
 namespace Tsa.Submissions.Coding.UnitTests.WebApi.Models;
@@ -272,7 +274,7 @@ public class ModelExtensions
         // Arrange
         var testSetModel = new TestSetModel
         {
-            Id = "This is an ID",
+            Id = "000000000000000000000001",
             Inputs =
             [
                 new TestSetValueModel
@@ -299,29 +301,46 @@ public class ModelExtensions
             ],
             IsPublic = true,
             Name = "Test Set #1",
-            ProblemId = "000000000000000000000000"
+            ProblemId = "000000000000000000000001"
+        };
+
+        var expectedTestSet = new TestSet
+        {
+            Id = testSetModel.Id,
+            Inputs =
+            [
+                new TestSetValue
+                {
+                    DataType = testSetModel.Inputs[0].DataType,
+                    Index = testSetModel.Inputs[0].Index,
+                    IsArray = testSetModel.Inputs[0].IsArray,
+                    ValueAsJson = testSetModel.Inputs[0].ValueAsJson
+                },
+                new TestSetValue
+                {
+                    DataType = testSetModel.Inputs[1].DataType,
+                    Index = testSetModel.Inputs[1].Index,
+                    IsArray = testSetModel.Inputs[1].IsArray,
+                    ValueAsJson = testSetModel.Inputs[1].ValueAsJson
+                },
+                new TestSetValue
+                {
+                    DataType = testSetModel.Inputs[2].DataType,
+                    Index = testSetModel.Inputs[2].Index,
+                    IsArray = testSetModel.Inputs[2].IsArray,
+                    ValueAsJson = testSetModel.Inputs[2].ValueAsJson
+                }
+            ],
+            IsPublic = testSetModel.IsPublic,
+            Name = testSetModel.Name,
+            Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, testSetModel.ProblemId)
         };
 
         // Act
-        var testSet = testSetModel.ToEntity();
+        var actualTestSet = testSetModel.ToEntity();
 
         // Assert
-        Assert.Equal(testSetModel.Id, testSet.Id);
-        Assert.NotNull(testSet.Inputs);
-        Assert.NotEmpty(testSet.Inputs);
-
-        foreach (var testSetInputModel in testSetModel.Inputs)
-        {
-            var testSetInput = testSet.Inputs.SingleOrDefault(_ => _.Index == testSetInputModel.Index);
-
-            Assert.NotNull(testSetInput);
-            Assert.Equal(testSetInputModel.DataType, testSetInput.DataType);
-            Assert.Equal(testSetInputModel.IsArray, testSetInput.IsArray);
-            Assert.Equal(testSetInputModel.ValueAsJson, testSetInput.ValueAsJson);
-        }
-
-        Assert.Equal(testSetModel.Name, testSet.Name);
-        Assert.Equal(testSetModel.ProblemId, testSet.Problem?.Id.AsString);
+        Assert.Equal(expectedTestSet, actualTestSet, new TestSetEqualityComparer());
     }
 
     [Fact]
@@ -336,12 +355,17 @@ public class ModelExtensions
             TestSetId = "000000000000000000000010"
         };
 
+        var expectedTestSetResult = new TestSetResult
+        {
+            Passed = testSetResultModel.Passed,
+            RunDuration = testSetResultModel.RunDuration,
+            TestSet = new MongoDBRef(TestSetsService.MongoDbCollectionName, testSetResultModel.TestSetId)
+        };
+
         // Act
-        var testSetResult = testSetResultModel.ToEntity();
+        var actualTestSetResult = testSetResultModel.ToEntity();
 
         // Assert
-        Assert.Equal(testSetResultModel.Passed, testSetResult.Passed);
-        Assert.Equal(testSetResultModel.RunDuration, testSetResult.RunDuration);
-        Assert.Equal(testSetResultModel.TestSetId, testSetResult.TestSet?.Id.AsString);
+        Assert.Equal(expectedTestSetResult, actualTestSetResult, new TestSetResultEqualityComparer());
     }
 }
