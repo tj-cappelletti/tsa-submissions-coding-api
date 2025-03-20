@@ -11,7 +11,6 @@ namespace Tsa.Submissions.Coding.WebApi.Services;
 
 public abstract class MongoDbService<T> where T : IMongoDbEntity
 {
-    
     protected IMongoCollection<T> EntityCollection;
     protected ILogger<MongoDbService<T>> Logger;
     protected IMongoDatabase MongoDatabase;

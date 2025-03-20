@@ -126,8 +126,7 @@ public class UsersControllerTests
             SchoolNumber = "9001",
             TeamNumber = "901",
         };
-
-        var newUser = new UserModel
+        _ = new UserModel
         {
             Id = "000000000000000000000002",
             Role = "participant",
@@ -138,7 +137,6 @@ public class UsersControllerTests
         var mockedCacheService = new Mock<ICacheService>();
         var mockedTeamsService = new Mock<ITeamsService>();
         var mockedUsersService = new Mock<IUsersService>();
-
-        var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
+        _ = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
     }
 }
