@@ -8,7 +8,7 @@ public static partial class EntityExtensions
 {
     private static List<TestSetValueModel> TestSetValuesToTestSetValueModels(this IEnumerable<TestSetValue> testSetValues)
     {
-        return [.. testSetValues.Select(testSetValue => testSetValue.ToModel())];
+        return testSetValues.Select(testSetValue => testSetValue.ToModel()).ToList();
     }
 
     public static TestSetValueModel ToModel(this TestSetValue testSetValue)
