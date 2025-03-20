@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -10,6 +11,7 @@ using Tsa.Submissions.Coding.WebApi.Configuration;
 
 namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 
+[ExcludeFromCodeCoverage]
 internal static class MockHelpers
 {
     public static Mock<IAsyncCursor<T>> CreateMockedAsyncCursor<T>(List<T> documents)
