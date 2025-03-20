@@ -141,7 +141,7 @@ public class UsersController : ControllerBase
                 Detail = "The password is required."
             };
 
-            validationProblemDetails.Errors.Add("password", new[] { "The password is required." });
+            validationProblemDetails.Errors.Add("password", ["The password is required."]);
 
             return BadRequest(validationProblemDetails);
         }
