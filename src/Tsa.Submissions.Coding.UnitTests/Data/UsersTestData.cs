@@ -22,7 +22,6 @@ public class UsersTestData : IEnumerable<object[]>
             new User
             {
                 Id = "000000000000000000000001",
-                PasswordHash = "$2a$11$x.VmM/31J178NK0VH15JE.B0xzobpjERwgAgvAMrwLfJgXTxOqkNa",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -34,7 +33,6 @@ public class UsersTestData : IEnumerable<object[]>
             new User
             {
                 Id = "000000000000000000000002",
-                PasswordHash = "$2a$11$yFiKzJ7aNPXSu/HpjCUbe.VMxaNCFNR/gK7PqyrWImMxTj0Wc2/Pm",
                 Role = "participant",
                 Team = new MongoDBRef("teams", "000000000000000000000001"),
                 UserName = "9000-901"

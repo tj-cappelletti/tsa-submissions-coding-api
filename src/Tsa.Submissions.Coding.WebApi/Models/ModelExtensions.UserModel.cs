@@ -6,12 +6,11 @@ namespace Tsa.Submissions.Coding.WebApi.Models;
 
 public static partial class ModelExtensions
 {
-    public static User ToEntity(this UserModel userModel, string? passwordHash = default)
+    public static User ToEntity(this UserModel userModel)
     {
         var user = new User
         {
             Id = userModel.Id,
-            PasswordHash = passwordHash,
             Role = userModel.Role,
             UserName = userModel.UserName
         };

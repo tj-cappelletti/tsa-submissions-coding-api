@@ -130,7 +130,6 @@ public class UsersControllerTests
         var newUser = new UserModel
         {
             Id = "000000000000000000000002",
-            Password = "P@$$w0rd",
             Role = "participant",
             Team = teamModel,
             UserName = "9000-901"

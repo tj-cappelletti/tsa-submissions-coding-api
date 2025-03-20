@@ -20,7 +20,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -31,7 +30,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = null,
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -42,7 +40,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb ",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -53,7 +50,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb!",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -64,7 +60,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb\"",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -75,7 +70,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb$",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -86,7 +80,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb%",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -97,7 +90,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb&",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -108,7 +100,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb'",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -119,7 +110,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb(",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -130,7 +120,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb)",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -141,7 +130,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb*",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -152,7 +140,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb,",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -163,7 +150,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb-",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -174,7 +160,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb.",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -185,7 +170,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb/",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -196,7 +180,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb:",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -207,7 +190,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb;",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -218,7 +200,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb<",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -229,7 +210,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb=",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -240,7 +220,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb>",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -251,7 +230,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb?",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -262,7 +240,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb@",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -273,7 +250,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb[",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -284,7 +260,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb\\",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -295,7 +270,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb]",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -306,7 +280,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb^",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -317,7 +290,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb_",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -328,7 +300,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb`",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -339,7 +310,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb{",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -350,7 +320,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb|",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -361,7 +330,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb~",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -372,7 +340,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Aaaa1Bbbb}",
                 Role = "judge",
                 UserName = "judge01"
             },
@@ -383,7 +350,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -405,7 +371,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -427,7 +392,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -449,7 +413,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -471,7 +434,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -493,7 +455,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -515,117 +476,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Pa1!",
-                Role = "participant",
-                Team = new TeamModel
-                {
-                    Id = "000000000000000000000001",
-                    Participants =
-                    [
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    ],
-                    SchoolNumber = "9000",
-                    TeamNumber = "901"
-                },
-                UserName = "9000-901"
-            },
-            UserModelDataIssues.PasswordLength
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Password = "password1!",
-                Role = "participant",
-                Team = new TeamModel
-                {
-                    Id = "000000000000000000000001",
-                    Participants =
-                    [
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    ],
-                    SchoolNumber = "9000",
-                    TeamNumber = "901"
-                },
-                UserName = "9000-901"
-            },
-            UserModelDataIssues.PasswordMissingUppercase
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Password = "PASSWORD1!",
-                Role = "participant",
-                Team = new TeamModel
-                {
-                    Id = "000000000000000000000001",
-                    Participants =
-                    [
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    ],
-                    SchoolNumber = "9000",
-                    TeamNumber = "901"
-                },
-                UserName = "9000-901"
-            },
-            UserModelDataIssues.PasswordMissingLowercase
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Password = "Password!",
-                Role = "participant",
-                Team = new TeamModel
-                {
-                    Id = "000000000000000000000001",
-                    Participants =
-                    [
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    ],
-                    SchoolNumber = "9000",
-                    TeamNumber = "901"
-                },
-                UserName = "9000-901"
-            },
-            UserModelDataIssues.PasswordMissingNumber
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Password = "Password1",
-                Role = "participant",
-                Team = new TeamModel
-                {
-                    Id = "000000000000000000000001",
-                    Participants =
-                    [
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "001" },
-                        new ParticipantModel { SchoolNumber = "9000", ParticipantNumber = "002" }
-                    ],
-                    SchoolNumber = "9000",
-                    TeamNumber = "901"
-                },
-                UserName = "9000-901"
-            },
-            UserModelDataIssues.PasswordMissingSpecialCharacter
-        ];
-
-        yield return
-        [
-            new UserModel
-            {
-                Password = "Password1!",
                 Team = new TeamModel
                 {
                     Id = "000000000000000000000001",
@@ -646,7 +496,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "dog",
                 Team = new TeamModel
                 {
@@ -668,7 +517,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "participant",
                 UserName = "9000-901"
             },
@@ -679,7 +527,6 @@ public class UserModelsTestData : IEnumerable<object[]>
         [
             new UserModel
             {
-                Password = "Password1!",
                 Role = "participant",
                 Team = new TeamModel
                 {
@@ -703,12 +550,7 @@ public class UserModelsTestData : IEnumerable<object[]>
 public enum UserModelDataIssues
 {
     None = 0,
-    PasswordLength = 1 << 0,
-    PasswordMissingLowercase = 1 << 1,
-    PasswordMissingNumber = 1 << 2,
-    PasswordMissingSpecialCharacter = 1 << 3,
-    PasswordMissingUppercase = 1 << 4,
-    RoleNotValid = 1 << 5,
-    ParticipantMissingTeam = 1 << 6,
-    UserNameNotValid = 1 << 7
+    RoleNotValid = 1 << 1,
+    ParticipantMissingTeam = 1 << 2,
+    UserNameNotValid = 1 << 3
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using FluentValidation;
 using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -10,37 +9,6 @@ public class UserModelValidator : AbstractValidator<UserModel>
 {
     public UserModelValidator()
     {
-        RuleFor(user => user.Password)
-            .Custom((password, context) =>
-            {
-                if (password == null) return;
-
-                if (password.Length < 8)
-                {
-                    context.AddFailure("The password must be at least 8 characters long.");
-                }
-
-                if (!password.Any(char.IsUpper))
-                {
-                    context.AddFailure("The password must contain at least one uppercase letter.");
-                }
-
-                if (!password.Any(char.IsLower))
-                {
-                    context.AddFailure("The password must contain at least one lowercase letter.");
-                }
-
-                if (!password.Any(char.IsDigit))
-                {
-                    context.AddFailure("The password must contain at least one number.");
-                }
-
-                if (!password.Any(IsSpecialCharacter))
-                {
-                    context.AddFailure("The password must contain at least one special character.");
-                }
-            });
-
         RuleFor(user => user.Role)
             .NotEmpty()
             .Must(role => string.Equals(role, SubmissionRoles.Judge, StringComparison.CurrentCultureIgnoreCase) ||
@@ -55,46 +23,5 @@ public class UserModelValidator : AbstractValidator<UserModel>
         RuleFor(user => user.UserName)
             .NotEmpty()
             .WithMessage("A user must have a username.");
-    }
-
-    private static bool IsSpecialCharacter(char character)
-    {
-        return character switch
-        {
-            ' ' => true,
-            '!' => true,
-            '"' => true,
-            '#' => true,
-            '$' => true,
-            '%' => true,
-            '&' => true,
-            '\'' => true,
-            '(' => true,
-            ')' => true,
-            '*' => true,
-            '+' => true,
-            ',' => true,
-            '-' => true,
-            '.' => true,
-            '/' => true,
-            ':' => true,
-            ';' => true,
-            '<' => true,
-            '=' => true,
-            '>' => true,
-            '?' => true,
-            '@' => true,
-            '[' => true,
-            '\\' => true,
-            ']' => true,
-            '^' => true,
-            '_' => true,
-            '`' => true,
-            '{' => true,
-            '|' => true,
-            '}' => true,
-            '~' => true,
-            _ => false
-        };
     }
 }

@@ -22,19 +22,6 @@ public class UserModelValidatorTests
         var testValidationResult = userModelValidator.TestValidate(userModel);
 
         // Assert
-        if (userModelDataIssues == UserModelDataIssues.PasswordLength ||
-            userModelDataIssues == UserModelDataIssues.PasswordMissingLowercase ||
-            userModelDataIssues == UserModelDataIssues.PasswordMissingNumber ||
-            userModelDataIssues == UserModelDataIssues.PasswordMissingSpecialCharacter ||
-            userModelDataIssues == UserModelDataIssues.PasswordMissingUppercase)
-        {
-            testValidationResult.ShouldHaveValidationErrorFor(user => user.Password);
-        }
-        else
-        {
-            testValidationResult.ShouldNotHaveValidationErrorFor(user => user.Password);
-        }
-
         if (userModelDataIssues == UserModelDataIssues.RoleNotValid)
         {
             testValidationResult.ShouldHaveValidationErrorFor(user => user.Role);
