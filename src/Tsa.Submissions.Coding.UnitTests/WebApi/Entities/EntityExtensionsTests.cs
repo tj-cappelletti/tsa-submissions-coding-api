@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using MongoDB.Driver;
+using Tsa.Submissions.Coding.UnitTests.Helpers;
 using Tsa.Submissions.Coding.WebApi.Entities;
+using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
@@ -30,8 +31,20 @@ public class EntityExtensions
             Team = new MongoDBRef("teams", "00000000000000000000000B")
         };
 
+        var expectedSubmissionModel = new SubmissionModel
+        {
+            Id = submission.Id,
+            IsFinalSubmission = submission.IsFinalSubmission,
+            Language = submission.Language,
+            ProblemId = submission.Problem?.Id.AsString,
+            Solution = submission.Solution,
+            SubmittedOn = submission.SubmittedOn,
+            TeamId = submission.Team?.Id.AsString
+        };
+
         if (includeTestTests)
         {
+            expectedSubmissionModel.TestSetResults = new List<TestSetResultModel>();
             submission.TestSetResults =
             [
                 new TestSetResult
@@ -47,37 +60,23 @@ public class EntityExtensions
                     TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
                 }
             ];
+
+            foreach (var submissionTestSetResult in submission.TestSetResults)
+            {
+                expectedSubmissionModel.TestSetResults.Add(new TestSetResultModel
+                {
+                    Passed = submissionTestSetResult.Passed,
+                    RunDuration = submissionTestSetResult.RunDuration,
+                    TestSetId = submissionTestSetResult.TestSet?.Id.AsString
+                });
+            }
         }
 
         // Act
-        var submissionModel = submission.ToModel();
+        var actualSubmissionModel = submission.ToModel();
 
-        Assert.Equal(submission.Id, submissionModel.Id);
-        Assert.Equal(submission.IsFinalSubmission, submissionModel.IsFinalSubmission);
-        Assert.Equal(submission.Language, submissionModel.Language);
-        Assert.Equal(submission.Problem?.Id.AsString, submissionModel.ProblemId);
-        Assert.Equal(submission.Solution, submissionModel.Solution);
-        Assert.Equal(submission.SubmittedOn, submissionModel.SubmittedOn);
-        Assert.Equal(submission.Team?.Id.AsString, submissionModel.TeamId);
-
-        if (includeTestTests)
-        {
-            Assert.NotNull(submissionModel.TestSetResults);
-            Assert.Equal(submission.TestSetResults!.Count, submissionModel.TestSetResults.Count);
-            foreach (var testSetResult in submission.TestSetResults)
-            {
-                var testSetResultModel = submissionModel.TestSetResults.SingleOrDefault(_ => _.TestSetId == testSetResult.TestSet?.Id.AsString);
-
-                Assert.NotNull(testSetResultModel);
-                Assert.Equal(testSetResult.Passed, testSetResultModel.Passed);
-                Assert.Equal(testSetResult.RunDuration, testSetResultModel.RunDuration);
-                Assert.Equal(testSetResult.TestSet?.Id.AsString, testSetResultModel.TestSetId);
-            }
-        }
-        else
-        {
-            Assert.Null(submissionModel.TestSetResults);
-        }
+        // Assert
+        Assert.Equal(expectedSubmissionModel, actualSubmissionModel, new SubmissionModelEqualityComparer());
     }
 
     [Fact]
@@ -91,12 +90,17 @@ public class EntityExtensions
             SchoolNumber = "1234"
         };
 
+        var expectedParticipantModel = new ParticipantModel
+        {
+            ParticipantNumber = participant.ParticipantNumber,
+            SchoolNumber = participant.SchoolNumber
+        };
+
         // Act
-        var participantModel = participant.ToModel();
+        var actualParticipantModel = participant.ToModel();
 
         // Assert
-        Assert.Equal(participant.ParticipantNumber, participantModel.ParticipantNumber);
-        Assert.Equal(participant.SchoolNumber, participantModel.SchoolNumber);
+        Assert.Equal(expectedParticipantModel, actualParticipantModel, new ParticipantModelEqualityComparer());
     }
 
     [Fact]
@@ -112,14 +116,19 @@ public class EntityExtensions
             Title = "This is the title"
         };
 
+        var expectedProblemModel = new ProblemModel
+        {
+            Description = problem.Description,
+            Id = problem.Id,
+            IsActive = problem.IsActive,
+            Title = problem.Title
+        };
+
         // Act
-        var problemModel = problem.ToModel();
+        var actualProblemModel = problem.ToModel();
 
         // Assert
-        Assert.Equal(problem.Description, problemModel.Description);
-        Assert.Equal(problem.Id, problemModel.Id);
-        Assert.Equal(problem.IsActive, problemModel.IsActive);
-        Assert.Equal(problem.Title, problemModel.Title);
+        Assert.Equal(expectedProblemModel, actualProblemModel, new ProblemModelEqualityComparer());
     }
 
     [Fact]
@@ -129,6 +138,7 @@ public class EntityExtensions
         // Arrange
         var team = new Team
         {
+            CompetitionLevel = CompetitionLevel.HighSchool,
             Id = "This is an ID",
             Participants =
             [
@@ -147,20 +157,29 @@ public class EntityExtensions
             TeamNumber = "901"
         };
 
+        var expectedTeamModel = new TeamModel
+        {
+            CompetitionLevel = team.CompetitionLevel.ToString(),
+            Id = team.Id,
+            Participants = [],
+            SchoolNumber = team.SchoolNumber,
+            TeamNumber = team.TeamNumber
+        };
+
+        foreach (var teamParticipant in team.Participants)
+        {
+            expectedTeamModel.Participants.Add(new ParticipantModel
+            {
+                ParticipantNumber = teamParticipant.ParticipantNumber,
+                SchoolNumber = teamParticipant.SchoolNumber
+            });
+        }
+
         // Act
-        var teamModel = team.ToModel();
+        var actualTeamModel = team.ToModel();
 
         // Assert
-        Assert.Equal(team.Id, teamModel.Id);
-        Assert.Equal(team.SchoolNumber, teamModel.SchoolNumber);
-        Assert.Equal(team.TeamNumber, teamModel.TeamNumber);
-
-        Assert.Equal(team.Participants.Count, teamModel.Participants.Count);
-
-        foreach (var teamModelParticipant in teamModel.Participants)
-        {
-            Assert.Contains(team.Participants, _ => _.ParticipantId == teamModelParticipant.ParticipantId);
-        }
+        Assert.Equal(expectedTeamModel, actualTeamModel, new TeamModelEqualityComparer());
     }
 
     [Fact]
@@ -200,26 +219,31 @@ public class EntityExtensions
             Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
         };
 
-        // Act
-        var testSetModel = testSet.ToModel();
-
-        // Assert
-        Assert.Equal(testSet.Id, testSetModel.Id);
-        Assert.NotNull(testSetModel.Inputs);
-        Assert.NotEmpty(testSetModel.Inputs);
+        var expectedTestSetModel = new TestSetModel
+        {
+            Id = testSet.Id,
+            Inputs = [],
+            IsPublic = testSet.IsPublic,
+            Name = testSet.Name,
+            ProblemId = testSet.Problem?.Id.AsString
+        };
 
         foreach (var testSetInput in testSet.Inputs)
         {
-            var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
-
-            Assert.NotNull(testSetInputModel);
-            Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
-            Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
-            Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+            expectedTestSetModel.Inputs.Add(new TestSetValueModel
+            {
+                DataType = testSetInput.DataType,
+                Index = testSetInput.Index,
+                IsArray = testSetInput.IsArray,
+                ValueAsJson = testSetInput.ValueAsJson
+            });
         }
 
-        Assert.Equal(testSet.Name, testSetModel.Name);
-        Assert.Equal(testSet.Problem?.Id.AsString, testSetModel.ProblemId);
+        // Act
+        var actualTestSetModel = testSet.ToModel();
+
+        // Assert
+        Assert.Equal(expectedTestSetModel, actualTestSetModel, new TestSetModelEqualityComparer());
     }
 
     [Fact]
@@ -256,25 +280,31 @@ public class EntityExtensions
             Problem = null
         };
 
-        // Act
-        var testSetModel = testSet.ToModel();
-
-        // Assert
-        Assert.Equal(testSet.Id, testSetModel.Id);
-        Assert.NotNull(testSetModel.Inputs);
-        Assert.NotEmpty(testSetModel.Inputs);
+        var expectedTestSetModel = new TestSetModel
+        {
+            Id = testSet.Id,
+            Inputs = [],
+            IsPublic = testSet.IsPublic,
+            Name = testSet.Name,
+            ProblemId = null
+        };
 
         foreach (var testSetInput in testSet.Inputs)
         {
-            var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
-
-            Assert.NotNull(testSetInputModel);
-            Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
-            Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+            expectedTestSetModel.Inputs.Add(new TestSetValueModel
+            {
+                DataType = testSetInput.DataType,
+                Index = testSetInput.Index,
+                IsArray = testSetInput.IsArray,
+                ValueAsJson = testSetInput.ValueAsJson
+            });
         }
 
-        Assert.Equal(testSet.Name, testSetModel.Name);
-        Assert.Null(testSetModel.ProblemId);
+        // Act
+        var actualTestSetModel = testSet.ToModel();
+
+        // Assert
+        Assert.Equal(expectedTestSetModel, actualTestSetModel, new TestSetModelEqualityComparer());
     }
 
     [Fact]
@@ -290,14 +320,19 @@ public class EntityExtensions
             ValueAsJson = "ValueAsJson"
         };
 
+        var expectedTestSetInputModel = new TestSetValueModel
+        {
+            DataType = testSetInput.DataType,
+            Index = testSetInput.Index,
+            IsArray = testSetInput.IsArray,
+            ValueAsJson = testSetInput.ValueAsJson
+        };
+
         // Act
-        var testSetInputModel = testSetInput.ToModel();
+        var actualTestSetInputModel = testSetInput.ToModel();
 
         // Assert
-        Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
-        Assert.Equal(testSetInput.Index, testSetInputModel.Index);
-        Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
-        Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+        Assert.Equal(expectedTestSetInputModel, actualTestSetInputModel, new TestSetValueModelEqualityComparer());
     }
 
     [Fact]
@@ -312,14 +347,18 @@ public class EntityExtensions
             TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
         };
 
+        var expectedTestSetResultModel = new TestSetResultModel
+        {
+            Passed = testSetResult.Passed,
+            RunDuration = testSetResult.RunDuration,
+            TestSetId = testSetResult.TestSet?.Id.AsString
+        };
+
         // Act
-        var testSetResultModel = testSetResult.ToModel();
+        var actualTestSetResultModel = testSetResult.ToModel();
 
         // Assert
-        Assert.NotNull(testSetResultModel);
-        Assert.Equal(testSetResult.Passed, testSetResultModel.Passed);
-        Assert.Equal(testSetResult.RunDuration, testSetResultModel.RunDuration);
-        Assert.Equal(testSetResult.TestSet?.Id.AsString, testSetResultModel.TestSetId);
+        Assert.Equal(expectedTestSetResultModel, actualTestSetResultModel, new TestSetResultModelEqualityComparer());
     }
 
     [Fact]
@@ -381,36 +420,65 @@ public class EntityExtensions
             }
         };
 
-        // Act
-
-
-        var submissionModels = submissions.ToModels();
-
-        foreach (var submission in submissions)
+        var expectedSubmissionModels = new List<SubmissionModel>
         {
-            var submissionModel = submissionModels.SingleOrDefault(_ => _.Id == submission.Id);
-
-            Assert.NotNull(submissionModel);
-            Assert.Equal(submission.Id, submissionModel.Id);
-            Assert.Equal(submission.IsFinalSubmission, submissionModel.IsFinalSubmission);
-            Assert.Equal(submission.Language, submissionModel.Language);
-            Assert.Equal(submission.Problem?.Id.AsString, submissionModel.ProblemId);
-            Assert.Equal(submission.Solution, submissionModel.Solution);
-            Assert.Equal(submission.SubmittedOn, submissionModel.SubmittedOn);
-            Assert.Equal(submission.Team?.Id.AsString, submissionModel.TeamId);
-            Assert.NotNull(submissionModel.TestSetResults);
-            Assert.Equal(submission.TestSetResults!.Count, submissionModel.TestSetResults.Count);
-
-            foreach (var testSetResult in submission.TestSetResults)
+            new()
             {
-                var testSetResultModel = submissionModel.TestSetResults.SingleOrDefault(_ => _.TestSetId == testSetResult.TestSet?.Id.AsString);
-
-                Assert.NotNull(testSetResultModel);
-                Assert.Equal(testSetResult.Passed, testSetResultModel.Passed);
-                Assert.Equal(testSetResult.RunDuration, testSetResultModel.RunDuration);
-                Assert.Equal(testSetResult.TestSet?.Id.AsString, testSetResultModel.TestSetId);
+                Id = submissions[0].Id,
+                IsFinalSubmission = submissions[0].IsFinalSubmission,
+                Language = submissions[0].Language,
+                ProblemId = submissions[0].Problem?.Id.AsString,
+                Solution = submissions[0].Solution,
+                SubmittedOn = submissions[0].SubmittedOn,
+                TeamId = submissions[0].Team?.Id.AsString,
+                TestSetResults =
+                [
+                    new TestSetResultModel
+                    {
+                        Passed = submissions[0].TestSetResults![0].Passed,
+                        RunDuration = submissions[0].TestSetResults![0].RunDuration,
+                        TestSetId = submissions[0].TestSetResults![0].TestSet!.Id.AsString
+                    },
+                    new TestSetResultModel
+                    {
+                        Passed = submissions[0].TestSetResults![1].Passed,
+                        RunDuration = submissions[0].TestSetResults![1].RunDuration,
+                        TestSetId = submissions[0].TestSetResults![1].TestSet!.Id.AsString
+                    }
+                ]
+            },
+            new()
+            {
+                Id = submissions[1].Id,
+                IsFinalSubmission = submissions[1].IsFinalSubmission,
+                Language = submissions[1].Language,
+                ProblemId = submissions[1].Problem?.Id.AsString,
+                Solution = submissions[1].Solution,
+                SubmittedOn = submissions[1].SubmittedOn,
+                TeamId = submissions[1].Team?.Id.AsString,
+                TestSetResults =
+                [
+                    new TestSetResultModel
+                    {
+                        Passed = submissions[1].TestSetResults![0].Passed,
+                        RunDuration = submissions[1].TestSetResults![0].RunDuration,
+                        TestSetId = submissions[1].TestSetResults![0].TestSet!.Id.AsString
+                    },
+                    new TestSetResultModel
+                    {
+                        Passed = submissions[1].TestSetResults![1].Passed,
+                        RunDuration = submissions[1].TestSetResults![1].RunDuration,
+                        TestSetId = submissions[1].TestSetResults![1].TestSet!.Id.AsString
+                    }
+                ]
             }
-        }
+        };
+
+        // Act
+        var actualSubmissionModels = Coding.WebApi.Entities.EntityExtensions.ToModels(submissions);
+
+        // Assert
+        Assert.Equal(expectedSubmissionModels, actualSubmissionModels, new SubmissionModelEqualityComparer());
     }
 
     [Fact]
@@ -434,21 +502,27 @@ public class EntityExtensions
             }
         };
 
+        var expectedTestSetResultModels = new List<TestSetResultModel>
+        {
+            new()
+            {
+                Passed = testSetResults[0].Passed,
+                RunDuration = testSetResults[0].RunDuration,
+                TestSetId = testSetResults[0].TestSet?.Id.AsString
+            },
+            new()
+            {
+                Passed = testSetResults[1].Passed,
+                RunDuration = testSetResults[1].RunDuration,
+                TestSetId = testSetResults[1].TestSet?.Id.AsString
+            }
+        };
+
         // Act
-        var testSetResultModels = testSetResults.ToModels();
+        var actualTestSetResultModels = Coding.WebApi.Entities.EntityExtensions.ToModels(testSetResults);
 
         // Assert
-        Assert.NotNull(testSetResultModels);
-
-        foreach (var testSetResult in testSetResults)
-        {
-            var testSetResultModel = testSetResultModels.SingleOrDefault(_ => _.TestSetId == testSetResult.TestSet?.Id.AsString);
-
-            Assert.NotNull(testSetResultModel);
-            Assert.Equal(testSetResult.Passed, testSetResultModel.Passed);
-            Assert.Equal(testSetResult.RunDuration, testSetResultModel.RunDuration);
-            Assert.Equal(testSetResult.TestSet?.Id.AsString, testSetResultModel.TestSetId);
-        }
+        Assert.Equal(expectedTestSetResultModels, actualTestSetResultModels, new TestSetResultModelEqualityComparer());
     }
 
     [Fact]
@@ -522,32 +596,49 @@ public class EntityExtensions
             }
         };
 
-        // Act
-        var testSetModels = testSets.ToModels();
-
-        foreach (var testSetModel in testSetModels)
+        var expectedTestSetModels = new List<TestSetModel>
         {
-            var testSet = testSets.SingleOrDefault(_ => _.Id == testSetModel.Id);
+            new()
+            {
+                Id = testSets[0].Id,
+                Inputs = [],
+                IsPublic = testSets[0].IsPublic,
+                Name = testSets[0].Name,
+                ProblemId = testSets[0].Problem?.Id.AsString
+            },
+            new()
+            {
+                Id = testSets[1].Id,
+                Inputs = [],
+                IsPublic = testSets[1].IsPublic,
+                Name = testSets[1].Name,
+                ProblemId = testSets[1].Problem?.Id.AsString
+            }
+        };
 
-            Assert.NotNull(testSet);
+        for (var index = 0; index < testSets.Count; index++)
+        {
+            var testSet = testSets[index];
+            var expectedTestSetModel = expectedTestSetModels[index];
 
-            // Assert
-            Assert.Equal(testSet.Id, testSetModel.Id);
-            Assert.NotNull(testSetModel.Inputs);
-            Assert.NotEmpty(testSetModel.Inputs);
+            expectedTestSetModel.Inputs = new List<TestSetValueModel>();
 
             foreach (var testSetInput in testSet.Inputs!)
             {
-                var testSetInputModel = testSetModel.Inputs.SingleOrDefault(_ => _.Index == testSetInput.Index);
-
-                Assert.NotNull(testSetInputModel);
-                Assert.Equal(testSetInput.DataType, testSetInputModel.DataType);
-                Assert.Equal(testSetInput.IsArray, testSetInputModel.IsArray);
-                Assert.Equal(testSetInput.ValueAsJson, testSetInputModel.ValueAsJson);
+                expectedTestSetModel.Inputs.Add(new TestSetValueModel
+                {
+                    DataType = testSetInput.DataType,
+                    Index = testSetInput.Index,
+                    IsArray = testSetInput.IsArray,
+                    ValueAsJson = testSetInput.ValueAsJson
+                });
             }
-
-            Assert.Equal(testSet.Name, testSetModel.Name);
-            Assert.Equal(testSet.Problem?.Id.AsString, testSetModel.ProblemId);
         }
+
+        // Act
+        var actualTestSetModels = Coding.WebApi.Entities.EntityExtensions.ToModels(testSets);
+
+        // Assert
+        Assert.Equal(expectedTestSetModels, actualTestSetModels, new TestSetModelEqualityComparer());
     }
 }
