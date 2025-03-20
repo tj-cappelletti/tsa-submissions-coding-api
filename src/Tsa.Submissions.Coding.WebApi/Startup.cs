@@ -20,7 +20,6 @@ using Newtonsoft.Json.Converters;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
-using Tsa.Submissions.Coding.WebApi.Swagger;
 using Tsa.Submissions.Coding.WebApi.Validators;
 
 namespace Tsa.Submissions.Coding.WebApi;
