@@ -34,13 +34,13 @@ public class EntityExtensions
         {
             submission.TestSetResults =
             [
-                new()
+                new TestSetResult
                 {
                     Passed = true,
                     RunDuration = new TimeSpan(0, 0, 5, 0),
                     TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
                 },
-                new()
+                new TestSetResult
                 {
                     Passed = true,
                     RunDuration = new TimeSpan(0, 0, 5, 0),
@@ -132,12 +132,12 @@ public class EntityExtensions
             Id = "This is an ID",
             Participants =
             [
-                new()
+                new Participant
                 {
                     ParticipantNumber = "001",
                     SchoolNumber = "1234"
                 },
-                new()
+                new Participant
                 {
                     ParticipantNumber = "002",
                     SchoolNumber = "1234"
@@ -173,21 +173,21 @@ public class EntityExtensions
             Id = "This is an ID",
             Inputs =
             [
-                new()
+                new TestSetValue
                 {
                     DataType = "Data Type #1",
                     Index = 1,
                     IsArray = true,
                     ValueAsJson = "ValueAsJson #1"
                 },
-                new()
+                new TestSetValue
                 {
                     DataType = "Data Type #2",
                     Index = 2,
                     IsArray = false,
                     ValueAsJson = "ValueAsJson #2"
                 },
-                new()
+                new TestSetValue
                 {
                     DataType = "Data Type #3",
                     Index = 3,
@@ -232,19 +232,19 @@ public class EntityExtensions
             Id = "This is an ID",
             Inputs =
             [
-                new()
+                new TestSetValue
                 {
                     DataType = "Data Type #1",
                     Index = 1,
                     ValueAsJson = "ValueAsJson #1"
                 },
-                new()
+                new TestSetValue
                 {
                     DataType = "Data Type #2",
                     Index = 2,
                     ValueAsJson = "ValueAsJson #2"
                 },
-                new()
+                new TestSetValue
                 {
                     DataType = "Data Type #3",
                     Index = 3,
@@ -340,13 +340,13 @@ public class EntityExtensions
                 Team = new MongoDBRef("teams", "00000000000000000000000B"),
                 TestSetResults =
                 [
-                    new()
+                    new TestSetResult
                     {
                         Passed = true,
                         RunDuration = new TimeSpan(0, 0, 5, 0),
                         TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
                     },
-                    new()
+                    new TestSetResult
                     {
                         Passed = true,
                         RunDuration = new TimeSpan(0, 0, 5, 0),
@@ -365,13 +365,13 @@ public class EntityExtensions
                 Team = new MongoDBRef("teams", "00000000000000000000000C"),
                 TestSetResults =
                 [
-                    new()
+                    new TestSetResult
                     {
                         Passed = true,
                         RunDuration = new TimeSpan(0, 0, 5, 0),
                         TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
                     },
-                    new()
+                    new TestSetResult
                     {
                         Passed = true,
                         RunDuration = new TimeSpan(0, 0, 5, 0),
@@ -415,20 +415,6 @@ public class EntityExtensions
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public void ToModels_For_TestSetInputs_Should_Return_Null_When_Inputs_Is_Null()
-    {
-        // Arrange
-        var testSet = new TestSet();
-
-        // Act
-        var testSetInputModels = testSet.Inputs.ToModels();
-
-        // Assert
-        Assert.Null(testSetInputModels);
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
     public void ToModels_For_TestSetResults_Should_Return_TestSetResultModels()
     {
         // Arrange
@@ -467,21 +453,6 @@ public class EntityExtensions
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public void ToModels_For_TestSetResults_When_Null_Should_Return_Null()
-    {
-        // Arrange
-        List<TestSetResult>? testSetResults = null;
-
-        // Act
-        var testSetResultModels = testSetResults.ToModels();
-
-        // Assert
-        Assert.Null(testSetResultModels);
-    }
-
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
     public void ToModels_For_TestSets_Should_Return_TestSetModels()
     {
         // Arrange
@@ -492,21 +463,21 @@ public class EntityExtensions
                 Id = "000000000000000000000000",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "Data Type #1",
                         Index = 1,
                         IsArray = true,
                         ValueAsJson = "ValueAsJson #1"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "Data Type #2",
                         Index = 2,
                         IsArray = false,
                         ValueAsJson = "ValueAsJson #2"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "Data Type #3",
                         Index = 3,
@@ -523,21 +494,21 @@ public class EntityExtensions
                 Id = "000000000000000000000001",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "Data Type #4",
                         Index = 1,
                         IsArray = true,
                         ValueAsJson = "ValueAsJson #4"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "Data Type #5",
                         Index = 2,
                         IsArray = false,
                         ValueAsJson = "ValueAsJson #5"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "Data Type #6",
                         Index = 3,
