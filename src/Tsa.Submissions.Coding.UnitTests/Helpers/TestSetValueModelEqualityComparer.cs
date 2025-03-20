@@ -33,7 +33,7 @@ internal class TestSetValueModelEqualityComparer : IEqualityComparer<TestSetValu
 
         foreach (var leftTestInputModel in x)
         {
-            var rightTestSetInputModel = y.SingleOrDefault(_ => _.Index == leftTestInputModel.Index);
+            var rightTestSetInputModel = y.SingleOrDefault(testSetValueModel => testSetValueModel.Index == leftTestInputModel.Index);
 
             if (!Equals(leftTestInputModel, rightTestSetInputModel)) return false;
         }
