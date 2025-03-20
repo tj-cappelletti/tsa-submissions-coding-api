@@ -6,6 +6,11 @@ namespace Tsa.Submissions.Coding.WebApi.Entities;
 
 public static partial class EntityExtensions
 {
+    private static List<SubmissionModel> SubmissionsToSubmissionModels(IEnumerable<Submission> submissions)
+    {
+        return submissions.Select(submission => submission.ToModel()).ToList();
+    }
+
     public static SubmissionModel ToModel(this Submission submission)
     {
         return new SubmissionModel
@@ -25,6 +30,11 @@ public static partial class EntityExtensions
 
     public static List<SubmissionModel> ToModels(this IList<Submission> submissions)
     {
-        return submissions.Select(submission => submission.ToModel()).ToList();
+        return SubmissionsToSubmissionModels(submissions);
+    }
+
+    public static List<SubmissionModel> ToModels(this IEnumerable<Submission> submissions)
+    {
+        return SubmissionsToSubmissionModels(submissions);
     }
 }

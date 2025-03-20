@@ -6,6 +6,11 @@ namespace Tsa.Submissions.Coding.WebApi.Entities;
 
 public static partial class EntityExtensions
 {
+    private static List<TestSetValueModel> TestSetValuesToTestSetValueModels(this IEnumerable<TestSetValue> testSetValues)
+    {
+        return [.. testSetValues.Select(testSetValue => testSetValue.ToModel())];
+    }
+
     public static TestSetValueModel ToModel(this TestSetValue testSetValue)
     {
         return new TestSetValueModel
@@ -17,8 +22,13 @@ public static partial class EntityExtensions
         };
     }
 
-    public static List<TestSetValueModel>? ToModels(this IList<TestSetValue>? testSetInputs)
+    public static List<TestSetValueModel> ToModels(this IList<TestSetValue> testSetInputs)
     {
-        return testSetInputs?.Select(testSetInput => testSetInput.ToModel()).ToList();
+        return TestSetValuesToTestSetValueModels(testSetInputs);
+    }
+
+    public static List<TestSetValueModel> ToModels(this IEnumerable<TestSetValue> testSetInputs)
+    {
+        return TestSetValuesToTestSetValueModels(testSetInputs);
     }
 }

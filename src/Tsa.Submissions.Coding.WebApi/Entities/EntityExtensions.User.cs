@@ -28,6 +28,16 @@ public static partial class EntityExtensions
 
     public static List<UserModel> ToModels(this IList<User> users)
     {
-        return users.Select(user => user.ToModel()).ToList();
+        return UsersToUserModels(users);
+    }
+
+    public static List<UserModel> ToModels(this IEnumerable<User> users)
+    {
+        return UsersToUserModels(users);
+    }
+
+    private static List<UserModel> UsersToUserModels(this IEnumerable<User> users)
+    {
+        return [.. users.Select(user => user.ToModel())];
     }
 }
