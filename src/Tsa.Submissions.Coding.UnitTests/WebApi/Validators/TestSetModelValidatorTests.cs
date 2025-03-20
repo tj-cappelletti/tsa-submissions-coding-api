@@ -28,20 +28,20 @@ public class TestSetModelValidatorTests
 
         if (testSetDataIssues.HasFlag(TestSetDataIssues.MissingName))
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.Name);
+            testValidationResult.ShouldHaveValidationErrorFor(testSetModel => testSetModel.Name);
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.Name);
+            testValidationResult.ShouldNotHaveValidationErrorFor(testSetModel => testSetModel.Name);
         }
 
         if (testSetDataIssues.HasFlag(TestSetDataIssues.MissingProblemId))
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.ProblemId);
+            testValidationResult.ShouldHaveValidationErrorFor(testSetModel => testSetModel.ProblemId);
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.ProblemId);
+            testValidationResult.ShouldNotHaveValidationErrorFor(testSetModel => testSetModel.ProblemId);
         }
 
         if (testSetDataIssues.HasFlag(TestSetDataIssues.MissingInput) ||
@@ -54,11 +54,11 @@ public class TestSetModelValidatorTests
             testSetDataIssues.HasFlag(TestSetDataIssues.ValueCannotBeDeserialized) ||
             testSetDataIssues.HasFlag(TestSetDataIssues.IndexNotContinuous))
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.Inputs);
+            testValidationResult.ShouldHaveValidationErrorFor(testSetModel => testSetModel.Inputs);
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.Inputs);
+            testValidationResult.ShouldNotHaveValidationErrorFor(testSetModel => testSetModel.Inputs);
         }
     }
 }

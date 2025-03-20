@@ -18,59 +18,59 @@ public class TestSetsTestData : IEnumerable<object[]>
 
     public IEnumerator<object[]> GetEnumerator()
     {
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000001",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "character",
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"a\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "character",
                         Index = 1,
                         IsArray = true,
                         ValueAsJson = "{ \"value\": [ \"a\", \"b\", \"c\" ] }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "decimal",
                         Index = 2,
                         ValueAsJson = "{ \"value\": 1.1 }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "decimal",
                         Index = 3,
                         IsArray = true,
                         ValueAsJson = "{ \"value\": [ 1.1, 1.2, 1.3 ] }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 4,
                         ValueAsJson = "{ \"value\": 1 }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 5,
                         IsArray = true,
                         ValueAsJson = "{ \"value\": [ 1, 2, 3 ] }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 6,
                         ValueAsJson = "{ \"value\": \"string a\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 7,
@@ -83,22 +83,22 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000001")
             },
             TestSetDataIssues.None
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000002",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 1,
@@ -110,22 +110,22 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000001")
             },
             TestSetDataIssues.None
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000003",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 1,
@@ -136,22 +136,22 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000002")
             },
             TestSetDataIssues.MissingName
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000004",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 1,
@@ -162,10 +162,10 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Name = "Test Set #4"
             },
             TestSetDataIssues.MissingProblemId
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000005",
@@ -174,21 +174,21 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000002")
             },
             TestSetDataIssues.MissingInput
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000006",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         Index = 1,
                         ValueAsJson = "{ \"value\": 1 }"
@@ -199,22 +199,22 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
             },
             TestSetDataIssues.MissingDataType
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000007",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "dog",
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "cat",
                         Index = 1,
@@ -226,21 +226,21 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
             },
             TestSetDataIssues.InvalidDataType
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000008",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         ValueAsJson = "{ \"value\": 1 }"
@@ -251,22 +251,22 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
             },
             TestSetDataIssues.MissingIndex
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000009",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 0,
@@ -278,21 +278,21 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
             },
             TestSetDataIssues.IndexNotUnique
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000010",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 0
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 1
@@ -303,22 +303,22 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
             },
             TestSetDataIssues.MissingValueAsJson
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000011",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 1,
@@ -330,22 +330,22 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
             },
             TestSetDataIssues.ValueDoesNotMatchDataType
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000012",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 0,
                         ValueAsJson = "Try me"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 1,
@@ -357,22 +357,22 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
             },
             TestSetDataIssues.ValueCannotBeDeserialized
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new TestSet
             {
                 Id = "000000000000000000000012",
                 Inputs =
                 [
-                    new()
+                    new TestSetValue
                     {
                         DataType = "string",
                         Index = 0,
                         ValueAsJson = "{ \"value\": \"test value\" }"
                     },
-                    new()
+                    new TestSetValue
                     {
                         DataType = "number",
                         Index = 2,
@@ -384,7 +384,7 @@ public class TestSetsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000003")
             },
             TestSetDataIssues.IndexNotContinuous
-        };
+        ];
     }
 }
 
