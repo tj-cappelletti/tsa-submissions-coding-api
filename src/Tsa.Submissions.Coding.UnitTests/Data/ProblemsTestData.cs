@@ -11,8 +11,8 @@ public class ProblemsTestData : IEnumerable<object[]>
 {
     public IEnumerator<object[]> GetEnumerator()
     {
-        yield return new object[]
-        {
+        yield return
+        [
             new Problem
             {
                 Description = "This is the description of Problem #1",
@@ -21,10 +21,10 @@ public class ProblemsTestData : IEnumerable<object[]>
                 Title = "Problem #1"
             },
             ProblemDataIssues.None
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new Problem
             {
                 Description = "This is the description of Problem #2",
@@ -33,10 +33,10 @@ public class ProblemsTestData : IEnumerable<object[]>
                 Title = "Problem #2"
             },
             ProblemDataIssues.None
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new Problem
             {
                 Description = "This is the description of Problem #3",
@@ -45,10 +45,10 @@ public class ProblemsTestData : IEnumerable<object[]>
                 Title = "Problem #3"
             },
             ProblemDataIssues.None
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new Problem
             {
                 Description = "This is the description of Problem #4",
@@ -57,10 +57,10 @@ public class ProblemsTestData : IEnumerable<object[]>
                 Title = "Problem #4"
             },
             ProblemDataIssues.None
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new Problem
             {
                 Id = "000000000000000000000005",
@@ -68,10 +68,10 @@ public class ProblemsTestData : IEnumerable<object[]>
                 Title = "Problem #5"
             },
             ProblemDataIssues.MissingDescription
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new Problem
             {
                 Description = "This is the description of Problem #6",
@@ -79,17 +79,17 @@ public class ProblemsTestData : IEnumerable<object[]>
                 IsActive = false,
             },
             ProblemDataIssues.MissingTitle
-        };
+        ];
 
-        yield return new object[]
-        {
+        yield return
+        [
             new Problem
             {
                 Id = "000000000000000000000007",
                 IsActive = false,
             },
             ProblemDataIssues.MissingDescription | ProblemDataIssues.MissingTitle
-        };
+        ];
     }
 
     IEnumerator IEnumerable.GetEnumerator()
