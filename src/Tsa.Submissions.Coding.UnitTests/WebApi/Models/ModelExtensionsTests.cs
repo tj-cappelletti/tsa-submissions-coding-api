@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.UnitTests.Helpers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -31,7 +32,7 @@ public class ModelExtensions
 
         foreach (var participant in participants)
         {
-            Assert.Contains(participantModels, _ => _.ParticipantId == participant.ParticipantId);
+            Assert.Contains(participantModels, participantModel => participantModel.ParticipantId == participant.ParticipantId);
         }
     }
 
@@ -47,6 +48,42 @@ public class ModelExtensions
 
         // Assert
         Assert.Null(testSetInputs);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToEntities_For_UserModel_Should_Return_User()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
+
+        var expectedUser = usersTestData
+            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Team != null)
+            .Select(userTestData => (User)userTestData[0])
+            .First();
+
+        var userModel = new UserModel
+        {
+            ExternalId = expectedUser.ExternalId,
+            Id = expectedUser.Id,
+            Role = expectedUser.Role,
+            Team = new TeamModel
+            {
+                Id = expectedUser.Team!.Id.AsString,
+                Participants = new List<ParticipantModel>
+                {
+                    new() { ParticipantNumber = "001", SchoolNumber = "1234" },
+                    new() { ParticipantNumber = "002", SchoolNumber = "1234" }
+                }
+            },
+            UserName = expectedUser.UserName
+        };
+
+        // Act
+        var actualUser = userModel.ToEntity();
+
+        // Assert
+        Assert.Equal(expectedUser, actualUser, new UserEqualityComparer());
     }
 
     [Fact]
@@ -107,13 +144,13 @@ public class ModelExtensions
             TeamId = "00000000000000000000000B",
             TestSetResults =
             [
-                new()
+                new TestSetResultModel
                 {
                     Passed = true,
                     RunDuration = new TimeSpan(0, 0, 5, 0),
                     TestSetId = "000000000000000000000010"
                 },
-                new()
+                new TestSetResultModel
                 {
                     Passed = true,
                     RunDuration = new TimeSpan(0, 0, 5, 0),
@@ -137,7 +174,7 @@ public class ModelExtensions
 
         foreach (var testSetResultModel in submissionModel.TestSetResults)
         {
-            var testSetResult = submission.TestSetResults.SingleOrDefault(_ => _.TestSet?.Id.AsString == testSetResultModel.TestSetId);
+            var testSetResult = submission.TestSetResults.SingleOrDefault(setResult => setResult.TestSet?.Id.AsString == testSetResultModel.TestSetId);
 
             Assert.NotNull(testSetResult);
             Assert.Equal(testSetResultModel.Passed, testSetResult.Passed);
@@ -194,20 +231,10 @@ public class ModelExtensions
         };
 
         // Act
-        var team = teamModel.ToEntity();
+        var actualTeam = teamModel.ToEntity();
 
         // Assert
-        Assert.Equal(teamModel.CompetitionLevel, team.CompetitionLevel.ToString(), new StringEqualityComparer());
-        Assert.Equal(teamModel.Id, team.Id);
-        Assert.Equal(teamModel.SchoolNumber, team.SchoolNumber);
-        Assert.Equal(teamModel.TeamNumber, team.TeamNumber);
-
-        Assert.Equal(teamModel.Participants.Count, team.Participants.Count);
-
-        foreach (var participant in team.Participants)
-        {
-            Assert.Contains(teamModel.Participants, participantModel => participantModel.ParticipantId == participant.ParticipantId);
-        }
+        Assert.Equal(expectedTeam, actualTeam, new TeamEqualityComparer());
     }
 
     [Fact]
@@ -215,7 +242,7 @@ public class ModelExtensions
     public void ToEntity_For_TestSetInputModel_Should_Return_TestSetInput()
     {
         // Arrange
-        var testSetInputModel = new TestSetValueModel
+        var testSetValueModel = new TestSetValueModel
         {
             DataType = "Data Type",
             Index = 9999,
@@ -223,14 +250,19 @@ public class ModelExtensions
             ValueAsJson = "ValueAsJson"
         };
 
+        var expectedTestSetValue = new TestSetValue
+        {
+            DataType = testSetValueModel.DataType,
+            Index = testSetValueModel.Index,
+            IsArray = testSetValueModel.IsArray,
+            ValueAsJson = testSetValueModel.ValueAsJson
+        };
+
         // Act
-        var testSetInput = testSetInputModel.ToEntity();
+        var actualTestSetInput = testSetValueModel.ToEntity();
 
         // Assert
-        Assert.Equal(testSetInputModel.DataType, testSetInput.DataType);
-        Assert.Equal(testSetInputModel.Index, testSetInput.Index);
-        Assert.Equal(testSetInputModel.IsArray, testSetInput.IsArray);
-        Assert.Equal(testSetInputModel.ValueAsJson, testSetInput.ValueAsJson);
+        Assert.Equal(expectedTestSetValue, actualTestSetInput, new TestSetValueEqualityComparer());
     }
 
     [Fact]
@@ -243,21 +275,21 @@ public class ModelExtensions
             Id = "This is an ID",
             Inputs =
             [
-                new()
+                new TestSetValueModel
                 {
                     DataType = "Data Type #1",
                     Index = 1,
                     IsArray = true,
                     ValueAsJson = "ValueAsJson #1"
                 },
-                new()
+                new TestSetValueModel
                 {
                     DataType = "Data Type #2",
                     Index = 2,
                     IsArray = false,
                     ValueAsJson = "ValueAsJson #2"
                 },
-                new()
+                new TestSetValueModel
                 {
                     DataType = "Data Type #3",
                     Index = 3,
