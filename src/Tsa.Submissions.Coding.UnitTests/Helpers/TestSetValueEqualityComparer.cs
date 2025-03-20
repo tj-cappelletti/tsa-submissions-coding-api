@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Tsa.Submissions.Coding.WebApi.Entities;
 
 namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 
+//TODO: Turn into code generator
+[ExcludeFromCodeCoverage]
 internal class TestSetValueEqualityComparer : IEqualityComparer<TestSetValue?>, IEqualityComparer<IList<TestSetValue>?>
 {
     public bool Equals(TestSetValue? x, TestSetValue? y)
