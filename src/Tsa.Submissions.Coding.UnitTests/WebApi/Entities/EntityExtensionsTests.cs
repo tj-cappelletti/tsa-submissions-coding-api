@@ -35,10 +35,10 @@ public class EntityExtensions
             ProblemId = submission.Problem?.Id.AsString,
             Solution = submission.Solution,
             SubmittedOn = submission.SubmittedOn,
-            TeamId = submission.Team?.Id.AsString
+            TeamId = submission.Team?.Id.AsString,
+            TestSetResults = new List<TestSetResultModel>()
         };
 
-        expectedSubmissionModel.TestSetResults = new List<TestSetResultModel>();
         submission.TestSetResults =
         [
             new TestSetResult
