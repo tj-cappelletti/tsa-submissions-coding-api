@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using MongoDB.Driver;
+using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.UnitTests.Helpers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
-using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
 namespace Tsa.Submissions.Coding.UnitTests.WebApi.Entities;
@@ -20,16 +21,13 @@ public class EntityExtensions
     public void ToModel_For_Submission_Should_Return_SubmissionModel(bool includeTestTests)
     {
         // Arrange
-        var submission = new Submission
-        {
-            Id = "000000000000000000000000",
-            IsFinalSubmission = true,
-            Language = "csharp",
-            Problem = new MongoDBRef("problems", "00000000000000000000000A"),
-            Solution = "The solution",
-            SubmittedOn = DateTime.Now.AddHours(-5),
-            Team = new MongoDBRef("teams", "00000000000000000000000B")
-        };
+        var submissionsTestData = new SubmissionsTestData();
+
+        var submission = submissionsTestData
+            .Where(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
+            .Cast<Submission>()
+            .Last();
 
         var expectedSubmissionModel = new SubmissionModel
         {
@@ -108,13 +106,13 @@ public class EntityExtensions
     public void ToModel_For_Problem_Should_Return_ProblemModel()
     {
         // Arrange
-        var problem = new Problem
-        {
-            Description = "This is the description",
-            Id = "This is the ID",
-            IsActive = true,
-            Title = "This is the title"
-        };
+        var problemsTestData = new ProblemsTestData();
+
+        var problem = problemsTestData
+            .Where(problemTestData => (ProblemDataIssues)problemTestData[1] == ProblemDataIssues.None)
+            .Select(problemTestData => problemTestData[0])
+            .Cast<Problem>()
+            .Last();
 
         var expectedProblemModel = new ProblemModel
         {
@@ -136,26 +134,13 @@ public class EntityExtensions
     public void ToModel_For_Team_Should_Return_TeamModel()
     {
         // Arrange
-        var team = new Team
-        {
-            CompetitionLevel = CompetitionLevel.HighSchool,
-            Id = "This is an ID",
-            Participants =
-            [
-                new Participant
-                {
-                    ParticipantNumber = "001",
-                    SchoolNumber = "1234"
-                },
-                new Participant
-                {
-                    ParticipantNumber = "002",
-                    SchoolNumber = "1234"
-                }
-            ],
-            SchoolNumber = "1234",
-            TeamNumber = "901"
-        };
+        var teamsTestData = new TeamsTestData();
+
+        var team = teamsTestData
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
+            .Cast<Team>()
+            .Last();
 
         var expectedTeamModel = new TeamModel
         {
@@ -187,37 +172,13 @@ public class EntityExtensions
     public void ToModel_For_TestSet_Should_Return_TestSetModel()
     {
         // Arrange
-        var testSet = new TestSet
-        {
-            Id = "This is an ID",
-            Inputs =
-            [
-                new TestSetValue
-                {
-                    DataType = "Data Type #1",
-                    Index = 1,
-                    IsArray = true,
-                    ValueAsJson = "ValueAsJson #1"
-                },
-                new TestSetValue
-                {
-                    DataType = "Data Type #2",
-                    Index = 2,
-                    IsArray = false,
-                    ValueAsJson = "ValueAsJson #2"
-                },
-                new TestSetValue
-                {
-                    DataType = "Data Type #3",
-                    Index = 3,
-                    IsArray = true,
-                    ValueAsJson = "ValueAsJson #3"
-                }
-            ],
-            IsPublic = true,
-            Name = "Test Set #1",
-            Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
-        };
+        var testSetsTestData = new TestSetsTestData();
+
+        var testSet = testSetsTestData
+            .Where(testSetTestData => (TestSetDataIssues)testSetTestData[1] == TestSetDataIssues.None)
+            .Select(testSetTestData => testSetTestData[0])
+            .Cast<TestSet>()
+            .Last();
 
         var expectedTestSetModel = new TestSetModel
         {
@@ -228,7 +189,7 @@ public class EntityExtensions
             ProblemId = testSet.Problem?.Id.AsString
         };
 
-        foreach (var testSetInput in testSet.Inputs)
+        foreach (var testSetInput in testSet.Inputs!)
         {
             expectedTestSetModel.Inputs.Add(new TestSetValueModel
             {
@@ -251,34 +212,13 @@ public class EntityExtensions
     public void ToModel_For_TestSet_Should_Return_TestSetModel_With_ProblemId_Null_When_Problem_Is_Null()
     {
         // Arrange
-        var testSet = new TestSet
-        {
-            Id = "This is an ID",
-            Inputs =
-            [
-                new TestSetValue
-                {
-                    DataType = "Data Type #1",
-                    Index = 1,
-                    ValueAsJson = "ValueAsJson #1"
-                },
-                new TestSetValue
-                {
-                    DataType = "Data Type #2",
-                    Index = 2,
-                    ValueAsJson = "ValueAsJson #2"
-                },
-                new TestSetValue
-                {
-                    DataType = "Data Type #3",
-                    Index = 3,
-                    ValueAsJson = "ValueAsJson #3"
-                }
-            ],
-            IsPublic = true,
-            Name = "Test Set #1",
-            Problem = null
-        };
+        var testSetsTestData = new TestSetsTestData();
+
+        var testSet = testSetsTestData
+            .Where(testSetTestData => (TestSetDataIssues)testSetTestData[1] == TestSetDataIssues.None)
+            .Select(testSetTestData => testSetTestData[0])
+            .Cast<TestSet>()
+            .Last();
 
         var expectedTestSetModel = new TestSetModel
         {
@@ -289,7 +229,7 @@ public class EntityExtensions
             ProblemId = null
         };
 
-        foreach (var testSetInput in testSet.Inputs)
+        foreach (var testSetInput in testSet.Inputs!)
         {
             expectedTestSetModel.Inputs.Add(new TestSetValueModel
             {
@@ -363,62 +303,45 @@ public class EntityExtensions
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_User_Should_Return_UserModel()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
+
+        var user = usersTestData
+            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None)
+            .Select(userTestData => userTestData[0])
+            .Cast<User>()
+            .Last();
+
+        var expectedUserModel = new UserModel
+        {
+            ExternalId = user.ExternalId,
+            Id = user.Id,
+            Role = user.Role,
+            Team = user.Team != null ? new TeamModel { Id = user.Team.Id.AsString } : null,
+            UserName = user.UserName
+        };
+
+        // Act
+        var actualUserModel = user.ToModel();
+
+        // Assert
+        Assert.Equal(expectedUserModel, actualUserModel, new UserModelEqualityComparer());
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public void ToModels_For_Submission_Should_Return_SubmissionModel()
     {
         // Arrange
-        var submissions = new List<Submission>
-        {
-            new()
-            {
-                Id = "000000000000000000000000",
-                IsFinalSubmission = true,
-                Language = "csharp",
-                Problem = new MongoDBRef("problems", "00000000000000000000000A"),
-                Solution = "The solution in C#",
-                SubmittedOn = DateTime.Now.AddHours(-5),
-                Team = new MongoDBRef("teams", "00000000000000000000000B"),
-                TestSetResults =
-                [
-                    new TestSetResult
-                    {
-                        Passed = true,
-                        RunDuration = new TimeSpan(0, 0, 5, 0),
-                        TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
-                    },
-                    new TestSetResult
-                    {
-                        Passed = true,
-                        RunDuration = new TimeSpan(0, 0, 5, 0),
-                        TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
-                    }
-                ]
-            },
-            new()
-            {
-                Id = "000000000000000000000001",
-                IsFinalSubmission = true,
-                Language = "java",
-                Problem = new MongoDBRef("problems", "00000000000000000000000A"),
-                Solution = "The solution in Java",
-                SubmittedOn = DateTime.Now.AddHours(-4),
-                Team = new MongoDBRef("teams", "00000000000000000000000C"),
-                TestSetResults =
-                [
-                    new TestSetResult
-                    {
-                        Passed = true,
-                        RunDuration = new TimeSpan(0, 0, 5, 0),
-                        TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
-                    },
-                    new TestSetResult
-                    {
-                        Passed = true,
-                        RunDuration = new TimeSpan(0, 0, 5, 0),
-                        TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
-                    }
-                ]
-            }
-        };
+        var submissionsTestData = new SubmissionsTestData();
+
+        var submissions = submissionsTestData
+            .Where(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
+            .Cast<Submission>()
+            .ToList();
 
         var expectedSubmissionModels = new List<SubmissionModel>
         {
@@ -530,71 +453,13 @@ public class EntityExtensions
     public void ToModels_For_TestSets_Should_Return_TestSetModels()
     {
         // Arrange
-        var testSets = new List<TestSet>
-        {
-            new()
-            {
-                Id = "000000000000000000000000",
-                Inputs =
-                [
-                    new TestSetValue
-                    {
-                        DataType = "Data Type #1",
-                        Index = 1,
-                        IsArray = true,
-                        ValueAsJson = "ValueAsJson #1"
-                    },
-                    new TestSetValue
-                    {
-                        DataType = "Data Type #2",
-                        Index = 2,
-                        IsArray = false,
-                        ValueAsJson = "ValueAsJson #2"
-                    },
-                    new TestSetValue
-                    {
-                        DataType = "Data Type #3",
-                        Index = 3,
-                        IsArray = true,
-                        ValueAsJson = "ValueAsJson #3"
-                    }
-                ],
-                IsPublic = true,
-                Name = "Test Set #1",
-                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
-            },
-            new()
-            {
-                Id = "000000000000000000000001",
-                Inputs =
-                [
-                    new TestSetValue
-                    {
-                        DataType = "Data Type #4",
-                        Index = 1,
-                        IsArray = true,
-                        ValueAsJson = "ValueAsJson #4"
-                    },
-                    new TestSetValue
-                    {
-                        DataType = "Data Type #5",
-                        Index = 2,
-                        IsArray = false,
-                        ValueAsJson = "ValueAsJson #5"
-                    },
-                    new TestSetValue
-                    {
-                        DataType = "Data Type #6",
-                        Index = 3,
-                        IsArray = true,
-                        ValueAsJson = "ValueAsJson #6"
-                    }
-                ],
-                IsPublic = true,
-                Name = "Test Set #2",
-                Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000000")
-            }
-        };
+        var testSetsTestData = new TestSetsTestData();
+
+        var testSets = testSetsTestData
+            .Where(testSetTestData => (TestSetDataIssues)testSetTestData[1] == TestSetDataIssues.None)
+            .Select(testSetTestData => testSetTestData[0])
+            .Cast<TestSet>()
+            .ToList();
 
         var expectedTestSetModels = new List<TestSetModel>
         {
@@ -640,5 +505,40 @@ public class EntityExtensions
 
         // Assert
         Assert.Equal(expectedTestSetModels, actualTestSetModels, new TestSetModelEqualityComparer());
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModels_For_Users_Should_Return_UserModels()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
+
+        var users = usersTestData
+            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None)
+            .Select(userTestData => userTestData[0])
+            .Cast<User>()
+            .ToList();
+
+        var expectedUserModels = new List<UserModel>();
+
+        foreach (var user in users)
+        {
+            var expectedUserModel = new UserModel
+            {
+                ExternalId = user.ExternalId,
+                Id = user.Id,
+                Role = user.Role,
+                Team = user.Team != null ? new TeamModel { Id = user.Team.Id.AsString } : null,
+                UserName = user.UserName
+            };
+            expectedUserModels.Add(expectedUserModel);
+        }
+
+        // Act
+        var actualUserModels = users.ToModels();
+
+        // Assert
+        Assert.Equal(expectedUserModels, actualUserModels, new UserModelEqualityComparer());
     }
 }
