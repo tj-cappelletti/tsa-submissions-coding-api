@@ -16,6 +16,58 @@ public class EntityExtensions
 {
     [Fact]
     [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_Participant_Should_Return_ParticipantModel()
+    {
+        // Arrange
+        var participant = new Participant
+        {
+            ParticipantNumber = "123",
+            SchoolNumber = "1234"
+        };
+
+        var expectedParticipantModel = new ParticipantModel
+        {
+            ParticipantNumber = participant.ParticipantNumber,
+            SchoolNumber = participant.SchoolNumber
+        };
+
+        // Act
+        var actualParticipantModel = participant.ToModel();
+
+        // Assert
+        Assert.Equal(expectedParticipantModel, actualParticipantModel, new ParticipantModelEqualityComparer());
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToModel_For_Problem_Should_Return_ProblemModel()
+    {
+        // Arrange
+        var problemsTestData = new ProblemsTestData();
+
+        var problem = problemsTestData
+            .Where(problemTestData => (ProblemDataIssues)problemTestData[1] == ProblemDataIssues.None)
+            .Select(problemTestData => problemTestData[0])
+            .Cast<Problem>()
+            .Last();
+
+        var expectedProblemModel = new ProblemModel
+        {
+            Description = problem.Description,
+            Id = problem.Id,
+            IsActive = problem.IsActive,
+            Title = problem.Title
+        };
+
+        // Act
+        var actualProblemModel = problem.ToModel();
+
+        // Assert
+        Assert.Equal(expectedProblemModel, actualProblemModel, new ProblemModelEqualityComparer());
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public void ToModel_For_Submission_Should_Return_SubmissionModel()
     {
         // Arrange
@@ -70,58 +122,6 @@ public class EntityExtensions
 
         // Assert
         Assert.Equal(expectedSubmissionModel, actualSubmissionModel, new SubmissionModelEqualityComparer());
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
-    public void ToModel_For_Participant_Should_Return_ParticipantModel()
-    {
-        // Arrange
-        var participant = new Participant
-        {
-            ParticipantNumber = "123",
-            SchoolNumber = "1234"
-        };
-
-        var expectedParticipantModel = new ParticipantModel
-        {
-            ParticipantNumber = participant.ParticipantNumber,
-            SchoolNumber = participant.SchoolNumber
-        };
-
-        // Act
-        var actualParticipantModel = participant.ToModel();
-
-        // Assert
-        Assert.Equal(expectedParticipantModel, actualParticipantModel, new ParticipantModelEqualityComparer());
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
-    public void ToModel_For_Problem_Should_Return_ProblemModel()
-    {
-        // Arrange
-        var problemsTestData = new ProblemsTestData();
-
-        var problem = problemsTestData
-            .Where(problemTestData => (ProblemDataIssues)problemTestData[1] == ProblemDataIssues.None)
-            .Select(problemTestData => problemTestData[0])
-            .Cast<Problem>()
-            .Last();
-
-        var expectedProblemModel = new ProblemModel
-        {
-            Description = problem.Description,
-            Id = problem.Id,
-            IsActive = problem.IsActive,
-            Title = problem.Title
-        };
-
-        // Act
-        var actualProblemModel = problem.ToModel();
-
-        // Assert
-        Assert.Equal(expectedProblemModel, actualProblemModel, new ProblemModelEqualityComparer());
     }
 
     [Fact]
