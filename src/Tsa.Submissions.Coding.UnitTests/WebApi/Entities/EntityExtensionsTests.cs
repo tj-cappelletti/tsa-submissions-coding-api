@@ -14,11 +14,9 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Entities;
 [ExcludeFromCodeCoverage]
 public class EntityExtensions
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public void ToModel_For_Submission_Should_Return_SubmissionModel(bool includeTestTests)
+    public void ToModel_For_Submission_Should_Return_SubmissionModel()
     {
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
@@ -40,34 +38,31 @@ public class EntityExtensions
             TeamId = submission.Team?.Id.AsString
         };
 
-        if (includeTestTests)
-        {
-            expectedSubmissionModel.TestSetResults = new List<TestSetResultModel>();
-            submission.TestSetResults =
-            [
-                new TestSetResult
-                {
-                    Passed = true,
-                    RunDuration = new TimeSpan(0, 0, 5, 0),
-                    TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
-                },
-                new TestSetResult
-                {
-                    Passed = true,
-                    RunDuration = new TimeSpan(0, 0, 5, 0),
-                    TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
-                }
-            ];
-
-            foreach (var submissionTestSetResult in submission.TestSetResults)
+        expectedSubmissionModel.TestSetResults = new List<TestSetResultModel>();
+        submission.TestSetResults =
+        [
+            new TestSetResult
             {
-                expectedSubmissionModel.TestSetResults.Add(new TestSetResultModel
-                {
-                    Passed = submissionTestSetResult.Passed,
-                    RunDuration = submissionTestSetResult.RunDuration,
-                    TestSetId = submissionTestSetResult.TestSet?.Id.AsString
-                });
+                Passed = true,
+                RunDuration = new TimeSpan(0, 0, 5, 0),
+                TestSet = new MongoDBRef("test-sets", "000000000000000000000010")
+            },
+            new TestSetResult
+            {
+                Passed = true,
+                RunDuration = new TimeSpan(0, 0, 5, 0),
+                TestSet = new MongoDBRef("test-sets", "000000000000000000000011")
             }
+        ];
+
+        foreach (var submissionTestSetResult in submission.TestSetResults)
+        {
+            expectedSubmissionModel.TestSetResults.Add(new TestSetResultModel
+            {
+                Passed = submissionTestSetResult.Passed,
+                RunDuration = submissionTestSetResult.RunDuration,
+                TestSetId = submissionTestSetResult.TestSet?.Id.AsString
+            });
         }
 
         // Act
