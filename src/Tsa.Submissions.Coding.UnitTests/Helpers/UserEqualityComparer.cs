@@ -9,6 +9,15 @@ namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 [ExcludeFromCodeCoverage]
 public class UserEqualityComparer : IEqualityComparer<User?>, IEqualityComparer<IList<User>?>
 {
+    private readonly bool _ignoreId;
+
+    public UserEqualityComparer() : this(false) { }
+
+    public UserEqualityComparer(bool ignoreId)
+    {
+        _ignoreId = ignoreId;
+    }
+
     public bool Equals(User? x, User? y)
     {
         if (ReferenceEquals(x, y)) return true;
@@ -21,7 +30,9 @@ public class UserEqualityComparer : IEqualityComparer<User?>, IEqualityComparer<
         var teamsMatch = x.Team?.Id.AsString == y.Team?.Id.AsString;
         var userNamesMatch = x.UserName == y.UserName;
 
-        return externalIdsMatch && idsMatch && rolesMatch && teamsMatch && userNamesMatch;
+        return _ignoreId
+            ? externalIdsMatch && rolesMatch && teamsMatch && userNamesMatch
+            : externalIdsMatch && idsMatch && rolesMatch && teamsMatch && userNamesMatch;
     }
 
     public bool Equals(IList<User>? x, IList<User>? y)
