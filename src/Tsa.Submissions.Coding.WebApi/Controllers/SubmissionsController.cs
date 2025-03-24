@@ -53,7 +53,7 @@ public class SubmissionsController : ControllerBase
 
         return submissions
             // Team is required, if null, we are in a bad state
-            .Where(_ => _.Team!.Id.AsString == team.Id)
+            .Where(submission => submission.Team!.Id.AsString == team.Id)
             .ToList()
             .ToModels();
     }
