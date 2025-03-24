@@ -175,10 +175,10 @@ public class TeamsControllerTests
         // ArrangeE
         var teamsTestData = new TeamsTestData();
 
-        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+        var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default))
             .ReturnsAsync(team);
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
@@ -232,10 +232,10 @@ public class TeamsControllerTests
         // Arrange
         var teamsTestData = new TeamsTestData();
 
-        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+        var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default))
             .ReturnsAsync(team);
 
         var identityMock = new Mock<IIdentity>();
@@ -273,10 +273,10 @@ public class TeamsControllerTests
         // Arrange
         var teamsTestData = new TeamsTestData();
 
-        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+        var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default))
             .ReturnsAsync(team);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
@@ -306,8 +306,8 @@ public class TeamsControllerTests
 
         foreach (var participantModel in actionResult.Value.Participants)
         {
-            var participant = team.Participants.SingleOrDefault(_ =>
-                _.ParticipantNumber == participantModel.ParticipantNumber && _.SchoolNumber == participantModel.SchoolNumber);
+            var participant = team.Participants.SingleOrDefault(p =>
+                p.ParticipantNumber == participantModel.ParticipantNumber && p.SchoolNumber == participantModel.SchoolNumber);
 
             Assert.NotNull(participant);
         }
@@ -323,10 +323,10 @@ public class TeamsControllerTests
         // Arrange
         var teamsTestData = new TeamsTestData();
 
-        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+        var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default))
             .ReturnsAsync(team);
 
         var identityMock = new Mock<IIdentity>();
@@ -360,8 +360,8 @@ public class TeamsControllerTests
 
         foreach (var participantModel in actionResult.Value.Participants)
         {
-            var participant = team.Participants.SingleOrDefault(_ =>
-                _.ParticipantNumber == participantModel.ParticipantNumber && _.SchoolNumber == participantModel.SchoolNumber);
+            var participant = team.Participants.SingleOrDefault(p =>
+                p.ParticipantNumber == participantModel.ParticipantNumber && p.SchoolNumber == participantModel.SchoolNumber);
 
             Assert.NotNull(participant);
         }
@@ -378,7 +378,7 @@ public class TeamsControllerTests
         var emptyTeamsList = new List<Team>();
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(default))
             .ReturnsAsync(emptyTeamsList);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
@@ -414,7 +414,7 @@ public class TeamsControllerTests
         var emptyTeamsList = new List<Team>();
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(default))
             .ReturnsAsync(emptyTeamsList);
 
         var identityMock = new Mock<IIdentity>();
@@ -454,13 +454,13 @@ public class TeamsControllerTests
         var teamsTestData = new TeamsTestData();
 
         var teamsList = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
             .Cast<Team>()
             .ToList();
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(default))
             .ReturnsAsync(teamsList);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
@@ -497,15 +497,15 @@ public class TeamsControllerTests
         var teamsTestData = new TeamsTestData();
 
         var teamsList = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
             .Cast<Team>()
             .ToList();
 
         var team = teamsList.First();
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(default))
             .ReturnsAsync(teamsList);
 
         var identityMock = new Mock<IIdentity>();
@@ -583,7 +583,7 @@ public class TeamsControllerTests
 
         Assert.IsType<TeamModel>(createdAtActionResult.Value);
 
-        mockedTeamsService.Verify(_ => _.CreateAsync(It.Is<Team>(c => validateTeam(c)), default), Times.Once);
+        mockedTeamsService.Verify(teamsService => teamsService.CreateAsync(It.Is<Team>(c => validateTeam(c)), default), Times.Once);
     }
 
     [Fact]
@@ -593,7 +593,7 @@ public class TeamsControllerTests
         // Arrange
         var teamsTestData = new TeamsTestData();
 
-        var team = teamsTestData.First(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)[0] as Team;
+        var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var updatedTeam = new TeamModel
         {
@@ -618,7 +618,7 @@ public class TeamsControllerTests
         };
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(_ => _.GetAsync(It.IsAny<string>(), default)).ReturnsAsync(team);
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default)).ReturnsAsync(team);
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
 
@@ -629,7 +629,7 @@ public class TeamsControllerTests
         Assert.NotNull(actionResult);
         Assert.IsType<NoContentResult>(actionResult);
 
-        mockedTeamsService.Verify(_ => _.UpdateAsync(It.Is<Team>(c => validateTeam(c)), default), Times.Once);
+        mockedTeamsService.Verify(teamsService => teamsService.UpdateAsync(It.Is<Team>(c => validateTeam(c)), default), Times.Once);
     }
 
     [Fact]
