@@ -72,7 +72,7 @@ public class TestSetsController : ControllerBase
         var testSets = await _testSetsService.GetAsync(cancellationToken);
 
         return User.IsInRole(SubmissionRoles.Participant)
-            ? testSets.ToModels().Where(_ => _.IsPublic).ToList()
+            ? testSets.ToModels().Where(testSetModel => testSetModel.IsPublic).ToList()
             : testSets.ToModels();
     }
 
