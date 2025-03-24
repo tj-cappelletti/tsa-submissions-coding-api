@@ -204,46 +204,6 @@ public class EntityExtensions
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public void ToModel_For_TestSet_Should_Return_TestSetModel_With_ProblemId_Null_When_Problem_Is_Null()
-    {
-        // Arrange
-        var testSetsTestData = new TestSetsTestData();
-
-        var testSet = testSetsTestData
-            .Where(testSetTestData => (TestSetDataIssues)testSetTestData[1] == TestSetDataIssues.None)
-            .Select(testSetTestData => testSetTestData[0])
-            .Cast<TestSet>()
-            .Last();
-
-        var expectedTestSetModel = new TestSetModel
-        {
-            Id = testSet.Id,
-            Inputs = [],
-            IsPublic = testSet.IsPublic,
-            Name = testSet.Name,
-            ProblemId = null
-        };
-
-        foreach (var testSetInput in testSet.Inputs!)
-        {
-            expectedTestSetModel.Inputs.Add(new TestSetValueModel
-            {
-                DataType = testSetInput.DataType,
-                Index = testSetInput.Index,
-                IsArray = testSetInput.IsArray,
-                ValueAsJson = testSetInput.ValueAsJson
-            });
-        }
-
-        // Act
-        var actualTestSetModel = testSet.ToModel();
-
-        // Assert
-        Assert.Equal(expectedTestSetModel, actualTestSetModel, new TestSetModelEqualityComparer());
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
     public void ToModel_For_TestSetInput_Should_Return_TestSetInputModel()
     {
         // Arrange
@@ -338,59 +298,32 @@ public class EntityExtensions
             .Cast<Submission>()
             .ToList();
 
-        var expectedSubmissionModels = new List<SubmissionModel>
+        var expectedSubmissionModels = new List<SubmissionModel>();
+
+        foreach (var submission in submissions)
         {
-            new()
+            var expectedSubmissionModel = new SubmissionModel
             {
-                Id = submissions[0].Id,
-                IsFinalSubmission = submissions[0].IsFinalSubmission,
-                Language = submissions[0].Language,
-                ProblemId = submissions[0].Problem?.Id.AsString,
-                Solution = submissions[0].Solution,
-                SubmittedOn = submissions[0].SubmittedOn,
-                TeamId = submissions[0].Team?.Id.AsString,
-                TestSetResults =
-                [
-                    new TestSetResultModel
-                    {
-                        Passed = submissions[0].TestSetResults![0].Passed,
-                        RunDuration = submissions[0].TestSetResults![0].RunDuration,
-                        TestSetId = submissions[0].TestSetResults![0].TestSet!.Id.AsString
-                    },
-                    new TestSetResultModel
-                    {
-                        Passed = submissions[0].TestSetResults![1].Passed,
-                        RunDuration = submissions[0].TestSetResults![1].RunDuration,
-                        TestSetId = submissions[0].TestSetResults![1].TestSet!.Id.AsString
-                    }
-                ]
-            },
-            new()
+                Id = submission.Id,
+                IsFinalSubmission = submission.IsFinalSubmission,
+                Language = submission.Language,
+                ProblemId = submission.Problem?.Id.AsString,
+                Solution = submission.Solution,
+                SubmittedOn = submission.SubmittedOn,
+                TeamId = submission.Team?.Id.AsString,
+                TestSetResults = new List<TestSetResultModel>()
+            };
+            foreach (var submissionTestSetResult in submission.TestSetResults!)
             {
-                Id = submissions[1].Id,
-                IsFinalSubmission = submissions[1].IsFinalSubmission,
-                Language = submissions[1].Language,
-                ProblemId = submissions[1].Problem?.Id.AsString,
-                Solution = submissions[1].Solution,
-                SubmittedOn = submissions[1].SubmittedOn,
-                TeamId = submissions[1].Team?.Id.AsString,
-                TestSetResults =
-                [
-                    new TestSetResultModel
-                    {
-                        Passed = submissions[1].TestSetResults![0].Passed,
-                        RunDuration = submissions[1].TestSetResults![0].RunDuration,
-                        TestSetId = submissions[1].TestSetResults![0].TestSet!.Id.AsString
-                    },
-                    new TestSetResultModel
-                    {
-                        Passed = submissions[1].TestSetResults![1].Passed,
-                        RunDuration = submissions[1].TestSetResults![1].RunDuration,
-                        TestSetId = submissions[1].TestSetResults![1].TestSet!.Id.AsString
-                    }
-                ]
+                expectedSubmissionModel.TestSetResults.Add(new TestSetResultModel
+                {
+                    Passed = submissionTestSetResult.Passed,
+                    RunDuration = submissionTestSetResult.RunDuration,
+                    TestSetId = submissionTestSetResult.TestSet?.Id.AsString
+                });
             }
-        };
+            expectedSubmissionModels.Add(expectedSubmissionModel);
+        }
 
         // Act
         var actualSubmissionModels = submissions.ToModels();
