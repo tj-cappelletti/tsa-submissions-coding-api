@@ -39,9 +39,9 @@ public class Startup(IConfiguration configuration)
 
         app.UseRouting();
 
-        app.UseAuthentication();
+        //app.UseAuthentication();
 
-        app.UseAuthorization();
+        //app.UseAuthorization();
 
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
@@ -138,16 +138,17 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IValidator<UserModel>, UserModelValidator>();
 
         // Setup authentication and authorization
-        var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
-            .RequireAuthenticatedUser()
-            .Build();
+        //var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
+        //    .RequireAuthenticatedUser()
+        //    .Build();
 
-        services.AddAuthorizationBuilder()
-            .AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role));
+        //services.AddAuthorizationBuilder()
+        //    .AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role));
 
         // Setup Controllers
         services
-            .AddControllers(configure => { configure.Filters.Add(new AuthorizeFilter(requireAuthenticatedUserPolicy)); })
+            //.AddControllers(configure => { configure.Filters.Add(new AuthorizeFilter(requireAuthenticatedUserPolicy)); })
+            .AddControllers()
             .AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
