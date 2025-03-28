@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -182,30 +183,31 @@ public class SubmissionsControllerTest
 
         var submissionsTestData = new SubmissionsTestData();
 
-        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+        var submission =
+            submissionsTestData.First(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)[0] as Submission;
 
         var submissionId = submission!.Id;
 
         var teamsTestData = new TeamsTestData();
-        var team = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+        var expectedTeam = teamsTestData
+            .Where(submissionTestData => (TeamDataIssues)submissionTestData[1] == TeamDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Team>()
-            .Single(_ => _.Id == submission.Team?.Id.AsString);
+            .Single(team => team.Id == submission.Team?.Id.AsString);
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
         mockedSubmissionsService
-            .Setup(_ => _.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
+            .Setup(submissionsService => submissionsService.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
             .ReturnsAsync(submission);
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(team.Participants.First().ParticipantId);
+        identityMock.Setup(identity => identity.Name).Returns(expectedTeam.Participants.First().ParticipantId);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
 
         var httpContext = new DefaultHttpContext
         {
@@ -264,39 +266,40 @@ public class SubmissionsControllerTest
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
 
-        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+        var submission =
+            submissionsTestData.First(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)[0] as Submission;
 
         var submissionId = submission!.Id;
 
         var teamsTestData = new TeamsTestData();
-        var team = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+        var expectedTeam = teamsTestData
+            .Where(submissionTestData => (TeamDataIssues)submissionTestData[1] == TeamDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Team>()
-            .Single(_ => _.Id == submission.Team?.Id.AsString);
+            .Single(team => team.Id == submission.Team?.Id.AsString);
 
         var participantTeam = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(submissionTestData => (TeamDataIssues)submissionTestData[1] == TeamDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Team>()
-            .First(_ => _.Id != submission.Team?.Id.AsString);
+            .First(team => team.Id != submission.Team?.Id.AsString);
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
         mockedSubmissionsService
-            .Setup(_ => _.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
+            .Setup(submissionsService => submissionsService.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
             .ReturnsAsync(submission);
 
         var mockedTeamsService = new Mock<ITeamsService>();
         mockedTeamsService
-            .Setup(_ => _.GetAsync(It.Is(team.Id, new StringEqualityComparer())!, default))
-            .ReturnsAsync(team);
+            .Setup(teamsService => teamsService.GetAsync(It.Is(expectedTeam.Id, new StringEqualityComparer())!, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedTeam);
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(participantTeam.Participants.First().ParticipantId);
+        identityMock.Setup(identity => identity.Name).Returns(participantTeam.Participants.First().ParticipantId);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
 
         var httpContext = new DefaultHttpContext
         {
@@ -327,7 +330,8 @@ public class SubmissionsControllerTest
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
 
-        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+        var submission =
+            submissionsTestData.First(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)[0] as Submission;
 
         var expectedSubmissionModel = submission!.ToModel();
 
@@ -335,17 +339,17 @@ public class SubmissionsControllerTest
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
         mockedSubmissionsService
-            .Setup(_ => _.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
+            .Setup(submissionsService => submissionsService.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
             .ReturnsAsync(submission);
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns("0000-000");
+        identityMock.Setup(identity => identity.Name).Returns("0000-000");
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(true);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(true);
 
         var httpContext = new DefaultHttpContext
         {
@@ -376,35 +380,36 @@ public class SubmissionsControllerTest
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
 
-        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+        var submission =
+            submissionsTestData.First(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)[0] as Submission;
 
         var submissionId = submission!.Id;
 
         var expectedSubmissionModel = submission.ToModel();
 
         var teamsTestData = new TeamsTestData();
-        var team = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+        var expectedTeam = teamsTestData
+            .Where(submissionTestData => (TeamDataIssues)submissionTestData[1] == TeamDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Team>()
-            .Single(_ => _.Id == submission.Team?.Id.AsString);
+            .Single(team => team.Id == submission.Team?.Id.AsString);
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
         mockedSubmissionsService
-            .Setup(_ => _.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
+            .Setup(submissionsService => submissionsService.GetAsync(It.Is(submissionId, new StringEqualityComparer())!, default))
             .ReturnsAsync(submission);
 
         var mockedTeamsService = new Mock<ITeamsService>();
         mockedTeamsService
-            .Setup(_ => _.GetAsync(It.Is(team.Id, new StringEqualityComparer())!, default))
-            .ReturnsAsync(team);
+            .Setup(teamsService => teamsService.GetAsync(It.Is(expectedTeam.Id, new StringEqualityComparer())!, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedTeam);
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(team.Participants.First().ParticipantId);
+        identityMock.Setup(identity => identity.Name).Returns(expectedTeam.Participants.First().ParticipantId);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
 
         var httpContext = new DefaultHttpContext
         {
@@ -438,40 +443,40 @@ public class SubmissionsControllerTest
         var submissionsTestData = new SubmissionsTestData();
 
         var submissionsList = submissionsTestData
-            .Where(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)
-            .Select(_ => _[0])
+            .Where(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Submission>()
             .ToList();
 
         var teamsTestData = new TeamsTestData();
-        var team = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+        var expectedTeam = teamsTestData
+            .Where(submissionTestData => (TeamDataIssues)submissionTestData[1] == TeamDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Team>()
             .First();
 
-        var teams = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+        var expectedTeams = teamsTestData
+            .Where(submissionTestData => (TeamDataIssues)submissionTestData[1] == TeamDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Team>()
-            .Where(_ => _.Id != team.Id)
+            .Where(team => team.Id != expectedTeam.Id)
             .ToList();
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService.Setup(_ => _.GetAsync(default))
+        mockedSubmissionsService.Setup(submissionsService => submissionsService.GetAsync(default))
             .ReturnsAsync(submissionsList);
 
         var mockedTeamsService = new Mock<ITeamsService>();
         mockedTeamsService
-            .Setup(_ => _.GetAsync(default))
-            .ReturnsAsync(teams);
+            .Setup(teamsService => teamsService.GetAsync(default))
+            .ReturnsAsync(expectedTeams);
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(team.Participants.First().ParticipantId);
+        identityMock.Setup(identity => identity.Name).Returns(expectedTeam.Participants.First().ParticipantId);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
 
         var httpContext = new DefaultHttpContext
         {
@@ -511,17 +516,17 @@ public class SubmissionsControllerTest
         var emptySubmissionsList = new List<Submission>();
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService.Setup(_ => _.GetAsync(default))
+        mockedSubmissionsService.Setup(submissionsService => submissionsService.GetAsync(default))
             .ReturnsAsync(emptySubmissionsList);
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns("0000-000");
+        identityMock.Setup(identity => identity.Name).Returns("0000-000");
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(true);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(true);
 
         var httpContext = new DefaultHttpContext
         {
@@ -554,28 +559,28 @@ public class SubmissionsControllerTest
 
         var teamsTestData = new TeamsTestData();
         var teams = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(submissionTestData => (TeamDataIssues)submissionTestData[1] == TeamDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Team>()
             .ToList();
 
         var team = teams.First();
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService.Setup(_ => _.GetAsync(default))
+        mockedSubmissionsService.Setup(submissionsService => submissionsService.GetAsync(default))
             .ReturnsAsync(emptySubmissionsList);
 
         var mockedTeamsService = new Mock<ITeamsService>();
         mockedTeamsService
-            .Setup(_ => _.GetAsync(default))
+            .Setup(teamsService => teamsService.GetAsync(default))
             .ReturnsAsync(teams);
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(team.Participants.First().ParticipantId);
+        identityMock.Setup(identity => identity.Name).Returns(team.Participants.First().ParticipantId);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
 
         var httpContext = new DefaultHttpContext
         {
@@ -607,23 +612,23 @@ public class SubmissionsControllerTest
         var submissionsTestData = new SubmissionsTestData();
 
         var submissionsList = submissionsTestData
-            .Where(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)
-            .Select(_ => _[0])
+            .Where(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Submission>()
             .ToList();
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService.Setup(_ => _.GetAsync(default))
+        mockedSubmissionsService.Setup(submissionsService => submissionsService.GetAsync(default))
             .ReturnsAsync(submissionsList);
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns("0000-000");
+        identityMock.Setup(identity => identity.Name).Returns("0000-000");
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(true);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(true);
 
         var httpContext = new DefaultHttpContext
         {
@@ -657,35 +662,35 @@ public class SubmissionsControllerTest
         var submissionsTestData = new SubmissionsTestData();
 
         var submissionsList = submissionsTestData
-            .Where(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)
-            .Select(_ => _[0])
+            .Where(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Submission>()
             .ToList();
 
         var teamsTestData = new TeamsTestData();
         var teams = teamsTestData
-            .Where(_ => (TeamDataIssues)_[1] == TeamDataIssues.None)
-            .Select(_ => _[0])
+            .Where(submissionTestData => (TeamDataIssues)submissionTestData[1] == TeamDataIssues.None)
+            .Select(submissionTestData => submissionTestData[0])
             .Cast<Team>()
             .ToList();
 
         var team = teams.First();
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService.Setup(_ => _.GetAsync(default))
+        mockedSubmissionsService.Setup(submissionsService => submissionsService.GetAsync(default))
             .ReturnsAsync(submissionsList);
 
         var mockedTeamsService = new Mock<ITeamsService>();
         mockedTeamsService
-            .Setup(_ => _.GetAsync(default))
+            .Setup(teamsService => teamsService.GetAsync(default))
             .ReturnsAsync(teams);
 
         var identityMock = new Mock<IIdentity>();
-        identityMock.Setup(i => i.Name).Returns(team.Participants.First().ParticipantId);
+        identityMock.Setup(identity => identity.Name).Returns(team.Participants.First().ParticipantId);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
-        claimsPrincipalMock.Setup(cp => cp.Identity).Returns(identityMock.Object);
-        claimsPrincipalMock.Setup(cp => cp.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.Identity).Returns(identityMock.Object);
+        claimsPrincipalMock.Setup(claimsPrincipal => claimsPrincipal.IsInRole(It.Is(SubmissionRoles.Judge, new StringEqualityComparer()))).Returns(false);
 
         var httpContext = new DefaultHttpContext
         {
@@ -739,7 +744,9 @@ public class SubmissionsControllerTest
 
         Assert.IsType<SubmissionModel>(createdAtActionResult.Value);
 
-        mockedSubmissionsService.Verify(_ => _.CreateAsync(It.Is(newSubmission.ToEntity(), new SubmissionEqualityComparer(true)), default), Times.Once);
+        mockedSubmissionsService.Verify(
+            submissionsService => submissionsService.CreateAsync(It.Is(newSubmission.ToEntity(), new SubmissionEqualityComparer(true)), default),
+            Times.Once);
     }
 
     [Fact]
@@ -749,7 +756,8 @@ public class SubmissionsControllerTest
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
 
-        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+        var submission =
+            submissionsTestData.First(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)[0] as Submission;
 
         var updatedSubmission = new SubmissionModel
         {
@@ -763,7 +771,8 @@ public class SubmissionsControllerTest
         };
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService.Setup(_ => _.GetAsync(It.Is(submission.Id, new StringEqualityComparer())!, default)).ReturnsAsync(submission);
+        mockedSubmissionsService.Setup(submissionsService => submissionsService.GetAsync(It.Is(submission.Id, new StringEqualityComparer())!, default))
+            .ReturnsAsync(submission);
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
@@ -776,7 +785,9 @@ public class SubmissionsControllerTest
         Assert.NotNull(actionResult);
         Assert.IsType<NoContentResult>(actionResult);
 
-        mockedSubmissionsService.Verify(_ => _.UpdateAsync(It.Is(updatedSubmission.ToEntity(), new SubmissionEqualityComparer()), default), Times.Once);
+        mockedSubmissionsService.Verify(
+            submissionsService => submissionsService.UpdateAsync(It.Is(updatedSubmission.ToEntity(), new SubmissionEqualityComparer()), default),
+            Times.Once);
     }
 
     [Fact]
@@ -786,7 +797,8 @@ public class SubmissionsControllerTest
         // Arrange
         var submissionsTestData = new SubmissionsTestData();
 
-        var submission = submissionsTestData.First(_ => (SubmissionDataIssues)_[1] == SubmissionDataIssues.None)[0] as Submission;
+        var submission =
+            submissionsTestData.First(submissionTestData => (SubmissionDataIssues)submissionTestData[1] == SubmissionDataIssues.None)[0] as Submission;
 
         var id = submission!.Id;
         const bool isFinalSubmission = true;
@@ -819,7 +831,8 @@ public class SubmissionsControllerTest
         };
 
         var mockedSubmissionsService = new Mock<ISubmissionsService>();
-        mockedSubmissionsService.Setup(_ => _.GetAsync(It.Is(submission.Id, new StringEqualityComparer())!, default)).ReturnsAsync(submission);
+        mockedSubmissionsService.Setup(submissionsService => submissionsService.GetAsync(It.Is(submission.Id, new StringEqualityComparer())!, default))
+            .ReturnsAsync(submission);
 
         var mockedTeamsService = new Mock<ITeamsService>();
 
@@ -832,7 +845,9 @@ public class SubmissionsControllerTest
         Assert.NotNull(actionResult);
         Assert.IsType<NoContentResult>(actionResult);
 
-        mockedSubmissionsService.Verify(_ => _.UpdateAsync(It.Is(updatedSubmission.ToEntity(), new SubmissionEqualityComparer()), default), Times.Once);
+        mockedSubmissionsService.Verify(
+            submissionsService => submissionsService.UpdateAsync(It.Is(updatedSubmission.ToEntity(), new SubmissionEqualityComparer()), default),
+            Times.Once);
 
         Assert.NotEqual(controlSubmission, updatedSubmission, new SubmissionModelEqualityComparer());
     }
