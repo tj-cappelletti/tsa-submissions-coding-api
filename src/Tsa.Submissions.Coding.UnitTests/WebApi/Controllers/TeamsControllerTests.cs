@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -178,7 +179,7 @@ public class TeamsControllerTests
         var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(team);
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
@@ -235,7 +236,7 @@ public class TeamsControllerTests
         var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(team);
 
         var identityMock = new Mock<IIdentity>();
@@ -276,7 +277,7 @@ public class TeamsControllerTests
         var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(team);
 
         var claimsPrincipalMock = new Mock<ClaimsPrincipal>();
@@ -326,7 +327,7 @@ public class TeamsControllerTests
         var team = teamsTestData.First(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)[0] as Team;
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default))
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(team);
 
         var identityMock = new Mock<IIdentity>();
@@ -618,7 +619,7 @@ public class TeamsControllerTests
         };
 
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), default)).ReturnsAsync(team);
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(team);
 
         var teamsController = new TeamsController(mockedTeamsService.Object);
 
