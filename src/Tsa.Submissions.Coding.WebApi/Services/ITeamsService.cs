@@ -7,4 +7,6 @@ namespace Tsa.Submissions.Coding.WebApi.Services;
 public interface ITeamsService : IMongoEntityService<Team>, IPingableService
 {
     Task<bool> ExistsAsync(string? schoolNumber, string? teamNumber, CancellationToken cancellationToken = default);
+
+    Task<Team> GetAsync(string? schoolNumber, string? teamNumber, CancellationToken cancellationToken = default);
 }

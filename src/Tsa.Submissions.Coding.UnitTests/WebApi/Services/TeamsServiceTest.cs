@@ -278,6 +278,54 @@ public class TeamsServiceTest
         Assert.Equal(expectedTeams, result, new TeamEqualityComparer());
     }
 
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async Task GetAsync_Should_Return_Entity_By_SchoolNumber_TeamNumber()
+    {
+        // Arrange
+        var teamsTestData = new TeamsTestData();
+
+        var expectedTeam = teamsTestData
+            .Where(teamTestData => (TeamDataIssues)teamTestData[1] == TeamDataIssues.None)
+            .Select(teamTestData => teamTestData[0])
+            .Cast<Team>()
+            .Last();
+
+        var expectedTeams = new List<Team>
+        {
+            expectedTeam
+        };
+
+        var mockedAsyncCursor = MockHelpers.CreateMockedAsyncCursor(expectedTeams);
+
+        var filterDefinitionJson = Builders<Team>.Filter.And(
+            Builders<Team>.Filter.Eq(team => team.SchoolNumber, expectedTeam.SchoolNumber),
+            Builders<Team>.Filter.Eq(team => team.TeamNumber, expectedTeam.TeamNumber)).RenderToJson();
+
+        // If you get this error:
+        // System.ArgumentNullException : Value cannot be null. (Parameter 'source')
+        // The predicate for FindAsync changed and is causing an error
+        var (mockedMongoCollection, mockedMongoClient) = MockHelpers.CreateMockedMongoObjects<Team>(DatabaseName, CollectionName);
+
+        mockedMongoCollection
+            .Setup(mongoCollection => mongoCollection.FindAsync(
+                It.Is<FilterDefinition<Team>>(filter => filter.RenderToJson().Equals(filterDefinitionJson)),
+                It.IsAny<FindOptions<Team, Team>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mockedAsyncCursor.Object)
+            .Verifiable();
+
+        var mockedSubmissionsDatabaseOptions = MockHelpers.CreateMockedSubmissionsDatabaseOptions(DatabaseName);
+
+        var teamsService = new TeamsService(mockedMongoClient.Object, mockedSubmissionsDatabaseOptions.Object, _mockedLogger.Object);
+
+        // Act
+        var result = await teamsService.GetAsync(expectedTeam.SchoolNumber, expectedTeam.TeamNumber);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(expectedTeam, result, new TeamEqualityComparer());
+    }
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]

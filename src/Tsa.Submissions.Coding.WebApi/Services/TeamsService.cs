@@ -20,8 +20,7 @@ public class TeamsService : MongoDbService<Team>, ITeamsService
         mongoClient,
         options.Value.Name!,
         MongoDbCollectionName,
-        logger)
-    { }
+        logger) { }
 
     public async Task<bool> ExistsAsync(string? schoolNumber, string? teamNumber, CancellationToken cancellationToken = default)
     {
@@ -33,5 +32,17 @@ public class TeamsService : MongoDbService<Team>, ITeamsService
         var cursor = await EntityCollection.FindAsync(filterDefinition, cancellationToken: cancellationToken);
 
         return await cursor.AnyAsync(cancellationToken);
+    }
+
+    public async Task<Team> GetAsync(string? schoolNumber, string? teamNumber, CancellationToken cancellationToken = default)
+    {
+        var filterDefinition =
+            Builders<Team>.Filter.And(
+                Builders<Team>.Filter.Eq(team => team.SchoolNumber, schoolNumber),
+                Builders<Team>.Filter.Eq(team => team.TeamNumber, teamNumber));
+
+        var cursor = await EntityCollection.FindAsync(filterDefinition, cancellationToken: cancellationToken);
+
+        return await cursor.FirstOrDefaultAsync(cancellationToken);
     }
 }
