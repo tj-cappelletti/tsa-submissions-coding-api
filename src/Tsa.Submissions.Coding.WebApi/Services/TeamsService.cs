@@ -20,7 +20,8 @@ public class TeamsService : MongoDbService<Team>, ITeamsService
         mongoClient,
         options.Value.Name!,
         MongoDbCollectionName,
-        logger) { }
+        logger)
+    { }
 
     public async Task<bool> ExistsAsync(string? schoolNumber, string? teamNumber, CancellationToken cancellationToken = default)
     {

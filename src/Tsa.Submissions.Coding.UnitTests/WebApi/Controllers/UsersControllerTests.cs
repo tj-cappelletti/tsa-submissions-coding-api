@@ -647,7 +647,7 @@ public class UsersControllerTests
         var usersTestData = new UsersTestData();
 
         var expectedUsers = usersTestData
-            .Where(userTestData =>(UserDataIssues)userTestData[1] == UserDataIssues.None)
+            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None)
             .Select(userTestData => (User)userTestData[0])
             .ToList();
 
