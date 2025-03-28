@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Entities;
-using Tsa.Submissions.Coding.WebApi.Exceptions;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 
@@ -29,6 +28,13 @@ public class UsersController : ControllerBase
         _usersService = usersService;
     }
 
+    private NotFoundObjectResult CreateTeamNotFoundError(TeamModel teamModel)
+    {
+        return teamModel.Id != null
+            ? NotFound(ApiErrorResponseModel.EntityNotFound(nameof(Team), teamModel.Id))
+            : NotFound(ApiErrorResponseModel.EntityNotFound(nameof(Team), $"{teamModel.SchoolNumber}-{teamModel.TeamNumber}"));
+    }
+
     private NotFoundObjectResult CreateUserNotFoundError(string id)
     {
         return NotFound(ApiErrorResponseModel.EntityNotFound(nameof(Entities.User), id));
@@ -47,7 +53,7 @@ public class UsersController : ControllerBase
     [HttpDelete("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponseModel))]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ApiErrorResponseModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiErrorResponseModel))]
     public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken = default)
     {
@@ -60,17 +66,6 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
-    private async Task EnsureTeamExists(TeamModel teamModel, CancellationToken cancellationToken)
-    {
-        var teamExists = teamModel.Id != null
-            ? await _teamsService.ExistsAsync(teamModel.Id, cancellationToken)
-            : await _teamsService.ExistsAsync(teamModel.SchoolNumber, teamModel.TeamNumber, cancellationToken);
-
-        if (teamExists) return;
-
-        throw new RequiredEntityNotFoundException(nameof(Entities.User));
-    }
-
     /// <summary>
     ///     Fetches all the users from the database
     /// </summary>
@@ -80,15 +75,14 @@ public class UsersController : ControllerBase
     /// <response code="403">You do not have permission to use this endpoint</response>
     [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserModel>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<UserModel>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponseModel))]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ApiErrorResponseModel))]
     public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
     {
         var users = await _usersService.GetAsync(cancellationToken);
 
-        return Ok(users.ToModels());
+        return Ok(EntityExtensions.ToModels(users));
     }
 
     /// <summary>
@@ -99,20 +93,25 @@ public class UsersController : ControllerBase
     /// <response code="200">Returns the requested user</response>
     /// <response code="401">Authentication has failed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
-    /// <response code="404">The user does not exist in the database</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
+    /// <response code="404">The user does not exist in your context</response>
+    [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserModel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponseModel))]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ApiErrorResponseModel))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiErrorResponseModel))]
     public async Task<IActionResult> Get(string id, CancellationToken cancellationToken = default)
     {
         var user = await _usersService.GetAsync(id, cancellationToken);
 
-        return user == null
-            ? CreateUserNotFoundError(id)
-            : Ok(user.ToModel());
+        if (user == null) return CreateUserNotFoundError(id);
+
+        if (User.IsInRole(SubmissionRoles.Participant) && User.Identity!.Name != user.UserName)
+        {
+            return CreateUserNotFoundError(id);
+        }
+
+        return Ok(user.ToModel());
     }
 
     /// <summary>
@@ -124,16 +123,29 @@ public class UsersController : ControllerBase
     /// <response code="400">The user to create is not in a valid state and cannot be created</response>
     /// <response code="401">Authentication has failed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
+    /// <response code="404">The team specified for the user could not be found</response>
     [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UserModel))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponseModel))]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Post(UserModel userModel, CancellationToken cancellationToken = default)
     {
-        // Team is required and is enforced in the model validation
-        await EnsureTeamExists(userModel.Team!, cancellationToken);
+        if (userModel.Role == SubmissionRoles.Participant)
+        {
+            var teamExists = await TeamExists(userModel.Team!, cancellationToken);
+
+            if (!teamExists) return CreateTeamNotFoundError(userModel.Team!);
+
+            if (userModel.Team!.Id == null)
+            {
+                var team = await _teamsService.GetAsync(userModel.Team!.SchoolNumber, userModel.Team.TeamNumber, cancellationToken);
+
+                userModel.Team.Id = team.Id;
+            }
+        }
 
         var user = userModel.ToEntity();
 
@@ -192,7 +204,11 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Put(string id, UserModel updatedUserModel, CancellationToken cancellationToken = default)
     {
         // Team is required and is enforced in the model validation
-        await EnsureTeamExists(updatedUserModel.Team!, cancellationToken);
+        if (updatedUserModel.Role == SubmissionRoles.Participant)
+        {
+            var teamExists = await TeamExists(updatedUserModel.Team!, cancellationToken);
+            if (!teamExists) return CreateTeamNotFoundError(updatedUserModel.Team!);
+        }
 
         var user = await _usersService.GetAsync(id, cancellationToken);
 
@@ -210,5 +226,12 @@ public class UsersController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    private async Task<bool> TeamExists(TeamModel teamModel, CancellationToken cancellationToken)
+    {
+        return teamModel.Id != null
+            ? await _teamsService.ExistsAsync(teamModel.Id, cancellationToken)
+            : await _teamsService.ExistsAsync(teamModel.SchoolNumber, teamModel.TeamNumber, cancellationToken);
     }
 }
