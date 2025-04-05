@@ -7,4 +7,5 @@ public enum ErrorCodes
     UnexpectedNullValue = 3000,
     UnexpectedMissingResource = 4000,
     EntityNotFound = 5000,
+    EntityAlreadyExists = 6000
 }

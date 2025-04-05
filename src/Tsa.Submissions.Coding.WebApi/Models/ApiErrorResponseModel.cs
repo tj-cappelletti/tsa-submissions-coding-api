@@ -29,7 +29,19 @@ public class ApiErrorResponseModel
         Message = "A required value was unexpectedly missing."
     };
 
-    public static ApiErrorResponseModel EntityNotFound(string entityName, string id)
+    public static ApiErrorResponseModel EntityAlreadyExists(string entityName, string lookupKey)
+    {
+        var apiErrorResponseModel = new ApiErrorResponseModel
+        {
+            ErrorCode = (int)ErrorCodes.EntityAlreadyExists,
+            Message = "The resource requested to create already exists."
+        };
+        apiErrorResponseModel.Data.Add("entityName", entityName);
+        apiErrorResponseModel.Data.Add("lookupKey", lookupKey);
+        return apiErrorResponseModel;
+    }
+
+    public static ApiErrorResponseModel EntityNotFound(string entityName, string lookupKey)
     {
         var apiErrorResponseModel = new ApiErrorResponseModel
         {
@@ -38,7 +50,7 @@ public class ApiErrorResponseModel
         };
 
         apiErrorResponseModel.Data.Add("entityName", entityName);
-        apiErrorResponseModel.Data.Add("id", id);
+        apiErrorResponseModel.Data.Add("lookupKey", lookupKey);
 
         return apiErrorResponseModel;
     }
