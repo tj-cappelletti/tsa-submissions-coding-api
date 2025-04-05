@@ -13,16 +13,16 @@ public class ApiErrorResponseTest
     {
         // Arrange
         const string entityName = "TestEntity";
-        const string id = "12345";
+        const string lookupKey = "12345";
 
         // Act
-        var apiErrorResponse = ApiErrorResponseModel.EntityNotFound(entityName, id);
+        var apiErrorResponse = ApiErrorResponseModel.EntityNotFound(entityName, lookupKey);
 
         // Assert
         Assert.Equal((int)ErrorCodes.EntityNotFound, apiErrorResponse.ErrorCode);
         Assert.Equal("The requested resource could not be found.", apiErrorResponse.Message);
         Assert.Contains(apiErrorResponse.Data, kvp => kvp is { Key: "entityName", Value: entityName });
-        Assert.Contains(apiErrorResponse.Data, kvp => kvp is { Key: "id", Value: id });
+        Assert.Contains(apiErrorResponse.Data, kvp => kvp is { Key: "lookupKey", Value: lookupKey });
     }
 
     [Fact]
