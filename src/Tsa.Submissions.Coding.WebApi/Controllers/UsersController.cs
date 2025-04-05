@@ -151,6 +151,10 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Post(UserModel userModel, CancellationToken cancellationToken = default)
     {
+        var existingUser = await _usersService.GetByUserNameAsync(userModel.UserName, cancellationToken);
+
+        if (existingUser != null) return Conflict(ApiErrorResponseModel.EntityAlreadyExists(nameof(User), userModel.UserName!));
+        
         var userState = await EnsureTeamExists(userModel, cancellationToken);
 
         if (userState == UserState.TeamNotFound) return CreateTeamNotFoundError(userModel.Team!);
@@ -237,6 +241,7 @@ public class UsersController : ControllerBase
     internal enum UserState
     {
         Ok = 0,
+        DuplicateUser,
         TeamNotFound
     }
 }

@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tsa.Submissions.Coding.UnitTests.Data;
@@ -444,32 +443,83 @@ public class UsersControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async Task Post_Should_Return_Created_Participant_By_TeamId()
+    public async Task Post_Batch_Should_Return_Created()
     {
         // Arrange
         var usersTestData = new UsersTestData();
-        var teamsTestData = new TeamsTestData();
 
+        var expectedUsers = usersTestData
+            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None)
+            .Select(userTestData => (User)userTestData[0])
+            .ToList();
+
+        var mockedCacheService = new Mock<ICacheService>();
+
+        // We don't need to verify the IDs of the Teams in this test
+        // because we are only testing the batch creation of users
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(teamsService => teamsService.ExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var mockedUsersService = new Mock<IUsersService>();
+
+        var userModels = new List<UserModel>();
+
+        foreach (var user in expectedUsers)
+        {
+            mockedUsersService.Setup(usersService => usersService.CreateAsync(It.Is(user, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
+                .Callback((User createdUser, CancellationToken _) => createdUser.Id = user.Id);
+
+            var userModel = user.ToModel();
+            userModel.Id = null;
+            userModels.Add(userModel);
+        }
+
+        var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
+
+        // Act
+        var actionResult = await usersController.Post(userModels.ToArray());
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<CreatedResult>(actionResult);
+
+        var createdAtActionResult = (CreatedResult)actionResult;
+
+        Assert.NotNull(createdAtActionResult.Value);
+        Assert.IsType<List<UserModel>>(createdAtActionResult.Value);
+
+        var actualUsers = (List<UserModel>)createdAtActionResult.Value;
+
+        Assert.Equal(expectedUsers.ToModels(), actualUsers, new UserModelEqualityComparer());
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async Task Post_Should_Return_Conflict_When_User_Already_Exists()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
         var expectedUser = (User)usersTestData.First(userTestData =>
             (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Role == SubmissionRoles.Participant)[0];
 
-        var team = (Team)teamsTestData.Single(teamTestData =>
-            (TeamDataIssues)teamTestData[1] == TeamDataIssues.None && ((Team)teamTestData[0]).Id == expectedUser.Team!.Id.AsString)[0];
+        var expectedApiErrorResponseModel = ApiErrorResponseModel.EntityAlreadyExists(nameof(User), expectedUser.Id!);
 
         var userModel = expectedUser.ToModel();
         userModel.Id = null;
 
         var mockedCacheService = new Mock<ICacheService>();
         var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(teamsService => teamsService.ExistsAsync(It.Is(team.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
+        var mockedUsersService = new Mock<IUsersService>();
+        mockedUsersService.Setup(usersService =>
+                usersService.GetByUserNameAsync(It.Is(expectedUser.UserName, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedUser)
             .Verifiable(Times.Once);
 
-        var mockedUsersService = new Mock<IUsersService>();
         mockedUsersService.Setup(usersService =>
                 usersService.CreateAsync(It.Is(expectedUser, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
             .Callback((User user, CancellationToken _) => user.Id = expectedUser.Id);
-
+        
         var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
 
         // Act
@@ -477,15 +527,13 @@ public class UsersControllerTests
 
         // Assert
         Assert.NotNull(actionResult);
-        Assert.IsType<CreatedAtActionResult>(actionResult);
+        Assert.IsType<ConflictObjectResult>(actionResult);
 
-        var createdAtActionResult = (CreatedAtActionResult)actionResult;
+        var conflictObjectResult = (ConflictObjectResult)actionResult;
+        Assert.IsType<ApiErrorResponseModel>(conflictObjectResult.Value);
 
-        Assert.Equal("Get", createdAtActionResult.ActionName);
-        Assert.NotNull(createdAtActionResult.RouteValues);
-        Assert.True(createdAtActionResult.RouteValues.ContainsKey("id"));
-        Assert.Equal(expectedUser.Id, createdAtActionResult.RouteValues["id"]);
-        Assert.Equal(expectedUser.ToModel(), createdAtActionResult.Value as UserModel, new UserModelEqualityComparer());
+        var actualApiErrorResponseModel = (ApiErrorResponseModel)conflictObjectResult.Value;
+        Assert.Equal(expectedApiErrorResponseModel, actualApiErrorResponseModel, new ApiErrorResponseModelEqualityComparer());
     }
 
     [Fact]
@@ -517,6 +565,52 @@ public class UsersControllerTests
         mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.Is(team.SchoolNumber!, new StringEqualityComparer()),
                 It.Is(team.TeamNumber!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
             .ReturnsAsync(team)
+            .Verifiable(Times.Once);
+
+        var mockedUsersService = new Mock<IUsersService>();
+        mockedUsersService.Setup(usersService =>
+                usersService.CreateAsync(It.Is(expectedUser, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
+            .Callback((User user, CancellationToken _) => user.Id = expectedUser.Id);
+
+        var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
+
+        // Act
+        var actionResult = await usersController.Post(userModel);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<CreatedAtActionResult>(actionResult);
+
+        var createdAtActionResult = (CreatedAtActionResult)actionResult;
+
+        Assert.Equal("Get", createdAtActionResult.ActionName);
+        Assert.NotNull(createdAtActionResult.RouteValues);
+        Assert.True(createdAtActionResult.RouteValues.ContainsKey("id"));
+        Assert.Equal(expectedUser.Id, createdAtActionResult.RouteValues["id"]);
+        Assert.Equal(expectedUser.ToModel(), createdAtActionResult.Value as UserModel, new UserModelEqualityComparer());
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async Task Post_Should_Return_Created_Participant_By_TeamId()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
+        var teamsTestData = new TeamsTestData();
+
+        var expectedUser = (User)usersTestData.First(userTestData =>
+            (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Role == SubmissionRoles.Participant)[0];
+
+        var team = (Team)teamsTestData.Single(teamTestData =>
+            (TeamDataIssues)teamTestData[1] == TeamDataIssues.None && ((Team)teamTestData[0]).Id == expectedUser.Team!.Id.AsString)[0];
+
+        var userModel = expectedUser.ToModel();
+        userModel.Id = null;
+
+        var mockedCacheService = new Mock<ICacheService>();
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(teamsService => teamsService.ExistsAsync(It.Is(team.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
             .Verifiable(Times.Once);
 
         var mockedUsersService = new Mock<IUsersService>();
@@ -642,98 +736,6 @@ public class UsersControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async Task Post_Batch_Should_Return_Created()
-    {
-        // Arrange
-        var usersTestData = new UsersTestData();
-
-        var expectedUsers = usersTestData
-            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None)
-            .Select(userTestData => (User)userTestData[0])
-            .ToList();
-
-        var mockedCacheService = new Mock<ICacheService>();
-
-        // We don't need to verify the IDs of the Teams in this test
-        // because we are only testing the batch creation of users
-        var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(teamsService => teamsService.ExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
-        var mockedUsersService = new Mock<IUsersService>();
-
-        var userModels = new List<UserModel>();
-
-        foreach (var user in expectedUsers)
-        {
-            mockedUsersService.Setup(usersService => usersService.CreateAsync(It.Is(user, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
-                .Callback((User createdUser, CancellationToken _) => createdUser.Id = user.Id);
-
-            var userModel = user.ToModel();
-            userModel.Id = null;
-            userModels.Add(userModel);
-        }
-
-        var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
-
-        // Act
-        var actionResult = await usersController.Post(userModels.ToArray());
-
-        // Assert
-        Assert.NotNull(actionResult);
-        Assert.IsType<CreatedResult>(actionResult);
-
-        var createdAtActionResult = (CreatedResult)actionResult;
-
-        Assert.NotNull(createdAtActionResult.Value);
-        Assert.IsType<List<UserModel>>(createdAtActionResult.Value);
-
-        var actualUsers = (List<UserModel>)createdAtActionResult.Value;
-
-        Assert.Equal(expectedUsers.ToModels(), actualUsers, new UserModelEqualityComparer());
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
-    public async Task Put_Should_Return_NoContent_By_TeamId()
-    {
-        // Arrange
-        var usersTestData = new UsersTestData();
-        var teamsTestData = new TeamsTestData();
-
-        var expectedUser = (User)usersTestData.First(userTestData =>
-            (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Role == SubmissionRoles.Participant)[0];
-
-        var team = (Team)teamsTestData.Single(teamTestData =>
-            (TeamDataIssues)teamTestData[1] == TeamDataIssues.None && ((Team)teamTestData[0]).Id == expectedUser.Team!.Id.AsString)[0];
-
-        var userModel = expectedUser.ToModel();
-
-        var mockedCacheService = new Mock<ICacheService>();
-        var mockedTeamsService = new Mock<ITeamsService>();
-        mockedTeamsService.Setup(teamsService => teamsService.ExistsAsync(It.Is(team.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true)
-            .Verifiable(Times.Once);
-
-        var mockedUsersService = new Mock<IUsersService>();
-        mockedUsersService.Setup(usersService => usersService.GetAsync(It.Is(userModel.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expectedUser);
-        mockedUsersService.Setup(usersService =>
-                usersService.UpdateAsync(It.Is(expectedUser, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
-            .Verifiable(Times.Once);
-
-        var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
-
-        // Act
-        var actionResult = await usersController.Put(userModel.Id!, userModel);
-
-        // Assert
-        Assert.NotNull(actionResult);
-        Assert.IsType<NoContentResult>(actionResult);
-    }
-
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
     public async Task Put_Should_Return_NoContent_By_School()
     {
         // Arrange
@@ -780,35 +782,42 @@ public class UsersControllerTests
         Assert.IsType<NoContentResult>(actionResult);
     }
 
-    //[Fact]
-    //[Trait("TestCategory", "UnitTest")]
-    //public async Task Post_Should_Return_Conflict_When_User_Already_Exists()
-    //{
-    //    // Arrange
-    //    var usersTestData = new UsersTestData();
-    //    var expectedUser = (User)usersTestData.First(userTestData =>
-    //        (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Role == SubmissionRoles.Participant)[0];
-    //    var expectedApiErrorResponseModel = ApiErrorResponseModel.EntityAlreadyExists(nameof(User), expectedUser.Id!);
-    //    var userModel = expectedUser.ToModel();
-    //    userModel.Id = null;
-    //    var mockedCacheService = new Mock<ICacheService>();
-    //    var mockedTeamsService = new Mock<ITeamsService>();
-    //    var mockedUsersService = new Mock<IUsersService>();
-    //    mockedUsersService.Setup(usersService => usersService.ExistsAsync(It.Is(expectedUser.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
-    //        .ReturnsAsync(true)
-    //        .Verifiable(Times.Once);
-    //    mockedUsersService.Setup(usersService =>
-    //            usersService.CreateAsync(It.Is(expectedUser, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
-    //        .Callback((User user, CancellationToken _) => user.Id = expectedUser.Id);
-    //    var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
-    //    // Act
-    //    var actionResult = await usersController.Post(userModel);
-    //    // Assert
-    //    Assert.NotNull(actionResult);
-    //    Assert.IsType<ConflictObjectResult>(actionResult);
-    //    var conflictObjectResult = (ConflictObjectResult)actionResult;
-    //    Assert.IsType<ApiErrorResponseModel>(conflictObjectResult.Value);
-    //    var actualApiErrorResponseModel = (ApiErrorResponseModel)conflictObjectResult.Value;
-    //    Assert.Equal(expectedApiErrorResponseModel, actualApiErrorResponseModel, new ApiErrorResponseModelEqualityComparer());
-    //}
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async Task Put_Should_Return_NoContent_By_TeamId()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
+        var teamsTestData = new TeamsTestData();
+
+        var expectedUser = (User)usersTestData.First(userTestData =>
+            (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Role == SubmissionRoles.Participant)[0];
+
+        var team = (Team)teamsTestData.Single(teamTestData =>
+            (TeamDataIssues)teamTestData[1] == TeamDataIssues.None && ((Team)teamTestData[0]).Id == expectedUser.Team!.Id.AsString)[0];
+
+        var userModel = expectedUser.ToModel();
+
+        var mockedCacheService = new Mock<ICacheService>();
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(teamsService => teamsService.ExistsAsync(It.Is(team.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
+            .Verifiable(Times.Once);
+
+        var mockedUsersService = new Mock<IUsersService>();
+        mockedUsersService.Setup(usersService => usersService.GetAsync(It.Is(userModel.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedUser);
+        mockedUsersService.Setup(usersService =>
+                usersService.UpdateAsync(It.Is(expectedUser, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
+            .Verifiable(Times.Once);
+
+        var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
+
+        // Act
+        var actionResult = await usersController.Put(userModel.Id!, userModel);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<NoContentResult>(actionResult);
+    }
 }
