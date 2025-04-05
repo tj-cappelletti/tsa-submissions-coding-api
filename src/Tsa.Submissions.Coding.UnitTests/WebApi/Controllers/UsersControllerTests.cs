@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tsa.Submissions.Coding.UnitTests.Data;
@@ -443,7 +444,7 @@ public class UsersControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async Task Post_Should_Return_Created_Participant_By_Id()
+    public async Task Post_Should_Return_Created_Participant_By_TeamId()
     {
         // Arrange
         var usersTestData = new UsersTestData();
@@ -690,6 +691,93 @@ public class UsersControllerTests
         var actualUsers = (List<UserModel>)createdAtActionResult.Value;
 
         Assert.Equal(expectedUsers.ToModels(), actualUsers, new UserModelEqualityComparer());
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async Task Put_Should_Return_NoContent_By_TeamId()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
+        var teamsTestData = new TeamsTestData();
+
+        var expectedUser = (User)usersTestData.First(userTestData =>
+            (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Role == SubmissionRoles.Participant)[0];
+
+        var team = (Team)teamsTestData.Single(teamTestData =>
+            (TeamDataIssues)teamTestData[1] == TeamDataIssues.None && ((Team)teamTestData[0]).Id == expectedUser.Team!.Id.AsString)[0];
+
+        var userModel = expectedUser.ToModel();
+
+        var mockedCacheService = new Mock<ICacheService>();
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(teamsService => teamsService.ExistsAsync(It.Is(team.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
+            .Verifiable(Times.Once);
+
+        var mockedUsersService = new Mock<IUsersService>();
+        mockedUsersService.Setup(usersService => usersService.GetAsync(It.Is(userModel.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedUser);
+        mockedUsersService.Setup(usersService =>
+                usersService.UpdateAsync(It.Is(expectedUser, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
+            .Verifiable(Times.Once);
+
+        var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
+
+        // Act
+        var actionResult = await usersController.Put(userModel.Id!, userModel);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<NoContentResult>(actionResult);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public async Task Put_Should_Return_NoContent_By_School()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
+        var teamsTestData = new TeamsTestData();
+
+        var expectedUser = (User)usersTestData.First(userTestData =>
+            (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Role == SubmissionRoles.Participant)[0];
+
+        var team = (Team)teamsTestData.Single(teamTestData =>
+            (TeamDataIssues)teamTestData[1] == TeamDataIssues.None && ((Team)teamTestData[0]).Id == expectedUser.Team!.Id.AsString)[0];
+
+        var userModel = expectedUser.ToModel();
+        userModel.Id = null;
+        userModel.Team = team.ToModel();
+        userModel.Team.Id = null;
+
+        var mockedCacheService = new Mock<ICacheService>();
+        var mockedTeamsService = new Mock<ITeamsService>();
+        mockedTeamsService.Setup(teamsService => teamsService.ExistsAsync(It.Is(team.SchoolNumber!, new StringEqualityComparer()),
+                It.Is(team.TeamNumber!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true)
+            .Verifiable(Times.Once);
+
+        mockedTeamsService.Setup(teamsService => teamsService.GetAsync(It.Is(team.SchoolNumber!, new StringEqualityComparer()),
+                It.Is(team.TeamNumber!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(team)
+            .Verifiable(Times.Once);
+
+        var mockedUsersService = new Mock<IUsersService>();
+        mockedUsersService.Setup(usersService => usersService.GetAsync(It.Is(userModel.Id!, new StringEqualityComparer()), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedUser);
+        mockedUsersService.Setup(usersService =>
+                usersService.UpdateAsync(It.Is(expectedUser, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
+            .Callback((User user, CancellationToken _) => user.Id = expectedUser.Id);
+
+        var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
+
+        // Act
+        var actionResult = await usersController.Put(userModel.Id!, userModel);
+
+        // Assert
+        Assert.NotNull(actionResult);
+        Assert.IsType<NoContentResult>(actionResult);
     }
 
     //[Fact]

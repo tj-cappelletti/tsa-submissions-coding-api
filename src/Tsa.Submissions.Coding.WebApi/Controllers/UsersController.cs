@@ -23,6 +23,7 @@ public class UsersController : ControllerBase
 
     public UsersController(ICacheService cacheService, ITeamsService teamsService, IUsersService usersService)
     {
+        
         _cacheService = cacheService;
         _teamsService = teamsService;
         _usersService = usersService;
@@ -66,6 +67,23 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
+    private async Task<UserState> EnsureTeamExists(UserModel userModel, CancellationToken cancellationToken)
+    {
+        if (userModel.Role != SubmissionRoles.Participant) return UserState.Ok;
+
+        var teamExists = await TeamExists(userModel.Team!, cancellationToken);
+
+        if (!teamExists) return UserState.TeamNotFound;
+
+        if (userModel.Team!.Id != null) return UserState.Ok;
+
+        var team = await _teamsService.GetAsync(userModel.Team!.SchoolNumber, userModel.Team.TeamNumber, cancellationToken);
+
+        userModel.Team.Id = team.Id;
+
+        return UserState.Ok;
+    }
+
     /// <summary>
     ///     Fetches all the users from the database
     /// </summary>
@@ -82,7 +100,7 @@ public class UsersController : ControllerBase
     {
         var users = await _usersService.GetAsync(cancellationToken);
 
-        return Ok(EntityExtensions.ToModels(users));
+        return Ok(users.ToModels());
     }
 
     /// <summary>
@@ -133,19 +151,9 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Post(UserModel userModel, CancellationToken cancellationToken = default)
     {
-        if (userModel.Role == SubmissionRoles.Participant)
-        {
-            var teamExists = await TeamExists(userModel.Team!, cancellationToken);
+        var userState = await EnsureTeamExists(userModel, cancellationToken);
 
-            if (!teamExists) return CreateTeamNotFoundError(userModel.Team!);
-
-            if (userModel.Team!.Id == null)
-            {
-                var team = await _teamsService.GetAsync(userModel.Team!.SchoolNumber, userModel.Team.TeamNumber, cancellationToken);
-
-                userModel.Team.Id = team.Id;
-            }
-        }
+        if (userState == UserState.TeamNotFound) return CreateTeamNotFoundError(userModel.Team!);
 
         var user = userModel.ToEntity();
 
@@ -204,11 +212,9 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Put(string id, UserModel updatedUserModel, CancellationToken cancellationToken = default)
     {
         // Team is required and is enforced in the model validation
-        if (updatedUserModel.Role == SubmissionRoles.Participant)
-        {
-            var teamExists = await TeamExists(updatedUserModel.Team!, cancellationToken);
-            if (!teamExists) return CreateTeamNotFoundError(updatedUserModel.Team!);
-        }
+        var userState = await EnsureTeamExists(updatedUserModel, cancellationToken);
+
+        if (userState == UserState.TeamNotFound) return CreateTeamNotFoundError(updatedUserModel.Team!);
 
         var user = await _usersService.GetAsync(id, cancellationToken);
 
@@ -218,13 +224,6 @@ public class UsersController : ControllerBase
 
         await _usersService.UpdateAsync(updatedUserModel.ToEntity(), cancellationToken);
 
-        var apiKey = await _cacheService.GetAsync<string?>(user.Id!, cancellationToken);
-
-        if (apiKey != null)
-        {
-            await _cacheService.RemoveAsync(apiKey, cancellationToken);
-        }
-
         return NoContent();
     }
 
@@ -233,5 +232,11 @@ public class UsersController : ControllerBase
         return teamModel.Id != null
             ? await _teamsService.ExistsAsync(teamModel.Id, cancellationToken)
             : await _teamsService.ExistsAsync(teamModel.SchoolNumber, teamModel.TeamNumber, cancellationToken);
+    }
+
+    internal enum UserState
+    {
+        Ok = 0,
+        TeamNotFound
     }
 }
