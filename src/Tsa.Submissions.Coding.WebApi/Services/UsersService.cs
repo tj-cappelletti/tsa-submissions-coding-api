@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -22,13 +23,13 @@ public sealed class UsersService : MongoDbService<User>, IUsersService
         logger)
     { }
 
-    public async Task<User?> GetByUserNameAsync(string? userName)
+    public async Task<User?> GetByUserNameAsync(string? userName, CancellationToken cancellationToken = default)
     {
         var filterDefinition = Builders<User>.Filter.Eq(user => user.UserName, userName);
 
-        var cursor = await EntityCollection.FindAsync(filterDefinition);
+        var cursor = await EntityCollection.FindAsync(filterDefinition, cancellationToken: cancellationToken);
 
-        var result = await cursor.SingleOrDefaultAsync();
+        var result = await cursor.SingleOrDefaultAsync(cancellationToken);
 
         return result;
     }
