@@ -17,13 +17,16 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers;
 [Produces("application/json")]
 public class UsersController : ControllerBase
 {
+    private const string UserIdCacheKey = "user_id";
+    private const string UsersCacheKey = "users";
+    private readonly TimeSpan _cacheExpiration = TimeSpan.FromHours(2);
+
     private readonly ICacheService _cacheService;
     private readonly ITeamsService _teamsService;
     private readonly IUsersService _usersService;
 
     public UsersController(ICacheService cacheService, ITeamsService teamsService, IUsersService usersService)
     {
-        
         _cacheService = cacheService;
         _teamsService = teamsService;
         _usersService = usersService;
@@ -64,6 +67,9 @@ public class UsersController : ControllerBase
 
         await _usersService.RemoveAsync(user, cancellationToken);
 
+        await _cacheService.RemoveAsync($"{UserIdCacheKey}:{id}", cancellationToken);
+        await _cacheService.RemoveAsync(UsersCacheKey, cancellationToken);
+
         return NoContent();
     }
 
@@ -71,7 +77,9 @@ public class UsersController : ControllerBase
     {
         if (userModel.Role != SubmissionRoles.Participant) return UserState.Ok;
 
-        var teamExists = await TeamExists(userModel.Team!, cancellationToken);
+        var teamExists = userModel.Team!.Id != null
+            ? await _teamsService.ExistsAsync(userModel.Team.Id, cancellationToken)
+            : await _teamsService.ExistsAsync(userModel.Team.SchoolNumber, userModel.Team.TeamNumber, cancellationToken);
 
         if (!teamExists) return UserState.TeamNotFound;
 
@@ -98,7 +106,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ApiErrorResponseModel))]
     public async Task<IActionResult> Get(CancellationToken cancellationToken = default)
     {
-        var users = await _usersService.GetAsync(cancellationToken);
+        var users = await GetUsersFromCache(cancellationToken);
 
         return Ok(users.ToModels());
     }
@@ -120,7 +128,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ApiErrorResponseModel))]
     public async Task<IActionResult> Get(string id, CancellationToken cancellationToken = default)
     {
-        var user = await _usersService.GetAsync(id, cancellationToken);
+        var user = await GetUserFromCache(id, cancellationToken);
 
         if (user == null) return CreateUserNotFoundError(id);
 
@@ -130,6 +138,40 @@ public class UsersController : ControllerBase
         }
 
         return Ok(user.ToModel());
+    }
+
+    private async Task<T?> GetOrSetCacheAsync<T>(string cacheKey, Func<CancellationToken, Task<T?>> fetchFromService, CancellationToken cancellationToken)
+    {
+        var cachedData = await _cacheService.GetAsync<T>(cacheKey, cancellationToken);
+
+        if (cachedData != null) return cachedData;
+
+        var data = await fetchFromService(cancellationToken);
+
+        if (data != null)
+        {
+            await _cacheService.SetAsync(cacheKey, data, _cacheExpiration, cancellationToken);
+        }
+
+        return data;
+    }
+
+    private async Task<User?> GetUserFromCache(string id, CancellationToken cancellationToken)
+    {
+        return await GetOrSetCacheAsync(
+            $"{UserIdCacheKey}:{id}",
+            async ct => await _usersService.GetAsync(id, ct),
+            cancellationToken
+        );
+    }
+
+    private async Task<List<User>> GetUsersFromCache(CancellationToken cancellationToken)
+    {
+        return await GetOrSetCacheAsync(
+            UsersCacheKey,
+            async ct => await _usersService.GetAsync(ct),
+            cancellationToken
+        ) ?? [];
     }
 
     /// <summary>
@@ -154,7 +196,7 @@ public class UsersController : ControllerBase
         var existingUser = await _usersService.GetByUserNameAsync(userModel.UserName, cancellationToken);
 
         if (existingUser != null) return Conflict(ApiErrorResponseModel.EntityAlreadyExists(nameof(User), userModel.UserName!));
-        
+
         var userState = await EnsureTeamExists(userModel, cancellationToken);
 
         if (userState == UserState.TeamNotFound) return CreateTeamNotFoundError(userModel.Team!);
@@ -162,6 +204,8 @@ public class UsersController : ControllerBase
         var user = userModel.ToEntity();
 
         await _usersService.CreateAsync(user, cancellationToken);
+
+        await SetUserCache(user, cancellationToken);
 
         return CreatedAtAction(nameof(Get), new { id = user.Id }, user.ToModel());
     }
@@ -183,18 +227,34 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Post(UserModel[] userModels, CancellationToken cancellationToken = default)
     {
-        var createdUserModels = new List<UserModel>(userModels.Length);
+        var batchOperationModel = new BatchOperationModel<UserModel>();
 
         foreach (var userModel in userModels)
         {
             var actionResult = await Post(userModel, cancellationToken);
-            // TODO: Add logic to return what was successful and what was not
-            if (actionResult is not CreatedAtActionResult createdAtActionResult) throw new Exception("Failed to create user");
 
-            createdUserModels.Add((UserModel)createdAtActionResult.Value!);
+            if (actionResult is not CreatedAtActionResult createdAtActionResult)
+            {
+                var message = actionResult switch
+                {
+                    BadRequestObjectResult badRequestObjectResult => ((ValidationProblemDetails)badRequestObjectResult.Value!).Detail,
+                    ConflictObjectResult conflictObjectResult => ((ApiErrorResponseModel)conflictObjectResult.Value!).Message,
+                    _ => actionResult.ToString()
+                };
+
+                batchOperationModel.FailedItems.Add(new ItemFailureModel<UserModel>
+                {
+                    ErrorMessage = message,
+                    Item = userModel
+                });
+            }
+            else
+            {
+                batchOperationModel.CreatedItems.Add((UserModel)createdAtActionResult.Value!);
+            }
         }
 
-        return Created("batch", createdUserModels);
+        return Created("batch", batchOperationModel);
     }
 
     /// <summary>
@@ -228,20 +288,22 @@ public class UsersController : ControllerBase
 
         await _usersService.UpdateAsync(updatedUserModel.ToEntity(), cancellationToken);
 
+        await SetUserCache(user, cancellationToken);
+
         return NoContent();
     }
 
-    private async Task<bool> TeamExists(TeamModel teamModel, CancellationToken cancellationToken)
+    private async Task SetUserCache(User user, CancellationToken cancellationToken)
     {
-        return teamModel.Id != null
-            ? await _teamsService.ExistsAsync(teamModel.Id, cancellationToken)
-            : await _teamsService.ExistsAsync(teamModel.SchoolNumber, teamModel.TeamNumber, cancellationToken);
+        if (user.Id == null) throw new ArgumentNullException(nameof(user.Id));
+
+        await _cacheService.SetAsync($"{UserIdCacheKey}:{user.Id}", user, _cacheExpiration, cancellationToken);
+        await _cacheService.RemoveAsync(UsersCacheKey, cancellationToken);
     }
 
     internal enum UserState
     {
         Ok = 0,
-        DuplicateUser,
         TeamNotFound
     }
 }
