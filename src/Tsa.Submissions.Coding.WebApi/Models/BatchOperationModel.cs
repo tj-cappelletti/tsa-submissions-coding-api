@@ -14,3 +14,10 @@ public class BatchOperationModel<T>
 
     public List<T> UpdatedItems { get; set; } = [];
 }
+
+public enum BatchOperationResult
+{
+    Success,
+    PartialSuccess,
+    Failed
+}

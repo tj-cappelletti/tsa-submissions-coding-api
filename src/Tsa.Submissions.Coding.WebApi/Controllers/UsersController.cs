@@ -92,6 +92,16 @@ public class UsersController : ControllerBase
         return UserState.Ok;
     }
 
+    private string? ExtractErrorMessageFromActionResult(IActionResult actionResult)
+    {
+        return actionResult switch
+        {
+            BadRequestObjectResult badRequest => ((ValidationProblemDetails)badRequest.Value!).Detail,
+            ConflictObjectResult conflict => ((ApiErrorResponseModel)conflict.Value!).Message,
+            _ => actionResult.ToString()
+        };
+    }
+
     /// <summary>
     ///     Fetches all the users from the database
     /// </summary>
@@ -227,6 +237,15 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Post(UserModel[] userModels, CancellationToken cancellationToken = default)
     {
+        if (userModels.Length == 0)
+        {
+            return BadRequest(new ValidationProblemDetails
+            {
+                Title = "No users to create",
+                Detail = "At least one user must be specified to use the batch endpoint."
+            });
+        }
+
         var batchOperationModel = new BatchOperationModel<UserModel>();
 
         foreach (var userModel in userModels)
@@ -235,16 +254,9 @@ public class UsersController : ControllerBase
 
             if (actionResult is not CreatedAtActionResult createdAtActionResult)
             {
-                var message = actionResult switch
-                {
-                    BadRequestObjectResult badRequestObjectResult => ((ValidationProblemDetails)badRequestObjectResult.Value!).Detail,
-                    ConflictObjectResult conflictObjectResult => ((ApiErrorResponseModel)conflictObjectResult.Value!).Message,
-                    _ => actionResult.ToString()
-                };
-
                 batchOperationModel.FailedItems.Add(new ItemFailureModel<UserModel>
                 {
-                    ErrorMessage = message,
+                    ErrorMessage = ExtractErrorMessageFromActionResult(actionResult),
                     Item = userModel
                 });
             }
@@ -254,7 +266,20 @@ public class UsersController : ControllerBase
             }
         }
 
-        return Created("batch", batchOperationModel);
+        if (batchOperationModel.FailedItems.Count > 0)
+        {
+            batchOperationModel.Result = batchOperationModel.CreatedItems.Count > 0
+                ? BatchOperationResult.PartialSuccess.ToString()
+                : BatchOperationResult.Failed.ToString();
+        }
+        else
+        {
+            batchOperationModel.Result = BatchOperationResult.Success.ToString();
+        }
+
+        return batchOperationModel.Result != BatchOperationResult.Failed.ToString()
+            ? Created("batch", batchOperationModel)
+            : BadRequest(batchOperationModel);
     }
 
     /// <summary>
