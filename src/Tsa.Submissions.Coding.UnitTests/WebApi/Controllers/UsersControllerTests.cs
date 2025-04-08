@@ -487,9 +487,17 @@ public class UsersControllerTests
         var createdAtActionResult = (CreatedResult)actionResult;
 
         Assert.NotNull(createdAtActionResult.Value);
-        Assert.IsType<List<UserModel>>(createdAtActionResult.Value);
+        Assert.IsType<BatchOperationModel<UserModel>>(createdAtActionResult.Value);
 
-        var actualUsers = (List<UserModel>)createdAtActionResult.Value;
+        var batchOperation = (BatchOperationModel<UserModel>)createdAtActionResult.Value;
+
+        Assert.Equal(BatchOperationResult.Success.ToString(), batchOperation.Result, new StringEqualityComparer());
+
+        Assert.NotEmpty(batchOperation.CreatedItems);
+        Assert.Empty(batchOperation.DeletedItems);
+        Assert.Empty(batchOperation.FailedItems);
+
+        var actualUsers = batchOperation.CreatedItems;
 
         Assert.Equal(expectedUsers.ToModels(), actualUsers, new UserModelEqualityComparer());
     }
