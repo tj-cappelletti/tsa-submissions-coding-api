@@ -92,7 +92,7 @@ public class UsersController : ControllerBase
         return UserState.Ok;
     }
 
-    private string? ExtractErrorMessageFromActionResult(IActionResult actionResult)
+    private static string? ExtractErrorMessageFromActionResult(IActionResult actionResult)
     {
         return actionResult switch
         {
@@ -320,7 +320,7 @@ public class UsersController : ControllerBase
 
     private async Task SetUserCache(User user, CancellationToken cancellationToken)
     {
-        if (user.Id == null) throw new ArgumentNullException(nameof(user.Id));
+        if (user.Id == null) throw new NullReferenceException("The user's ID cannot be null when adding it to the cache.");
 
         await _cacheService.SetAsync($"{UserIdCacheKey}:{user.Id}", user, _cacheExpiration, cancellationToken);
         await _cacheService.RemoveAsync(UsersCacheKey, cancellationToken);

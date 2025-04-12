@@ -527,7 +527,7 @@ public class UsersControllerTests
         mockedUsersService.Setup(usersService =>
                 usersService.CreateAsync(It.Is(expectedUser, new UserEqualityComparer(true)), It.IsAny<CancellationToken>()))
             .Callback((User user, CancellationToken _) => user.Id = expectedUser.Id);
-        
+
         var usersController = new UsersController(mockedCacheService.Object, mockedTeamsService.Object, mockedUsersService.Object);
 
         // Act
