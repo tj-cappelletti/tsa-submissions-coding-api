@@ -23,4 +23,50 @@ public class SubmissionsDatabase
                !string.IsNullOrWhiteSpace(Password) &&
                Port > 0;
     }
+
+    public SubmissionsDatabaseConfigError GetError()
+    {
+        if (string.IsNullOrWhiteSpace(Host))
+        {
+            return SubmissionsDatabaseConfigError.Host;
+        }
+
+        if (string.IsNullOrWhiteSpace(LoginDatabase))
+        {
+            return SubmissionsDatabaseConfigError.LoginDatabase;
+        }
+
+        if (string.IsNullOrWhiteSpace(Name))
+        {
+            return SubmissionsDatabaseConfigError.Name;
+        }
+
+        if (string.IsNullOrWhiteSpace(Username))
+        {
+            return SubmissionsDatabaseConfigError.Username;
+        }
+
+        if (string.IsNullOrWhiteSpace(Password))
+        {
+            return SubmissionsDatabaseConfigError.Password;
+        }
+
+        if (Port <= 0)
+        {
+            return SubmissionsDatabaseConfigError.Port;
+        }
+
+        return SubmissionsDatabaseConfigError.None;
+    }
+}
+
+public enum SubmissionsDatabaseConfigError
+{
+    None = 0,
+    Host = 1,
+    LoginDatabase = 2,
+    Name = 3,
+    Password = 4,
+    Port = 5,
+    Username = 6
 }
