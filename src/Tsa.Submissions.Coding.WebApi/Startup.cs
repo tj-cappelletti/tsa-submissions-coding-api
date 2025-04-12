@@ -52,9 +52,26 @@ public class Startup(IConfiguration configuration)
 
         var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>();
 
-        if (submissionsDatabase == null || !submissionsDatabase.IsValid())
+        if (submissionsDatabase == null)
         {
-            throw new InvalidOperationException("Invalid configuration the Submissions database.");
+            throw new NullReferenceException("The configuration for the Submissions database was null.");
+        }
+
+        if (!submissionsDatabase.IsValid())
+        {
+            var error = submissionsDatabase.GetError();
+            var errorMessage = error switch
+            {
+                SubmissionsDatabaseConfigError.Host => "The configuration for the Submissions database was invalid. Host is required.",
+                SubmissionsDatabaseConfigError.LoginDatabase => "The configuration for the Submissions database was invalid. LoginDatabase is required.",
+                SubmissionsDatabaseConfigError.Name => "The configuration for the Submissions database was invalid. Name is required.",
+                SubmissionsDatabaseConfigError.Password => "The configuration for the Submissions database was invalid. Password is required.",
+                SubmissionsDatabaseConfigError.Port => "The configuration for the Submissions database was invalid. Port is required.",
+                SubmissionsDatabaseConfigError.Username => "The configuration for the Submissions database was invalid. Username is required.",
+                _ => "An unknown error occurred while validating the configuration for the Submissions database."
+            };
+
+            throw new InvalidOperationException(errorMessage);
         }
 
         services.Configure<SubmissionsDatabase>(submissionsDatabaseSection);
