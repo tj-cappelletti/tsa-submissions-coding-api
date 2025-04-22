@@ -2,13 +2,10 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -46,7 +43,7 @@ public class Startup(IConfiguration configuration)
     {
         var submissionsDatabaseSection = Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection);
 
-        var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>() ?? throw new NullReferenceException("The configuration for the Submissions database was null."); ;
+        var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>() ?? throw new NullReferenceException("The configuration for the Submissions database was null.");
 
         if (!submissionsDatabase.IsValid())
         {

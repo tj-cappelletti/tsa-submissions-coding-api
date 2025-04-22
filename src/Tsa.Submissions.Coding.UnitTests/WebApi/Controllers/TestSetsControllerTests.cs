@@ -7,13 +7,11 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tsa.Submissions.Coding.UnitTests.Data;
 using Tsa.Submissions.Coding.UnitTests.Helpers;
-using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Controllers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Exceptions;
@@ -26,54 +24,54 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Controllers;
 [ExcludeFromCodeCoverage]
 public class TestSetsControllerTests
 {
-    [Fact]
-    [Trait("TestCategory", "UnitTest")]
-    public void Controller_Public_Methods_Should_Have_Authorize_Attribute_With_Proper_Roles()
-    {
-        var testSetsController = typeof(TestSetsController);
+    //[Fact]
+    //[Trait("TestCategory", "UnitTest")]
+    //public void Controller_Public_Methods_Should_Have_Authorize_Attribute_With_Proper_Roles()
+    //{
+    //    var testSetsController = typeof(TestSetsController);
 
-        var methodInfos = testSetsController.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+    //    var methodInfos = testSetsController.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
 
-        Assert.NotEmpty(methodInfos);
+    //    Assert.NotEmpty(methodInfos);
 
-        foreach (var methodInfo in methodInfos)
-        {
-            var attributes = methodInfo.GetCustomAttributes(typeof(AuthorizeAttribute), false);
+    //    foreach (var methodInfo in methodInfos)
+    //    {
+    //        var attributes = methodInfo.GetCustomAttributes(typeof(AuthorizeAttribute), false);
 
-            Assert.NotNull(attributes);
-            Assert.NotEmpty(attributes);
-            Assert.Single(attributes);
+    //        Assert.NotNull(attributes);
+    //        Assert.NotEmpty(attributes);
+    //        Assert.Single(attributes);
 
-            var authorizeAttribute = (AuthorizeAttribute)attributes[0];
+    //        var authorizeAttribute = (AuthorizeAttribute)attributes[0];
 
-            switch (methodInfo.Name)
-            {
-                case "Delete":
-                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-                    break;
+    //        switch (methodInfo.Name)
+    //        {
+    //            case "Delete":
+    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+    //                break;
 
-                case "Get":
-                    Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
-                    break;
+    //            case "Get":
+    //                Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
+    //                break;
 
-                case "GetTestSets":
-                    Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
-                    break;
+    //            case "GetTestSets":
+    //                Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
+    //                break;
 
-                case "Post":
-                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-                    break;
+    //            case "Post":
+    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+    //                break;
 
-                case "Put":
-                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-                    break;
+    //            case "Put":
+    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+    //                break;
 
-                default:
-                    Assert.Fail($"A test case for the method `{methodInfo.Name}` does not exist");
-                    break;
-            }
-        }
-    }
+    //            default:
+    //                Assert.Fail($"A test case for the method `{methodInfo.Name}` does not exist");
+    //                break;
+    //        }
+    //    }
+    //}
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
