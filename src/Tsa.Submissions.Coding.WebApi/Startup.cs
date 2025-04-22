@@ -39,10 +39,6 @@ public class Startup(IConfiguration configuration)
 
         app.UseRouting();
 
-        //app.UseAuthentication();
-
-        //app.UseAuthorization();
-
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 
@@ -50,12 +46,7 @@ public class Startup(IConfiguration configuration)
     {
         var submissionsDatabaseSection = Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection);
 
-        var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>();
-
-        if (submissionsDatabase == null)
-        {
-            throw new NullReferenceException("The configuration for the Submissions database was null.");
-        }
+        var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>() ?? throw new NullReferenceException("The configuration for the Submissions database was null."); ;
 
         if (!submissionsDatabase.IsValid())
         {
@@ -153,14 +144,6 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IValidator<TeamModel>, TeamModelValidator>();
         services.AddScoped<IValidator<TestSetModel>, TestSetModelValidator>();
         services.AddScoped<IValidator<UserModel>, UserModelValidator>();
-
-        // Setup authentication and authorization
-        //var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
-        //    .RequireAuthenticatedUser()
-        //    .Build();
-
-        //services.AddAuthorizationBuilder()
-        //    .AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role));
 
         // Setup Controllers
         services

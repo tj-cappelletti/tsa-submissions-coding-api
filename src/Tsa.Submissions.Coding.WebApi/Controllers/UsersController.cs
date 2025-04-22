@@ -53,7 +53,6 @@ public class UsersController : ControllerBase
     /// <response code="401">Authentication has failed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
     /// <response code="404">The user to remove does not exist in the database</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpDelete("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponseModel))]
@@ -109,7 +108,6 @@ public class UsersController : ControllerBase
     /// <response code="200">All available users returned</response>
     /// <response code="401">Authentication has failed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IList<UserModel>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponseModel))]
@@ -130,7 +128,6 @@ public class UsersController : ControllerBase
     /// <response code="401">Authentication has failed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
     /// <response code="404">The user does not exist in your context</response>
-    [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserModel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ApiErrorResponseModel))]
@@ -194,7 +191,6 @@ public class UsersController : ControllerBase
     /// <response code="401">Authentication has failed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
     /// <response code="404">The team specified for the user could not be found</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UserModel))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -229,7 +225,6 @@ public class UsersController : ControllerBase
     /// <response code="400">The user to create is not in a valid state and cannot be created</response>
     /// <response code="401">Authentication has failed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPost("batch")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(IList<UserModel>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -292,7 +287,6 @@ public class UsersController : ControllerBase
     /// <response code="400">The user to replace in the database with is not in a valid state and cannot be replaced</response>
     /// <response code="401">Authentication has failed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPut("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
