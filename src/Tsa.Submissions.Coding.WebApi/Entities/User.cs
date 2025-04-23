@@ -14,6 +14,8 @@ public class User : IMongoDbEntity
     [SwaggerSchema(ReadOnly = true)]
     public string? Id { get; set; }
 
+    public string? PasswordHash { get; set; }
+
     public string? Role { get; set; }
 
     public MongoDBRef? Team { get; set; }

@@ -206,7 +206,11 @@ public class UsersController : ControllerBase
 
         if (userState == UserState.TeamNotFound) return CreateTeamNotFoundError(userModel.Team!);
 
+        var passwordHash = BC.HashPassword(userModel.Password);
+
         var user = userModel.ToEntity();
+
+        user.PasswordHash = passwordHash;
 
         await _usersService.CreateAsync(user, cancellationToken);
 
