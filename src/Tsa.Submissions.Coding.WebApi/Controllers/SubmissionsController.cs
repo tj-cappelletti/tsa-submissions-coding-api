@@ -71,7 +71,7 @@ public class SubmissionsController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SubmissionModel>))]
     [ProducesResponseType(StatusCodes.Status424FailedDependency, Type = typeof(ApiErrorResponseModel))]
-    public async Task<ActionResult<IList<SubmissionModel>>> GetSubmissions(
+    public async Task<ActionResult<IList<SubmissionModel>>> GetAll(
         [FromQuery]string? problemId = null,
         CancellationToken cancellationToken = default)
     {

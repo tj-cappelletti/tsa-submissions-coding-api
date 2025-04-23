@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tsa.Submissions.Coding.WebApi.Authorization;
@@ -33,6 +34,7 @@ public class ProblemsController : ControllerBase
     /// <response code="204">Acknowledges the problem was successfully removed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
     /// <response code="404">The problem to remove does not exist in the database</response>
+    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpDelete("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -54,6 +56,7 @@ public class ProblemsController : ControllerBase
     /// <param name="expandTestSets">If true, the test sets are returned with the problems, otherwise null is returned</param>
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">All available problems returned</response>
+    [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProblemModel>))]
     public async Task<ActionResult<IList<ProblemModel>>> Get(bool expandTestSets = false, CancellationToken cancellationToken = default)
@@ -93,6 +96,7 @@ public class ProblemsController : ControllerBase
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">Returns the requested problem</response>
     /// <response code="404">The problem does not exist in the database</response>
+    [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProblemModel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -123,6 +127,7 @@ public class ProblemsController : ControllerBase
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">Returns the requested problem</response>
     /// <response code="404">The problem does not exist in the database</response>
+    [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet("{id:length(24)}/testsets")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TestSetModel>))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -148,6 +153,7 @@ public class ProblemsController : ControllerBase
     /// <response code="201">Returns the requested problem</response>
     /// <response code="400">The problem is not in a valid state and cannot be created</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
+    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -172,6 +178,7 @@ public class ProblemsController : ControllerBase
     /// <response code="204">Acknowledgement that the problem was updated</response>
     /// <response code="400">The problem is not in a valid state and cannot be updated</response>
     /// <response code="404">The problem requested to be updated could not be found</response>
+    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPut("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]

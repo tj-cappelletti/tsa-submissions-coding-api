@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -24,50 +25,50 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Controllers;
 [ExcludeFromCodeCoverage]
 public class UsersControllerTests
 {
-    //[Fact]
-    //[Trait("TestCategory", "UnitTest")]
-    //public void Controller_Public_Methods_Should_Have_Authorize_Attribute_With_Proper_Roles()
-    //{
-    //    var usersControllerType = typeof(UsersController);
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void Controller_Public_Methods_Should_Have_Authorize_Attribute_With_Proper_Roles()
+    {
+        var usersControllerType = typeof(UsersController);
 
-    //    var methodInfos = usersControllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+        var methodInfos = usersControllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
 
-    //    Assert.NotEmpty(methodInfos);
+        Assert.NotEmpty(methodInfos);
 
-    //    foreach (var methodInfo in methodInfos)
-    //    {
-    //        var attributes = methodInfo.GetCustomAttributes(typeof(AuthorizeAttribute), false);
+        foreach (var methodInfo in methodInfos)
+        {
+            var attributes = methodInfo.GetCustomAttributes(typeof(AuthorizeAttribute), false);
 
-    //        Assert.NotNull(attributes);
-    //        Assert.NotEmpty(attributes);
-    //        Assert.Single(attributes);
+            Assert.NotNull(attributes);
+            Assert.NotEmpty(attributes);
+            Assert.Single(attributes);
 
-    //        var authorizeAttribute = (AuthorizeAttribute)attributes[0];
+            var authorizeAttribute = (AuthorizeAttribute)attributes[0];
 
-    //        switch (methodInfo.Name)
-    //        {
-    //            case "Delete":
-    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-    //                break;
+            switch (methodInfo.Name)
+            {
+                case "Delete":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
 
-    //            case "Get":
-    //                Assert.Equal(methodInfo.GetParameters().Length == 1 ? SubmissionRoles.Judge : SubmissionRoles.All, authorizeAttribute.Roles);
-    //                break;
+                case "Get":
+                    Assert.Equal(methodInfo.GetParameters().Length == 1 ? SubmissionRoles.Judge : SubmissionRoles.All, authorizeAttribute.Roles);
+                    break;
 
-    //            case "Post":
-    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-    //                break;
+                case "Post":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
 
-    //            case "Put":
-    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-    //                break;
+                case "Put":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
 
-    //            default:
-    //                Assert.Fail($"A test case for the method `{methodInfo.Name}` does not exist");
-    //                break;
-    //        }
-    //    }
-    //}
+                default:
+                    Assert.Fail($"A test case for the method `{methodInfo.Name}` does not exist");
+                    break;
+            }
+        }
+    }
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
@@ -471,6 +472,7 @@ public class UsersControllerTests
 
             var userModel = user.ToModel();
             userModel.Id = null;
+            userModel.Password = "user'spassword";
             userModels.Add(userModel);
         }
 
@@ -559,6 +561,7 @@ public class UsersControllerTests
 
         var userModel = expectedUser.ToModel();
         userModel.Id = null;
+        userModel.Password = "user'spassword";
         userModel.Team = team.ToModel();
         userModel.Team.Id = null;
 
@@ -613,6 +616,7 @@ public class UsersControllerTests
 
         var userModel = expectedUser.ToModel();
         userModel.Id = null;
+        userModel.Password = "user'spassword";
 
         var mockedCacheService = new Mock<ICacheService>();
         var mockedTeamsService = new Mock<ITeamsService>();
