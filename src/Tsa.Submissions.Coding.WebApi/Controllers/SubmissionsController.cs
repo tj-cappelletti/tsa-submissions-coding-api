@@ -28,35 +28,6 @@ public class SubmissionsController : ControllerBase
     }
 
     /// <summary>
-    ///     Fetches all the submissions from the database
-    /// </summary>
-    /// <param name="cancellationToken">The .NET cancellation token</param>
-    /// <response code="200">All available submissions returned</response>
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SubmissionModel>))]
-    [ProducesResponseType(StatusCodes.Status424FailedDependency, Type = typeof(ApiErrorResponseModel))]
-    public async Task<ActionResult<IList<SubmissionModel>>> Get(CancellationToken cancellationToken = default)
-    {
-        var submissions = await _submissionsService.GetAsync(cancellationToken);
-
-        if (User.IsInRole(SubmissionRoles.Judge)) return submissions.ToModels();
-
-        var team = (await _teamsService.GetAsync(cancellationToken))
-            .SingleOrDefault(t => t.Participants.Any(p => p.ParticipantId == User.Identity!.Name));
-
-        if (team == null)
-        {
-            return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
-        }
-
-        return submissions
-            // Team is required, if null, we are in a bad state
-            .Where(submission => submission.Team!.Id.AsString == team.Id)
-            .ToList()
-            .ToModels();
-    }
-
-    /// <summary>
     ///     Fetches a submission from the database
     /// </summary>
     /// <param name="id">The ID of the submission to get</param>
@@ -86,6 +57,40 @@ public class SubmissionsController : ControllerBase
         return team.Participants.Any(p => p.ParticipantId == User.Identity!.Name)
             ? submission.ToModel()
             : NotFound();
+    }
+
+    /// <summary>
+    ///     Fetches all the submissions from the database
+    /// </summary>
+    /// <param name="problemId">The ID of the problem to filter submissions by</param>
+    /// <param name="cancellationToken">The .NET cancellation token</param>
+    /// <response code="200">All available submissions returned</response>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SubmissionModel>))]
+    [ProducesResponseType(StatusCodes.Status424FailedDependency, Type = typeof(ApiErrorResponseModel))]
+    public async Task<ActionResult<IList<SubmissionModel>>> GetSubmissions(
+        [FromQuery]string? problemId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var submissions = string.IsNullOrEmpty(problemId)
+            ? await _submissionsService.GetAsync(cancellationToken)
+            : await _submissionsService.GetByProblemIdAsync(problemId, cancellationToken);
+
+        if (User.IsInRole(SubmissionRoles.Judge)) return submissions.ToModels();
+
+        var team = (await _teamsService.GetAsync(cancellationToken))
+            .SingleOrDefault(t => t.Participants.Any(p => p.ParticipantId == User.Identity!.Name));
+
+        if (team == null)
+        {
+            return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
+        }
+
+        return submissions
+            // Team is required, if null, we are in a bad state
+            .Where(submission => submission.Team!.Id.AsString == team.Id)
+            .ToList()
+            .ToModels();
     }
 
     /// <summary>

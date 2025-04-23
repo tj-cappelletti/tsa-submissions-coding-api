@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Configuration;
@@ -18,6 +21,16 @@ public class SubmissionsService : MongoDbService<Submission>, ISubmissionsServic
         mongoClient,
         options.Value.Name!,
         MongoDbCollectionName,
-        logger)
-    { }
+        logger) { }
+
+    public async Task<List<Submission>> GetByProblemIdAsync(string problemId, CancellationToken cancellationToken = default)
+    {
+        var filterDefinition = Builders<Submission>.Filter.Eq(submission => submission.Problem!.Id, problemId);
+
+        var cursor = await EntityCollection.FindAsync(filterDefinition, null, cancellationToken);
+
+        var result = await cursor.ToListAsync(cancellationToken);
+
+        return result;
+    }
 }
