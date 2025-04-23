@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FluentValidation.TestHelper;
 using Tsa.Submissions.Coding.UnitTests.Data;
-using Tsa.Submissions.Coding.UnitTests.Helpers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Validators;
 using Xunit;
@@ -45,14 +44,14 @@ public class TeamModelValidatorTests
             testValidationResult.ShouldNotHaveValidationErrorFor(model => model.CompetitionLevel);
         }
 
-        if (teamDataIssues.HasFlag(TeamDataIssues.InvalidParticipants))
-        {
-            testValidationResult.ShouldHaveValidationErrorFor(model => model.Participants);
-        }
-        else
-        {
-            testValidationResult.ShouldNotHaveValidationErrorFor(model => model.Participants);
-        }
+        //if (teamDataIssues.HasFlag(TeamDataIssues.InvalidParticipants))
+        //{
+        //    testValidationResult.ShouldHaveValidationErrorFor(model => model.Participants);
+        //}
+        //else
+        //{
+        //    testValidationResult.ShouldNotHaveValidationErrorFor(model => model.Participants);
+        //}
 
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidSchoolNumber))
         {

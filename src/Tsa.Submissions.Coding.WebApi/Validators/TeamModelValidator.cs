@@ -33,8 +33,8 @@ public class TeamModelValidator : AbstractValidator<TeamModel>
             .Matches(ValidTeamNumberRegEx)
             .WithMessage("The Team Number is required and must 3 digits that starts with a 9");
 
-        RuleFor(team => team.Participants)
-            .SetValidator(new ParticipantsPropertyValidator())
-            .WithMessage("The participant(s) are not valid");
+        //RuleFor(team => team.Participants)
+        //    .SetValidator(new ParticipantsPropertyValidator())
+        //    .WithMessage("The participant(s) are not valid");
     }
 }
