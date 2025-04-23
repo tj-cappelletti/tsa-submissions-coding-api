@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tsa.Submissions.Coding.WebApi.Authorization;
@@ -34,6 +35,7 @@ public class SubmissionsController : ControllerBase
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">Returns the requested submission</response>
     /// <response code="404">The submission does not exist in the database</response>
+    [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubmissionModel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -65,6 +67,7 @@ public class SubmissionsController : ControllerBase
     /// <param name="problemId">The ID of the problem to filter submissions by</param>
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">All available submissions returned</response>
+    [Authorize(Roles = SubmissionRoles.All)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SubmissionModel>))]
     [ProducesResponseType(StatusCodes.Status424FailedDependency, Type = typeof(ApiErrorResponseModel))]
@@ -101,6 +104,7 @@ public class SubmissionsController : ControllerBase
     /// <response code="201">Returns the requested submission</response>
     /// <response code="400">The submission is not in a valid state and cannot be created</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
+    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -127,6 +131,7 @@ public class SubmissionsController : ControllerBase
     /// <response code="204">Acknowledgement that the submission was updated</response>
     /// <response code="400">The submission is not in a valid state and cannot be updated</response>
     /// <response code="404">The submission requested to be updated could not be found</response>
+    [Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPut("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
