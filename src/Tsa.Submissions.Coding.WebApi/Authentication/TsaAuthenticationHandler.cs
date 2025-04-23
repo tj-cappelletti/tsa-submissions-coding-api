@@ -43,6 +43,11 @@ public class TsaAuthenticationHandler : AuthenticationHandler<TsaAuthenticationO
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        if (Request.Path.Value?.ToLower() == "/api/status")
+        {
+            return AuthenticateResult.NoResult();
+        }
+
         if (!Request.Headers.TryGetValue(Options.ApiKeyHeaderName, out var apiKeyHeaderValues))
         {
             return AuthenticationFailure($"Missing header: {Options.ApiKeyHeaderName}");
