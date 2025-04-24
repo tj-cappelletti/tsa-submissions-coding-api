@@ -20,12 +20,12 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers;
 public class SubmissionsController : ControllerBase
 {
     private readonly ISubmissionsService _submissionsService;
-    private readonly ITeamsService _teamsService;
+    private readonly IUsersService _usersService;
 
-    public SubmissionsController(ISubmissionsService submissionsService, ITeamsService teamsService)
+    public SubmissionsController(ISubmissionsService submissionsService, IUsersService usersService)
     {
         _submissionsService = submissionsService;
-        _teamsService = teamsService;
+        _usersService = usersService;
     }
 
     /// <summary>
@@ -48,15 +48,16 @@ public class SubmissionsController : ControllerBase
 
         if (User.IsInRole(SubmissionRoles.Judge)) return submission.ToModel();
 
-        // Team is required, if null, we are in a bad state
-        var team = await _teamsService.GetAsync(submission.Team!.Id.AsString, cancellationToken);
+        var user = await _usersService.GetByUserNameAsync(User.Identity!.Name!, cancellationToken);
+        
+        var team = user?.Team;
 
         if (team == null)
         {
             return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
         }
 
-        return team.Participants.Any(p => p.ParticipantId == User.Identity!.Name)
+        return team.Id.AsString == submission.Team?.Id.AsString
             ? submission.ToModel()
             : NotFound();
     }
@@ -81,17 +82,19 @@ public class SubmissionsController : ControllerBase
 
         if (User.IsInRole(SubmissionRoles.Judge)) return submissions.ToModels();
 
-        var team = (await _teamsService.GetAsync(cancellationToken))
-            .SingleOrDefault(t => t.Participants.Any(p => p.ParticipantId == User.Identity!.Name));
+        var user = await _usersService.GetByUserNameAsync(User.Identity!.Name!, cancellationToken);
+
+        var team = user?.Team;
 
         if (team == null)
         {
             return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
         }
 
+
         return submissions
             // Team is required, if null, we are in a bad state
-            .Where(submission => submission.Team!.Id.AsString == team.Id)
+            .Where(submission => submission.Team!.Id.AsString == team.Id.AsString)
             .ToList()
             .ToModels();
     }
