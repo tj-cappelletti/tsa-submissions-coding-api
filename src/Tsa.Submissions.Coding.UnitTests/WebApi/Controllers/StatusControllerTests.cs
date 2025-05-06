@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Tsa.Submissions.Coding.WebApi.Controllers;
@@ -115,7 +116,7 @@ public class StatusControllerTests
     #endregion
 
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_InternalServerError(PingableServiceFailures pingableServiceFailures)
+    public async Task Get_Should_Return_InternalServerError(PingableServiceFailures pingableServiceFailures)
     {
         // Arrange
         var pingableServices = BuildUnhealthyPingableServices(pingableServiceFailures, ServiceFailureType.PingFailed);
@@ -167,7 +168,7 @@ public class StatusControllerTests
     #endregion
 
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_InternalServerError_When_Exception_Is_Thrown(PingableServiceFailures pingableServiceFailures)
+    public async Task Get_Should_Return_InternalServerError_When_Exception_Is_Thrown(PingableServiceFailures pingableServiceFailures)
     {
         // Arrange
         var pingableServices = BuildUnhealthyPingableServices(pingableServiceFailures, ServiceFailureType.ExceptionThrown);
@@ -303,7 +304,7 @@ public class StatusControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok()
+    public async Task Get_Should_Return_Ok()
     {
         // Arrange
         var pingableServices = BuildHealthyPingableServices();
@@ -332,7 +333,7 @@ public class StatusControllerTests
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
-    public async void Get_Should_Return_Ok_When_Unknown_Service_Is_Injected()
+    public async Task Get_Should_Return_Ok_When_Unknown_Service_Is_Injected()
     {
         // Arrange
         var pingableServices = BuildHealthyPingableServices();

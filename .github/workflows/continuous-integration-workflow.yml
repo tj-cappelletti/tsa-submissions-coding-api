@@ -35,7 +35,8 @@ jobs:
       unitTestProjectFolder: src/Tsa.Submissions.Coding.UnitTests
       publishProjectFile: Tsa.Submissions.Coding.WebApi.csproj
       publishProjectFolder: src/Tsa.Submissions.Coding.WebApi
-    secrets: inherit
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   verifyCodeStyleJob:
     name: CI - Verify Code Style Workflow

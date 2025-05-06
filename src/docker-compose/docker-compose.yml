@@ -1,18 +1,6 @@
 version: '3.9'
 
 services:
-  db:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-
-  identity:
-    image: ghcr.io/tj-cappelletti/tsa/coding/submissions/identity:0
-    hostname: identity
-    depends_on:
-    - db
-
-  rabbitmq:
-    image: rabbitmq:3-management
-
   mongodb:
     image: mongo:latest
 
@@ -21,12 +9,18 @@ services:
     depends_on:
     - mongodb
 
+  rabbitmq:
+    image: rabbitmq:4-management
+
+  redis:
+    image: redis:latest
+
   webapi:
     image: ${DOCKER_REGISTRY-}tsa-submissions-coding-webapi
     build:
       context: .
       dockerfile: ../Tsa.Submissions.Coding.WebApi/Dockerfile
     depends_on:
-    - identity
     - rabbitmq
+    - redis
     - mongodb

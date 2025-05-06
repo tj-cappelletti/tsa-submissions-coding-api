@@ -32,7 +32,7 @@ public class TeamsController : ControllerBase
     /// <response code="204">Acknowledges the team was successfully removed</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
     /// <response code="404">The team to remove does not exist in the database</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
+    //[Authorize(Roles = SubmissionRoles.Judge)]
     [HttpDelete("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -53,7 +53,7 @@ public class TeamsController : ControllerBase
     /// </summary>
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">All available teams returned</response>
-    [Authorize(Roles = SubmissionRoles.All)]
+    //[Authorize(Roles = SubmissionRoles.All)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<TeamModel>))]
     public async Task<ActionResult<IList<TeamModel>>> Get(CancellationToken cancellationToken)
@@ -72,7 +72,7 @@ public class TeamsController : ControllerBase
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">Returns the requested team</response>
     /// <response code="404">The team does not exist in the database</response>
-    [Authorize(Roles = SubmissionRoles.All)]
+    //[Authorize(Roles = SubmissionRoles.All)]
     [HttpGet("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -100,7 +100,7 @@ public class TeamsController : ControllerBase
     /// <response code="201">Returns the requested team</response>
     /// <response code="400">The team is not in a valid state and cannot be created</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
+    //[Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -125,7 +125,7 @@ public class TeamsController : ControllerBase
     /// <response code="204">Acknowledgement that the team was updated</response>
     /// <response code="400">The team is not in a valid state and cannot be updated</response>
     /// <response code="404">The team requested to be updated could not be found</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
+    //[Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPut("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]

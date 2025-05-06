@@ -8,7 +8,7 @@ namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 
 //TODO: Turn into code generator
 [ExcludeFromCodeCoverage]
-internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetValueModel?>, IEqualityComparer<IList<TestSetValueModel>?>
+internal class TestSetValueModelEqualityComparer : IEqualityComparer<TestSetValueModel?>, IEqualityComparer<IList<TestSetValueModel>?>
 {
     public bool Equals(TestSetValueModel? x, TestSetValueModel? y)
     {
@@ -33,7 +33,7 @@ internal class TestSetInputModelEqualityComparer : IEqualityComparer<TestSetValu
 
         foreach (var leftTestInputModel in x)
         {
-            var rightTestSetInputModel = y.SingleOrDefault(_ => _.Index == leftTestInputModel.Index);
+            var rightTestSetInputModel = y.SingleOrDefault(testSetValueModel => testSetValueModel.Index == leftTestInputModel.Index);
 
             if (!Equals(leftTestInputModel, rightTestSetInputModel)) return false;
         }

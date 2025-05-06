@@ -1,27 +1,20 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Tsa.Submissions.Coding.WebApi.Configuration;
-using Tsa.Submissions.Coding.WebApi.Middleware;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 using Tsa.Submissions.Coding.WebApi.Validators;
@@ -38,58 +31,43 @@ public class Startup(IConfiguration configuration)
         {
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Tsa.Submissions.Coding.WebApi v1");
-
-                options.OAuthClientId("tsa.submissions.coding.api.swagger");
-                options.OAuthAppName("TSA Coding Submissions Web UI");
-                options.OAuthUsePkce();
-            });
-
-            // In a development setting, all containers use the ASP.NET development certificate
-            // Since this is a self-signed certificate, the root CA must be trusted
-            // The Docker Compose mounts a volume in the container for the root CA certificate
-            // This code block updates the trusted root CA so ASP.NET development certificates work
-            var dockerContainer = Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y";
-
-            if (dockerContainer)
-            {
-                var updateCaCertificatesProcess = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        Arguments = "update-ca-certificates",
-                        CreateNoWindow = true,
-                        FileName = "/bin/bash",
-                        UseShellExecute = false
-                    }
-                };
-
-                updateCaCertificatesProcess.Start();
-                updateCaCertificatesProcess.WaitForExit();
-            }
+            app.UseSwaggerUI();
         }
-
-        app.UseHttpsRedirection();
 
         app.UseRouting();
 
-        app.UseAuthentication();
+        //app.UseAuthentication();
 
-        app.UseAuthorization();
+        //app.UseAuthorization();
 
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 
     public void ConfigureServices(IServiceCollection services)
     {
-        if (Configuration["DOCKER_CONTAINER"] != null && Configuration["DOCKER_CONTAINER"] == "Y")
+        var submissionsDatabaseSection = Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection);
+
+        var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>() ??
+                                  throw new NullReferenceException("The configuration for the Submissions database was null.");
+
+        if (!submissionsDatabase.IsValid())
         {
-            services.AddCors();
+            var error = submissionsDatabase.GetError();
+            var errorMessage = error switch
+            {
+                SubmissionsDatabaseConfigError.Host => "The configuration for the Submissions database was invalid. Host is required.",
+                SubmissionsDatabaseConfigError.LoginDatabase => "The configuration for the Submissions database was invalid. LoginDatabase is required.",
+                SubmissionsDatabaseConfigError.Name => "The configuration for the Submissions database was invalid. Name is required.",
+                SubmissionsDatabaseConfigError.Password => "The configuration for the Submissions database was invalid. Password is required.",
+                SubmissionsDatabaseConfigError.Port => "The configuration for the Submissions database was invalid. Port is required.",
+                SubmissionsDatabaseConfigError.Username => "The configuration for the Submissions database was invalid. Username is required.",
+                _ => "An unknown error occurred while validating the configuration for the Submissions database."
+            };
+
+            throw new InvalidOperationException(errorMessage);
         }
 
-        services.Configure<SubmissionsDatabase>(Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection));
+        services.Configure<SubmissionsDatabase>(submissionsDatabaseSection);
 
         var conventionPack = new ConventionPack
         {
@@ -99,56 +77,79 @@ public class Startup(IConfiguration configuration)
 
         ConventionRegistry.Register("DefaultConventionPack", conventionPack, _ => true);
 
-        var mongoClientSettings = MongoClientSettings.FromConnectionString(Configuration.GetConnectionString(ConfigurationKeys.MongoDbConnectionString));
-        mongoClientSettings.ServerSelectionTimeout = new TimeSpan(0, 0, 0, 10);
-        mongoClientSettings.ConnectTimeout = new TimeSpan(0, 0, 0, 10);
+        var mongoCredential = MongoCredential.CreateCredential(
+            submissionsDatabase.LoginDatabase,
+            submissionsDatabase.Username,
+            submissionsDatabase.Password);
+
+
+        var mongoClientSettings = new MongoClientSettings
+        {
+            ConnectTimeout = new TimeSpan(0, 0, 0, 10),
+            Credential = mongoCredential,
+            Scheme = ConnectionStringScheme.MongoDB,
+            Server = new MongoServerAddress(submissionsDatabase.Host, submissionsDatabase.Port),
+            ServerSelectionTimeout = new TimeSpan(0, 0, 0, 10)
+        };
 
         services.Add(
             new ServiceDescriptor(typeof(IMongoClient),
                 new MongoClient(mongoClientSettings)));
 
+        var assemblyTypes = Assembly.GetExecutingAssembly().GetTypes();
+
         // Add MongoDB Services
-        services.AddSingleton<IProblemsService, ProblemsService>();
-        services.AddSingleton<ISubmissionsService, SubmissionsService>();
-        services.AddSingleton<ITeamsService, TeamsService>();
-        services.AddSingleton<ITestSetsService, TestSetsService>();
+        const string servicesNamespace = "Tsa.Submissions.Coding.WebApi.Services";
+        var mongoDbServiceTypes = assemblyTypes
+            .Where(type => type.Namespace == servicesNamespace && type is
+            { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
+            .ToList();
+
+        var mongoEntityServiceInterfaceType = typeof(IMongoEntityService<>);
+        var pingableServiceInterfaceType = typeof(IPingableService);
+
+        foreach (var mongoDbServiceType in mongoDbServiceTypes)
+        {
+            var interfaceType = mongoDbServiceType
+                .GetInterfaces()
+                .SingleOrDefault(type =>
+                    type.Name != mongoEntityServiceInterfaceType.Name &&
+                    type.Name != pingableServiceInterfaceType.Name);
+
+            if (interfaceType == null) continue;
+
+            services.AddScoped(interfaceType, mongoDbServiceType);
+        }
 
         // Add Pingable Services - Should match MongoDB Services
-        services.AddSingleton<IPingableService, ProblemsService>();
-        services.AddSingleton<IPingableService, SubmissionsService>();
-        services.AddSingleton<IPingableService, TeamsService>();
-        services.AddSingleton<IPingableService, TestSetsService>();
+        var pingableServiceType = typeof(IPingableService);
+        var pingableServices = assemblyTypes
+            .Where(type => pingableServiceType.IsAssignableFrom(type) && type is { IsInterface: false, IsAbstract: false })
+            .ToList();
+
+        foreach (var pingableService in pingableServices)
+        {
+            services.AddSingleton(typeof(IPingableService), pingableService);
+        }
+
+        // Add Redis Service
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = Configuration.GetConnectionString(ConfigurationKeys.RedisConnectionString);
+            options.InstanceName = "Tsa.Submissions.Coding.WebApi";
+        });
+
+        services.AddSingleton<ICacheService, CacheService>();
 
         // Add Validators
         services.AddScoped<IValidator<ProblemModel>, ProblemModelValidator>();
         services.AddScoped<IValidator<TeamModel>, TeamModelValidator>();
         services.AddScoped<IValidator<TestSetModel>, TestSetModelValidator>();
-
-        // Setup authentication and authorization
-        var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
-            .RequireAuthenticatedUser()
-            .Build();
-
-        services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.Authority = Configuration["Authentication:Authority"];
-
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    //TODO: Find what static property this could pull from (likely in IdentityServer's libraries)
-                    NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
-                    ValidateAudience = false
-                };
-            });
-
-        services.AddAuthorizationBuilder()
-            .AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role));
+        services.AddScoped<IValidator<UserModel>, UserModelValidator>();
 
         // Setup Controllers
         services
-            .AddControllers(configure => { configure.Filters.Add(new AuthorizeFilter(requireAuthenticatedUserPolicy)); })
+            .AddControllers()
             .AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
@@ -163,31 +164,6 @@ public class Startup(IConfiguration configuration)
         {
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-
-            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Tsa.Submissions.Coding.WebApi", Version = "v1" });
-
-            options.EnableAnnotations();
-
-            //TODO: Make a special "Swagger" API client for this
-            options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.OAuth2,
-                Flows = new OpenApiOAuthFlows
-                {
-                    AuthorizationCode = new OpenApiOAuthFlow
-                    {
-                        AuthorizationUrl = new Uri($"{Configuration["Authentication:Authority"]}/connect/authorize"),
-                        TokenUrl = new Uri($"{Configuration["Authentication:Authority"]}/connect/token"),
-                        Scopes = new Dictionary<string, string>
-                        {
-                            { "tsa.submissions.coding.read", "Display/read coding submissions" },
-                            { "tsa.submissions.coding.create", "Create coding submissions" }
-                        }
-                    }
-                }
-            });
-
-            options.OperationFilter<AuthorizeCheckOperationFilter>();
         });
     }
 }

@@ -12,6 +12,9 @@ public static class FilterDefinitionExtensions
     {
         var serializerRegistry = BsonSerializer.SerializerRegistry;
         var documentSerializer = serializerRegistry.GetSerializer<TDocument>();
-        return filter.Render(documentSerializer, serializerRegistry).ToJson();
+
+        var args = new RenderArgs<TDocument>(documentSerializer, serializerRegistry);
+
+        return filter.Render(args).ToJson();
     }
 }

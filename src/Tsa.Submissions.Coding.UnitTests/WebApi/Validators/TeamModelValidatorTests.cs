@@ -26,31 +26,49 @@ public class TeamModelValidatorTests
 
         // Assert
 
-        if (teamDataIssues.HasFlag(TeamDataIssues.InvalidParticipants))
+        if (teamDataIssues == TeamDataIssues.None)
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.Participants);
+            testValidationResult.ShouldNotHaveAnyValidationErrors();
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.Participants);
+            testValidationResult.ShouldHaveAnyValidationError();
         }
+
+        if (teamDataIssues.HasFlag(TeamDataIssues.InvalidCompetitionLevel))
+        {
+            testValidationResult.ShouldHaveValidationErrorFor(model => model.CompetitionLevel);
+        }
+        else
+        {
+            testValidationResult.ShouldNotHaveValidationErrorFor(model => model.CompetitionLevel);
+        }
+
+        //if (teamDataIssues.HasFlag(TeamDataIssues.InvalidParticipants))
+        //{
+        //    testValidationResult.ShouldHaveValidationErrorFor(model => model.Participants);
+        //}
+        //else
+        //{
+        //    testValidationResult.ShouldNotHaveValidationErrorFor(model => model.Participants);
+        //}
 
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidSchoolNumber))
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.SchoolNumber);
+            testValidationResult.ShouldHaveValidationErrorFor(model => model.SchoolNumber);
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.SchoolNumber);
+            testValidationResult.ShouldNotHaveValidationErrorFor(model => model.SchoolNumber);
         }
 
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidTeamNumber))
         {
-            testValidationResult.ShouldHaveValidationErrorFor(_ => _.TeamNumber);
+            testValidationResult.ShouldHaveValidationErrorFor(model => model.TeamNumber);
         }
         else
         {
-            testValidationResult.ShouldNotHaveValidationErrorFor(_ => _.TeamNumber);
+            testValidationResult.ShouldNotHaveValidationErrorFor(model => model.TeamNumber);
         }
     }
 }

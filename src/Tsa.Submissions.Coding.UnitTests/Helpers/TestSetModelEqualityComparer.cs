@@ -10,7 +10,7 @@ namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 [ExcludeFromCodeCoverage]
 internal class TestSetModelEqualityComparer : IEqualityComparer<TestSetModel?>, IEqualityComparer<IList<TestSetModel>?>
 {
-    private readonly TestSetInputModelEqualityComparer _testSetInputModelEqualityComparer = new();
+    private readonly TestSetValueModelEqualityComparer _testSetValueModelEqualityComparer = new();
 
     public bool Equals(TestSetModel? x, TestSetModel? y)
     {
@@ -21,7 +21,7 @@ internal class TestSetModelEqualityComparer : IEqualityComparer<TestSetModel?>, 
 
         return
             x.Id == y.Id &&
-            _testSetInputModelEqualityComparer.Equals(x.Inputs, y.Inputs) &&
+            _testSetValueModelEqualityComparer.Equals(x.Inputs, y.Inputs) &&
             x.IsPublic == y.IsPublic &&
             x.Name == y.Name &&
             x.ProblemId == y.ProblemId;
@@ -36,7 +36,7 @@ internal class TestSetModelEqualityComparer : IEqualityComparer<TestSetModel?>, 
 
         foreach (var leftTestInputModel in x)
         {
-            var rightTestSetInputModel = y.SingleOrDefault(_ => _.Id == leftTestInputModel.Id);
+            var rightTestSetInputModel = y.SingleOrDefault(testSetModel => testSetModel.Id == leftTestInputModel.Id);
 
             if (!Equals(leftTestInputModel, rightTestSetInputModel)) return false;
         }

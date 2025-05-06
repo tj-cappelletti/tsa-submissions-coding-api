@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using MongoDB.Driver;
+using Tsa.Submissions.Coding.UnitTests.Data;
+using Tsa.Submissions.Coding.UnitTests.Helpers;
+using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
+using Tsa.Submissions.Coding.WebApi.Services;
 using Xunit;
 
 namespace Tsa.Submissions.Coding.UnitTests.WebApi.Models;
@@ -29,7 +34,7 @@ public class ModelExtensions
 
         foreach (var participant in participants)
         {
-            Assert.Contains(participantModels, _ => _.ParticipantId == participant.ParticipantId);
+            Assert.Contains(participantModels, participantModel => participantModel.ParticipantId == participant.ParticipantId);
         }
     }
 
@@ -45,6 +50,42 @@ public class ModelExtensions
 
         // Assert
         Assert.Null(testSetInputs);
+    }
+
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void ToEntities_For_UserModel_Should_Return_User()
+    {
+        // Arrange
+        var usersTestData = new UsersTestData();
+
+        var expectedUser = usersTestData
+            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Team != null)
+            .Select(userTestData => (User)userTestData[0])
+            .First();
+
+        var userModel = new UserModel
+        {
+            ExternalId = expectedUser.ExternalId,
+            Id = expectedUser.Id,
+            Role = expectedUser.Role,
+            Team = new TeamModel
+            {
+                Id = expectedUser.Team!.Id.AsString,
+                Participants = new List<ParticipantModel>
+                {
+                    new() { ParticipantNumber = "001", SchoolNumber = "1234" },
+                    new() { ParticipantNumber = "002", SchoolNumber = "1234" }
+                }
+            },
+            UserName = expectedUser.UserName
+        };
+
+        // Act
+        var actualUser = userModel.ToEntity();
+
+        // Assert
+        Assert.Equal(expectedUser, actualUser, new UserEqualityComparer());
     }
 
     [Fact]
@@ -103,21 +144,21 @@ public class ModelExtensions
             Solution = "The solution",
             SubmittedOn = DateTime.Now.AddHours(-5),
             TeamId = "00000000000000000000000B",
-            TestSetResults = new List<TestSetResultModel>
-            {
-                new()
+            TestSetResults =
+            [
+                new TestSetResultModel
                 {
                     Passed = true,
                     RunDuration = new TimeSpan(0, 0, 5, 0),
                     TestSetId = "000000000000000000000010"
                 },
-                new()
+                new TestSetResultModel
                 {
                     Passed = true,
                     RunDuration = new TimeSpan(0, 0, 5, 0),
                     TestSetId = "000000000000000000000011"
                 }
-            }
+            ]
         };
 
         // Act
@@ -135,7 +176,7 @@ public class ModelExtensions
 
         foreach (var testSetResultModel in submissionModel.TestSetResults)
         {
-            var testSetResult = submission.TestSetResults.SingleOrDefault(_ => _.TestSet?.Id.AsString == testSetResultModel.TestSetId);
+            var testSetResult = submission.TestSetResults.SingleOrDefault(setResult => setResult.TestSet?.Id.AsString == testSetResultModel.TestSetId);
 
             Assert.NotNull(testSetResult);
             Assert.Equal(testSetResultModel.Passed, testSetResult.Passed);
@@ -151,38 +192,51 @@ public class ModelExtensions
         // Arrange
         var teamModel = new TeamModel
         {
+            CompetitionLevel = "MiddleSchool",
             Id = "This is an ID",
-            Participants = new List<ParticipantModel>
-            {
-                new()
+            Participants =
+            [
+                new ParticipantModel
                 {
                     ParticipantNumber = "001",
                     SchoolNumber = "1234"
                 },
-                new()
+                new ParticipantModel
                 {
                     ParticipantNumber = "002",
                     SchoolNumber = "1234"
                 }
-            },
+            ],
             SchoolNumber = "1234",
             TeamNumber = "901"
         };
 
+        var expectedTeam = new Team
+        {
+            CompetitionLevel = Enum.Parse<CompetitionLevel>(teamModel.CompetitionLevel),
+            Id = teamModel.Id,
+            Participants =
+            [
+                new Participant
+                {
+                    ParticipantNumber = teamModel.Participants[0].ParticipantNumber,
+                    SchoolNumber = teamModel.Participants[0].SchoolNumber
+                },
+                new Participant
+                {
+                    ParticipantNumber = teamModel.Participants[1].ParticipantNumber,
+                    SchoolNumber = teamModel.Participants[1].SchoolNumber
+                }
+            ],
+            SchoolNumber = teamModel.SchoolNumber,
+            TeamNumber = teamModel.TeamNumber
+        };
+
         // Act
-        var team = teamModel.ToEntity();
+        var actualTeam = teamModel.ToEntity();
 
         // Assert
-        Assert.Equal(teamModel.Id, team.Id);
-        Assert.Equal(teamModel.SchoolNumber, team.SchoolNumber);
-        Assert.Equal(teamModel.TeamNumber, team.TeamNumber);
-
-        Assert.Equal(teamModel.Participants.Count, team.Participants.Count);
-
-        foreach (var participant in team.Participants)
-        {
-            Assert.Contains(teamModel.Participants, _ => _.ParticipantId == participant.ParticipantId);
-        }
+        Assert.Equal(expectedTeam, actualTeam, new TeamEqualityComparer());
     }
 
     [Fact]
@@ -190,7 +244,7 @@ public class ModelExtensions
     public void ToEntity_For_TestSetInputModel_Should_Return_TestSetInput()
     {
         // Arrange
-        var testSetInputModel = new TestSetValueModel
+        var testSetValueModel = new TestSetValueModel
         {
             DataType = "Data Type",
             Index = 9999,
@@ -198,14 +252,19 @@ public class ModelExtensions
             ValueAsJson = "ValueAsJson"
         };
 
+        var expectedTestSetValue = new TestSetValue
+        {
+            DataType = testSetValueModel.DataType,
+            Index = testSetValueModel.Index,
+            IsArray = testSetValueModel.IsArray,
+            ValueAsJson = testSetValueModel.ValueAsJson
+        };
+
         // Act
-        var testSetInput = testSetInputModel.ToEntity();
+        var actualTestSetInput = testSetValueModel.ToEntity();
 
         // Assert
-        Assert.Equal(testSetInputModel.DataType, testSetInput.DataType);
-        Assert.Equal(testSetInputModel.Index, testSetInput.Index);
-        Assert.Equal(testSetInputModel.IsArray, testSetInput.IsArray);
-        Assert.Equal(testSetInputModel.ValueAsJson, testSetInput.ValueAsJson);
+        Assert.Equal(expectedTestSetValue, actualTestSetInput, new TestSetValueEqualityComparer());
     }
 
     [Fact]
@@ -215,56 +274,73 @@ public class ModelExtensions
         // Arrange
         var testSetModel = new TestSetModel
         {
-            Id = "This is an ID",
-            Inputs = new List<TestSetValueModel>
-            {
-                new()
+            Id = "000000000000000000000001",
+            Inputs =
+            [
+                new TestSetValueModel
                 {
                     DataType = "Data Type #1",
                     Index = 1,
                     IsArray = true,
                     ValueAsJson = "ValueAsJson #1"
                 },
-                new()
+                new TestSetValueModel
                 {
                     DataType = "Data Type #2",
                     Index = 2,
                     IsArray = false,
                     ValueAsJson = "ValueAsJson #2"
                 },
-                new()
+                new TestSetValueModel
                 {
                     DataType = "Data Type #3",
                     Index = 3,
                     IsArray = true,
                     ValueAsJson = "ValueAsJson #3"
                 }
-            },
+            ],
             IsPublic = true,
             Name = "Test Set #1",
-            ProblemId = "000000000000000000000000"
+            ProblemId = "000000000000000000000001"
+        };
+
+        var expectedTestSet = new TestSet
+        {
+            Id = testSetModel.Id,
+            Inputs =
+            [
+                new TestSetValue
+                {
+                    DataType = testSetModel.Inputs[0].DataType,
+                    Index = testSetModel.Inputs[0].Index,
+                    IsArray = testSetModel.Inputs[0].IsArray,
+                    ValueAsJson = testSetModel.Inputs[0].ValueAsJson
+                },
+                new TestSetValue
+                {
+                    DataType = testSetModel.Inputs[1].DataType,
+                    Index = testSetModel.Inputs[1].Index,
+                    IsArray = testSetModel.Inputs[1].IsArray,
+                    ValueAsJson = testSetModel.Inputs[1].ValueAsJson
+                },
+                new TestSetValue
+                {
+                    DataType = testSetModel.Inputs[2].DataType,
+                    Index = testSetModel.Inputs[2].Index,
+                    IsArray = testSetModel.Inputs[2].IsArray,
+                    ValueAsJson = testSetModel.Inputs[2].ValueAsJson
+                }
+            ],
+            IsPublic = testSetModel.IsPublic,
+            Name = testSetModel.Name,
+            Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, testSetModel.ProblemId)
         };
 
         // Act
-        var testSet = testSetModel.ToEntity();
+        var actualTestSet = testSetModel.ToEntity();
 
         // Assert
-        Assert.Equal(testSetModel.Id, testSet.Id);
-        Assert.NotNull(testSet.Inputs);
-        Assert.NotEmpty(testSet.Inputs);
-
-        foreach (var testSetInputModel in testSetModel.Inputs)
-        {
-            var testSetInput = testSet.Inputs.SingleOrDefault(_ => _.Index == testSetInputModel.Index);
-
-            Assert.NotNull(testSetInput);
-            Assert.Equal(testSetInputModel.DataType, testSetInput.DataType);
-            Assert.Equal(testSetInputModel.IsArray, testSetInput.IsArray);
-            Assert.Equal(testSetInputModel.ValueAsJson, testSetInput.ValueAsJson);
-        }
-
-        Assert.Equal(testSetModel.Name, testSet.Name);
-        Assert.Equal(testSetModel.ProblemId, testSet.Problem?.Id.AsString);
+        Assert.Equal(expectedTestSet, actualTestSet, new TestSetEqualityComparer());
     }
 
     [Fact]
@@ -279,12 +355,17 @@ public class ModelExtensions
             TestSetId = "000000000000000000000010"
         };
 
+        var expectedTestSetResult = new TestSetResult
+        {
+            Passed = testSetResultModel.Passed,
+            RunDuration = testSetResultModel.RunDuration,
+            TestSet = new MongoDBRef(TestSetsService.MongoDbCollectionName, testSetResultModel.TestSetId)
+        };
+
         // Act
-        var testSetResult = testSetResultModel.ToEntity();
+        var actualTestSetResult = testSetResultModel.ToEntity();
 
         // Assert
-        Assert.Equal(testSetResultModel.Passed, testSetResult.Passed);
-        Assert.Equal(testSetResultModel.RunDuration, testSetResult.RunDuration);
-        Assert.Equal(testSetResultModel.TestSetId, testSetResult.TestSet?.Id.AsString);
+        Assert.Equal(expectedTestSetResult, actualTestSetResult, new TestSetResultEqualityComparer());
     }
 }

@@ -29,8 +29,8 @@ internal class SubmissionsTestData : IEnumerable<object[]>
                 Solution = "The solution",
                 SubmittedOn = DateTime.Now,
                 Team = new MongoDBRef(TeamsService.MongoDbCollectionName, "000000000000000000000001"),
-                TestSetResults = new List<TestSetResult>
-                {
+                TestSetResults =
+                [
                     new()
                     {
                         Passed = true,
@@ -43,7 +43,7 @@ internal class SubmissionsTestData : IEnumerable<object[]>
                         RunDuration = new TimeSpan(0, 0, 1, 30),
                         TestSet = new MongoDBRef(TestSetsService.MongoDbCollectionName, "000000000000000000000002")
                     }
-                }
+                ]
             },
             SubmissionDataIssues.None
         };

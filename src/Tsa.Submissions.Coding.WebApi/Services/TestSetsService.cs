@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Configuration;
@@ -16,10 +17,11 @@ public class TestSetsService : MongoDbService<TestSet>, ITestSetsService
 
     public string ServiceName => "TestSets";
 
-    public TestSetsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options) : base(
+    public TestSetsService(IMongoClient mongoClient, IOptions<SubmissionsDatabase> options, ILogger<TestSetsService> logger) : base(
         mongoClient,
-        options.Value.DatabaseName,
-        MongoDbCollectionName)
+        options.Value.Name!,
+        MongoDbCollectionName,
+        logger)
     { }
 
     public async Task<List<TestSet>> GetAsync(Problem problem, CancellationToken cancellationToken = default)

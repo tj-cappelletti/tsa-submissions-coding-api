@@ -4,9 +4,11 @@ namespace Tsa.Submissions.Coding.WebApi.Models;
 
 public class TeamModel
 {
+    public string? CompetitionLevel { get; set; }
+
     public string? Id { get; set; }
 
-    public IList<ParticipantModel> Participants { get; set; }
+    public IList<ParticipantModel> Participants { get; set; } = [];
 
     public string? SchoolNumber { get; set; }
 
@@ -15,9 +17,4 @@ public class TeamModel
         : $"{SchoolNumber}-{TeamNumber}";
 
     public string? TeamNumber { get; set; }
-
-    public TeamModel()
-    {
-        Participants = new List<ParticipantModel>();
-    }
 }

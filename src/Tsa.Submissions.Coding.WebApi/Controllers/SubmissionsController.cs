@@ -20,42 +20,12 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers;
 public class SubmissionsController : ControllerBase
 {
     private readonly ISubmissionsService _submissionsService;
-    private readonly ITeamsService _teamsService;
+    private readonly IUsersService _usersService;
 
-    public SubmissionsController(ISubmissionsService submissionsService, ITeamsService teamsService)
+    public SubmissionsController(ISubmissionsService submissionsService, IUsersService usersService)
     {
         _submissionsService = submissionsService;
-        _teamsService = teamsService;
-    }
-
-    /// <summary>
-    ///     Fetches all the submissions from the database
-    /// </summary>
-    /// <param name="cancellationToken">The .NET cancellation token</param>
-    /// <response code="200">All available submissions returned</response>
-    [Authorize(Roles = SubmissionRoles.All)]
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SubmissionModel>))]
-    [ProducesResponseType(StatusCodes.Status424FailedDependency, Type = typeof(ApiErrorResponseModel))]
-    public async Task<ActionResult<IList<SubmissionModel>>> Get(CancellationToken cancellationToken = default)
-    {
-        var submissions = await _submissionsService.GetAsync(cancellationToken);
-
-        if (User.IsInRole(SubmissionRoles.Judge)) return submissions.ToModels();
-
-        var team = (await _teamsService.GetAsync(cancellationToken))
-            .SingleOrDefault(t => t.Participants.Any(p => p.ParticipantId == User.Identity!.Name));
-
-        if (team == null)
-        {
-            return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
-        }
-
-        return submissions
-            // Team is required, if null, we are in a bad state
-            .Where(_ => _.Team!.Id.AsString == team.Id)
-            .ToList()
-            .ToModels();
+        _usersService = usersService;
     }
 
     /// <summary>
@@ -65,7 +35,7 @@ public class SubmissionsController : ControllerBase
     /// <param name="cancellationToken">The .NET cancellation token</param>
     /// <response code="200">Returns the requested submission</response>
     /// <response code="404">The submission does not exist in the database</response>
-    [Authorize(Roles = SubmissionRoles.All)]
+    //[Authorize(Roles = SubmissionRoles.All)]
     [HttpGet("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubmissionModel))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -78,17 +48,55 @@ public class SubmissionsController : ControllerBase
 
         if (User.IsInRole(SubmissionRoles.Judge)) return submission.ToModel();
 
-        // Team is required, if null, we are in a bad state
-        var team = await _teamsService.GetAsync(submission.Team!.Id.AsString, cancellationToken);
+        var user = await _usersService.GetByUserNameAsync(User.Identity!.Name!, cancellationToken);
+
+        var team = user?.Team;
 
         if (team == null)
         {
             return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
         }
 
-        return team.Participants.Any(p => p.ParticipantId == User.Identity!.Name)
+        return team.Id.AsString == submission.Team?.Id.AsString
             ? submission.ToModel()
             : NotFound();
+    }
+
+    /// <summary>
+    ///     Fetches all the submissions from the database
+    /// </summary>
+    /// <param name="problemId">The ID of the problem to filter submissions by</param>
+    /// <param name="cancellationToken">The .NET cancellation token</param>
+    /// <response code="200">All available submissions returned</response>
+    //[Authorize(Roles = SubmissionRoles.All)]
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SubmissionModel>))]
+    [ProducesResponseType(StatusCodes.Status424FailedDependency, Type = typeof(ApiErrorResponseModel))]
+    public async Task<ActionResult<IList<SubmissionModel>>> GetAll(
+        [FromQuery] string? problemId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var submissions = string.IsNullOrEmpty(problemId)
+            ? await _submissionsService.GetAsync(cancellationToken)
+            : await _submissionsService.GetByProblemIdAsync(problemId, cancellationToken);
+
+        if (User.IsInRole(SubmissionRoles.Judge)) return submissions.ToModels();
+
+        var user = await _usersService.GetByUserNameAsync(User.Identity!.Name!, cancellationToken);
+
+        var team = user?.Team;
+
+        if (team == null)
+        {
+            return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
+        }
+
+
+        return submissions
+            // Team is required, if null, we are in a bad state
+            .Where(submission => submission.Team!.Id.AsString == team.Id.AsString)
+            .ToList()
+            .ToModels();
     }
 
     /// <summary>
@@ -99,7 +107,7 @@ public class SubmissionsController : ControllerBase
     /// <response code="201">Returns the requested submission</response>
     /// <response code="400">The submission is not in a valid state and cannot be created</response>
     /// <response code="403">You do not have permission to use this endpoint</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
+    //[Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -126,7 +134,7 @@ public class SubmissionsController : ControllerBase
     /// <response code="204">Acknowledgement that the submission was updated</response>
     /// <response code="400">The submission is not in a valid state and cannot be updated</response>
     /// <response code="404">The submission requested to be updated could not be found</response>
-    [Authorize(Roles = SubmissionRoles.Judge)]
+    //[Authorize(Roles = SubmissionRoles.Judge)]
     [HttpPut("{id:length(24)}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
