@@ -1,5 +1,2 @@
-mode: Mainline
-branches: {}
-ignore:
-  sha: []
-merge-message-formats: {}
+mode: ContinuousDeployment
+workflow: GitHubFlow/v1
