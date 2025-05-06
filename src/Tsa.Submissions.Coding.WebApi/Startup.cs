@@ -2,13 +2,10 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Claims;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,11 +14,9 @@ using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Tsa.Submissions.Coding.WebApi.Authentication;
 using Tsa.Submissions.Coding.WebApi.Configuration;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
-using Tsa.Submissions.Coding.WebApi.Swagger;
 using Tsa.Submissions.Coding.WebApi.Validators;
 
 namespace Tsa.Submissions.Coding.WebApi;
@@ -41,9 +36,9 @@ public class Startup(IConfiguration configuration)
 
         app.UseRouting();
 
-        app.UseAuthentication();
+        //app.UseAuthentication();
 
-        app.UseAuthorization();
+        //app.UseAuthorization();
 
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
@@ -52,7 +47,8 @@ public class Startup(IConfiguration configuration)
     {
         var submissionsDatabaseSection = Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection);
 
-        var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>() ?? throw new NullReferenceException("The configuration for the Submissions database was null.");
+        var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>() ??
+                                  throw new NullReferenceException("The configuration for the Submissions database was null.");
 
         if (!submissionsDatabase.IsValid())
         {
@@ -106,7 +102,7 @@ public class Startup(IConfiguration configuration)
         const string servicesNamespace = "Tsa.Submissions.Coding.WebApi.Services";
         var mongoDbServiceTypes = assemblyTypes
             .Where(type => type.Namespace == servicesNamespace && type is
-            { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
+                { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
             .ToList();
 
         var mongoEntityServiceInterfaceType = typeof(IMongoEntityService<>);
@@ -151,21 +147,9 @@ public class Startup(IConfiguration configuration)
         services.AddScoped<IValidator<TestSetModel>, TestSetModelValidator>();
         services.AddScoped<IValidator<UserModel>, UserModelValidator>();
 
-        // Setup authentication and authorization
-        var requireAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
-            .RequireAuthenticatedUser()
-            .Build();
-
-        services
-            .AddAuthentication(TsaAuthenticationOptions.DefaultScheme)
-            .AddScheme<TsaAuthenticationOptions, TsaAuthenticationHandler>(TsaAuthenticationOptions.DefaultScheme, _ => { });
-
-        services.AddAuthorizationBuilder()
-            .AddPolicy("ShouldContainRole", options => options.RequireClaim(ClaimTypes.Role));
-
         // Setup Controllers
         services
-            .AddControllers(configure => { configure.Filters.Add(new AuthorizeFilter(requireAuthenticatedUserPolicy)); })
+            .AddControllers()
             .AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
@@ -180,8 +164,6 @@ public class Startup(IConfiguration configuration)
         {
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-
-            options.OperationFilter<ApiKeyHeaderFilter>();
         });
     }
 }
