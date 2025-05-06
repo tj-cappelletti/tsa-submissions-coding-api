@@ -49,7 +49,7 @@ public class SubmissionsController : ControllerBase
         if (User.IsInRole(SubmissionRoles.Judge)) return submission.ToModel();
 
         var user = await _usersService.GetByUserNameAsync(User.Identity!.Name!, cancellationToken);
-        
+
         var team = user?.Team;
 
         if (team == null)
@@ -73,7 +73,7 @@ public class SubmissionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<SubmissionModel>))]
     [ProducesResponseType(StatusCodes.Status424FailedDependency, Type = typeof(ApiErrorResponseModel))]
     public async Task<ActionResult<IList<SubmissionModel>>> GetAll(
-        [FromQuery]string? problemId = null,
+        [FromQuery] string? problemId = null,
         CancellationToken cancellationToken = default)
     {
         var submissions = string.IsNullOrEmpty(problemId)
