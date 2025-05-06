@@ -3,16 +3,17 @@ This project is part of a larger solution built for the Technology Student Assoc
 This API project is designed to be the heart of the solution to automate the testing and evaluation of solutions to coding problems presented to the students.
 
 ## Status Badges
-| **Badge**          | **Description**                    
-|--------------------| ------------------------------------
-| ![cicd-main-badge] | `main` Branch `ci-cd-workflow` Run |
-| ![codeql-badge]    | Latest `CodeQL` Run                |
-| ![codecove-badge]  | Codecov                            |
-| ![sc-qg-badge]     | SonarCloud Quality Gate - C#       |
-| ![sc-m-badge]      | SonarCloud Mantainablity Grade     |
-| ![sc-r-badge]      | SonarCloud Reliablity Grade        |
-| ![sc-s-badge]      | SonarCloud Security Grade          |
-| ![sc-loc-badge]    | Lines of Code                      |
+| **Badge**          | **Description**                          |
+|--------------------| -----------------------------------------|
+| ![ci-badge]        | Latest Continuous Integration Run        |
+| ![ci-main-badge] | `main` Branch Continuous Integration Run |
+| ![codeql-badge]    | Latest `CodeQL` Run                      |
+| ![codecove-badge]  | Codecov                                  |
+| ![sc-qg-badge]     | SonarCloud Quality Gate - C#             |
+| ![sc-m-badge]      | SonarCloud Mantainablity Grade           |
+| ![sc-r-badge]      | SonarCloud Reliablity Grade              |
+| ![sc-s-badge]      | SonarCloud Security Grade                |
+| ![sc-loc-badge]    | Lines of Code                            |
 
 ![codecov-graph]
 
@@ -43,8 +44,8 @@ This will help explain our coding style, testing practices, and process for inte
 - [TSA Submissions - Coding UI][tsa-submissions-coding-ui] - The UI that interacts with this API
 
 <!-- BADGES -->
-[cicd-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/workflows/ci-cd-workflow/badge.svg "current status"
-[cicd-main-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/workflows/ci-cd-workflow/badge.svg?branch=main "main branch status"
+[ci-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/actions/workflows/continuous-integration-workflow.yml/badge.svg "CI status"
+[ci-main-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/actions/workflows/continuous-integration-workflow.yml/badge.svg?branch=main "main branch status"
 [codeql-badge]: https://github.com/tj-cappelletti/tsa-submissions-coding-api/workflows/CodeQL/badge.svg "current status"
 
 [codecove-badge]: https://codecov.io/gh/tj-cappelletti/tsa-submissions-coding-api/branch/main/graph/badge.svg?token=WDBdfphI5L
