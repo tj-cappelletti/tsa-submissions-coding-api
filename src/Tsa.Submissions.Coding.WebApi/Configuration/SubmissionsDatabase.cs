@@ -14,16 +14,6 @@ public class SubmissionsDatabase
 
     public string? Username { get; set; }
 
-    public bool IsValid()
-    {
-        return !string.IsNullOrWhiteSpace(Host) &&
-               !string.IsNullOrWhiteSpace(LoginDatabase) &&
-               !string.IsNullOrWhiteSpace(Name) &&
-               !string.IsNullOrWhiteSpace(Username) &&
-               !string.IsNullOrWhiteSpace(Password) &&
-               Port > 0;
-    }
-
     public SubmissionsDatabaseConfigError GetError()
     {
         if (string.IsNullOrWhiteSpace(Host))
@@ -57,6 +47,16 @@ public class SubmissionsDatabase
         }
 
         return SubmissionsDatabaseConfigError.None;
+    }
+
+    public bool IsValid()
+    {
+        return !string.IsNullOrWhiteSpace(Host) &&
+               !string.IsNullOrWhiteSpace(LoginDatabase) &&
+               !string.IsNullOrWhiteSpace(Name) &&
+               !string.IsNullOrWhiteSpace(Username) &&
+               !string.IsNullOrWhiteSpace(Password) &&
+               Port > 0;
     }
 }
 
