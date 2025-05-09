@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -45,6 +44,27 @@ public class Startup(IConfiguration configuration)
 
     public void ConfigureServices(IServiceCollection services)
     {
+        var jwtSection = Configuration.GetSection("Jwt");
+
+        var jwtSettings = jwtSection.Get<JwtSettings>() ??
+                          throw new NullReferenceException("The configuration for the JWT settings was null.");
+
+        if (!jwtSettings.IsValid())
+        {
+            var error = jwtSettings.GetError();
+            var errorMessage = error switch
+            {
+                JwtSettingsConfigError.Audience => "The configuration for the JWT settings was invalid. Audience is required.",
+                JwtSettingsConfigError.ExpirationInHours => "The configuration for the JWT settings was invalid. ExpirationInHours is required.",
+                JwtSettingsConfigError.Issuer => "The configuration for the JWT settings was invalid. Issuer is required.",
+                JwtSettingsConfigError.Key => "The configuration for the JWT settings was invalid. Key is required.",
+                _ => "An unknown error occurred while validating the configuration for the JWT settings."
+            };
+            throw new InvalidOperationException(errorMessage);
+        }
+
+        services.Configure<JwtSettings>(jwtSection);
+
         var submissionsDatabaseSection = Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection);
 
         var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>() ??
@@ -81,7 +101,6 @@ public class Startup(IConfiguration configuration)
             submissionsDatabase.LoginDatabase,
             submissionsDatabase.Username,
             submissionsDatabase.Password);
-
 
         var mongoClientSettings = new MongoClientSettings
         {
@@ -155,9 +174,6 @@ public class Startup(IConfiguration configuration)
                 options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
             });
-
-        // Add Fluent Validation
-        services.AddFluentValidationAutoValidation();
 
         // Add Swagger
         services.AddSwaggerGen(options =>
