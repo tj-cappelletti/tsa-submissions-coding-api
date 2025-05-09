@@ -24,50 +24,50 @@ namespace Tsa.Submissions.Coding.UnitTests.WebApi.Controllers;
 [ExcludeFromCodeCoverage]
 public class TeamsControllerTests
 {
-    //[Fact]
-    //[Trait("TestCategory", "UnitTest")]
-    //public void Controller_Public_Methods_Should_Have_Authorize_Attribute_With_Proper_Roles()
-    //{
-    //    var teamsControllerType = typeof(TeamsController);
+    [Fact]
+    [Trait("TestCategory", "UnitTest")]
+    public void Controller_Public_Methods_Should_Have_Authorize_Attribute_With_Proper_Roles()
+    {
+        var teamsControllerType = typeof(TeamsController);
 
-    //    var methodInfos = teamsControllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+        var methodInfos = teamsControllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
 
-    //    Assert.NotEmpty(methodInfos);
+        Assert.NotEmpty(methodInfos);
 
-    //    foreach (var methodInfo in methodInfos)
-    //    {
-    //        var attributes = methodInfo.GetCustomAttributes(typeof(AuthorizeAttribute), false);
+        foreach (var methodInfo in methodInfos)
+        {
+            var attributes = methodInfo.GetCustomAttributes(typeof(AuthorizeAttribute), false);
 
-    //        Assert.NotNull(attributes);
-    //        Assert.NotEmpty(attributes);
-    //        Assert.Single(attributes);
+            Assert.NotNull(attributes);
+            Assert.NotEmpty(attributes);
+            Assert.Single(attributes);
 
-    //        var authorizeAttribute = (AuthorizeAttribute)attributes[0];
+            var authorizeAttribute = (AuthorizeAttribute)attributes[0];
 
-    //        switch (methodInfo.Name)
-    //        {
-    //            case "Delete":
-    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-    //                break;
+            switch (methodInfo.Name)
+            {
+                case "Delete":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
 
-    //            case "Get":
-    //                Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
-    //                break;
+                case "Get":
+                    Assert.Equal(SubmissionRoles.All, authorizeAttribute.Roles);
+                    break;
 
-    //            case "Post":
-    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-    //                break;
+                case "Post":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
 
-    //            case "Put":
-    //                Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
-    //                break;
+                case "Put":
+                    Assert.Equal(SubmissionRoles.Judge, authorizeAttribute.Roles);
+                    break;
 
-    //            default:
-    //                Assert.Fail($"A test case for the method `{methodInfo.Name}` does not exist");
-    //                break;
-    //        }
-    //    }
-    //}
+                default:
+                    Assert.Fail($"A test case for the method `{methodInfo.Name}` does not exist");
+                    break;
+            }
+        }
+    }
 
     [Fact]
     [Trait("TestCategory", "UnitTest")]
