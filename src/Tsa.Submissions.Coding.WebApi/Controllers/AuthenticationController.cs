@@ -39,13 +39,13 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
         public async Task<IActionResult> Login([FromBody] AuthenticationModel authenticationModel, CancellationToken cancellationToken = default)
         {
             var user = await _usersService.GetByUserNameAsync(authenticationModel.UserName, cancellationToken);
-            
+
             if (user == null)
             {
                 _logger.LogWarning("Login failed for user {UserName}: User not found", authenticationModel.UserName);
                 return Unauthorized(ApiErrorResponseModel.Unauthorized);
             }
-            
+
             var passwordVerified = BC.Verify(authenticationModel.Password, user.PasswordHash);
 
             if (!passwordVerified)
@@ -55,9 +55,9 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            
+
             var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
-            
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Audience = _jwtSettings.Audience,
