@@ -18,6 +18,7 @@ public class StartupTests
     private readonly IServiceCollection _services = new ServiceCollection();
 
     [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public void ConfigureServices_RegistersAuthentication()
     {
         // Arrange
@@ -44,6 +45,7 @@ public class StartupTests
     }
 
     [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public void ConfigureServices_RegistersJwtSettings()
     {
         // Arrange
@@ -74,6 +76,7 @@ public class StartupTests
     }
 
     [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public void ConfigureServices_RegistersMongoClient()
     {
         // Arrange
@@ -103,6 +106,7 @@ public class StartupTests
     }
 
     [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public void ConfigureServices_RegistersSwagger()
     {
         // Arrange
