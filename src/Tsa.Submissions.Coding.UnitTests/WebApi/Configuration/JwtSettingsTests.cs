@@ -16,9 +16,9 @@ public class JwtSettingsTests
     [InlineData("ValidAudience", "ValidIssuer", "ValidKey", 0, JwtSettingsConfigError.ExpirationInHours)]
     [InlineData("ValidAudience", "ValidIssuer", "ValidKey", -1, JwtSettingsConfigError.ExpirationInHours)]
     public void GetError_InvalidFields_ReturnsExpectedError(
-        string audience,
-        string issuer,
-        string key,
+        string? audience,
+        string? issuer,
+        string? key,
         int expirationInHours,
         JwtSettingsConfigError expectedError)
     {
@@ -49,9 +49,9 @@ public class JwtSettingsTests
     [InlineData("ValidAudience", "ValidIssuer", "ValidKey", 0)]
     [InlineData("ValidAudience", "ValidIssuer", "ValidKey", -1)]
     public void IsValid_InvalidFields_ReturnsFalse(
-        string audience,
-        string issuer,
-        string key,
+        string? audience,
+        string? issuer,
+        string? key,
         int expirationInHours)
     {
         // Arrange

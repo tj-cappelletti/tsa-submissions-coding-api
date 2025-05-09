@@ -26,7 +26,7 @@ public class AuthenticationControllerTests
     public AuthenticationControllerTests()
     {
         _mockUsersService = new Mock<IUsersService>();
-        
+
         Mock<ILogger<AuthenticationController>> mockLogger = new();
 
         _jwtSettings = Options.Create(new JwtSettings
