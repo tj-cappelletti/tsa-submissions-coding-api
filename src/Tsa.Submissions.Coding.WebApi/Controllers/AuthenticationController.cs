@@ -1,0 +1,79 @@
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Tsa.Submissions.Coding.WebApi.Configuration;
+using Tsa.Submissions.Coding.WebApi.Models;
+using Tsa.Submissions.Coding.WebApi.Services;
+
+namespace Tsa.Submissions.Coding.WebApi.Controllers
+{
+    [Route("api/auth")]
+    [ApiController]
+    [Produces("application/json")]
+    public class AuthenticationController : ControllerBase
+    {
+        private readonly JwtSettings _jwtSettings;
+        private readonly ILogger<AuthenticationController> _logger;
+        private readonly IUsersService _usersService;
+
+        public AuthenticationController(IOptions<JwtSettings> jwtSettings, ILogger<AuthenticationController> logger, IUsersService usersService)
+        {
+            _jwtSettings = jwtSettings.Value;
+            _logger = logger;
+            _usersService = usersService;
+        }
+
+        [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Login([FromBody] AuthenticationModel authenticationModel, CancellationToken cancellationToken = default)
+        {
+            var user = await _usersService.GetByUserNameAsync(authenticationModel.UserName, cancellationToken);
+            
+            if (user == null)
+            {
+                _logger.LogWarning("Login failed for user {UserName}: User not found", authenticationModel.UserName);
+                return Unauthorized(ApiErrorResponseModel.Unauthorized);
+            }
+            
+            var passwordVerified = BC.Verify(authenticationModel.Password, user.PasswordHash);
+
+            if (!passwordVerified)
+            {
+                _logger.LogWarning("Login failed for user {UserName}: Invalid password", authenticationModel.UserName);
+                return Unauthorized(ApiErrorResponseModel.Unauthorized);
+            }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
+            
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Audience = _jwtSettings.Audience,
+                Issuer = _jwtSettings.Issuer,
+                Expires = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationInHours),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, user.UserName!),
+                    new Claim(ClaimTypes.Role, user.Role!)
+                }),
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            var tokenString = tokenHandler.WriteToken(token);
+
+            return Ok(new { Token = tokenString });
+        }
+    }
+}
