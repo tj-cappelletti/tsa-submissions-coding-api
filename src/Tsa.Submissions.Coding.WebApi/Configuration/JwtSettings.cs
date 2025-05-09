@@ -10,6 +10,8 @@ public class JwtSettings
 
     public string Key { get; set; } = string.Empty;
 
+    public bool RequireHttpsMetadata { get; set; } = true;
+
     public JwtSettingsConfigError GetError()
     {
         if (string.IsNullOrWhiteSpace(Audience))
