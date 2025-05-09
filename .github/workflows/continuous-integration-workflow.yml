@@ -27,7 +27,7 @@ jobs:
     uses: webstorm-tech/workflows/.github/workflows/dotnet-build-app-workflow.yml@v5
     with:
       artifactName: web-api
-      dotnetVersion: '8.0.x'
+      dotnetVersion: '9.0.x'
       semVer: ${{ needs.gitVersionJob.outputs.semVer }}
       sendToCodecov: true
       solutionFile: src/Tsa.Submissions.Coding.sln
@@ -42,7 +42,7 @@ jobs:
     name: CI - Verify Code Style Workflow
     uses: webstorm-tech/workflows/.github/workflows/dotnet-verify-code-style-workflow.yml@v5
     with:
-      dotnetVersion: '8.0.x'
+      dotnetVersion: '9.0.x'
       runner: windows-latest
       solutionFile: ./src/Tsa.Submissions.Coding.sln
     secrets: inherit
