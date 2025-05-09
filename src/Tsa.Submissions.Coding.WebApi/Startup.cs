@@ -2,12 +2,16 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
@@ -35,9 +39,9 @@ public class Startup(IConfiguration configuration)
 
         app.UseRouting();
 
-        //app.UseAuthentication();
+        app.UseAuthentication();
 
-        //app.UseAuthorization();
+        app.UseAuthorization();
 
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
@@ -121,7 +125,7 @@ public class Startup(IConfiguration configuration)
         const string servicesNamespace = "Tsa.Submissions.Coding.WebApi.Services";
         var mongoDbServiceTypes = assemblyTypes
             .Where(type => type.Namespace == servicesNamespace && type is
-            { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
+                { IsAbstract: false, IsClass: true, IsGenericType: false, IsInterface: false, IsNested: false })
             .ToList();
 
         var mongoEntityServiceInterfaceType = typeof(IMongoEntityService<>);
@@ -160,6 +164,28 @@ public class Startup(IConfiguration configuration)
 
         services.AddSingleton<ICacheService, CacheService>();
 
+        // Add Authentication
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = jwtSettings.RequireHttpsMetadata;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+                };
+            });
+
         // Add Validators
         services.AddScoped<IValidator<ProblemModel>, ProblemModelValidator>();
         services.AddScoped<IValidator<TeamModel>, TeamModelValidator>();
@@ -180,6 +206,32 @@ public class Startup(IConfiguration configuration)
         {
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description =
+                    "Enter 'Bearer' [space] and then your token in the text input below.\n\nExample: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
         });
     }
 }
