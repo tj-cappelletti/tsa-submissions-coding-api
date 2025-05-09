@@ -34,7 +34,7 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponseModel))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] AuthenticationModel authenticationModel, CancellationToken cancellationToken = default)
         {
@@ -54,7 +54,11 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
                 return Unauthorized(ApiErrorResponseModel.Unauthorized);
             }
 
+            _logger.LogInformation("User {UserName} logged in successfully", user.UserName);
+
             var tokenHandler = new JwtSecurityTokenHandler();
+
+            var tokenExpiration = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationInHours);
 
             var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
 
@@ -62,7 +66,7 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
             {
                 Audience = _jwtSettings.Audience,
                 Issuer = _jwtSettings.Issuer,
-                Expires = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationInHours),
+                Expires = tokenExpiration,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Subject = new ClaimsIdentity(new[]
                 {
@@ -75,7 +79,7 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
 
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new { Token = tokenString });
+            return Ok(new LoginResponseModel(tokenString, tokenExpiration));
         }
     }
 }
