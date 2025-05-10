@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Tsa.Submissions.Coding.WebApi.Configuration;
+using Tsa.Submissions.Coding.WebApi.ExtensionMethods;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 
@@ -42,7 +43,7 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
 
             if (user == null)
             {
-                _logger.LogWarning("Login failed for user {UserName}: User not found", authenticationModel.UserName);
+                _logger.LogWarning("Login failed for user {UserName}: User not found", authenticationModel.UserName?.SanitizeForLogging());
                 return Unauthorized(ApiErrorResponseModel.Unauthorized);
             }
 
@@ -50,7 +51,7 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
 
             if (!passwordVerified)
             {
-                _logger.LogWarning("Login failed for user {UserName}: Invalid password", authenticationModel.UserName);
+                _logger.LogWarning("Login failed for user {UserName}: Invalid password", authenticationModel.UserName?.SanitizeForLogging());
                 return Unauthorized(ApiErrorResponseModel.Unauthorized);
             }
 
