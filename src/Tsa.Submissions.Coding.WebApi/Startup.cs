@@ -1,14 +1,18 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using FluentValidation;
-using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
@@ -21,6 +25,7 @@ using Tsa.Submissions.Coding.WebApi.Validators;
 
 namespace Tsa.Submissions.Coding.WebApi;
 
+[ExcludeFromCodeCoverage]
 public class Startup(IConfiguration configuration)
 {
     public IConfiguration Configuration { get; } = configuration;
@@ -29,6 +34,7 @@ public class Startup(IConfiguration configuration)
     {
         if (env.IsDevelopment())
         {
+            // app.ApplicationServices.CreateScope()
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI();
@@ -36,15 +42,36 @@ public class Startup(IConfiguration configuration)
 
         app.UseRouting();
 
-        //app.UseAuthentication();
+        app.UseAuthentication();
 
-        //app.UseAuthorization();
+        app.UseAuthorization();
 
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 
     public void ConfigureServices(IServiceCollection services)
     {
+        var jwtSection = Configuration.GetSection("Jwt");
+
+        var jwtSettings = jwtSection.Get<JwtSettings>() ??
+                          throw new NullReferenceException("The configuration for the JWT settings was null.");
+
+        if (!jwtSettings.IsValid())
+        {
+            var error = jwtSettings.GetError();
+            var errorMessage = error switch
+            {
+                JwtSettingsConfigError.Audience => "The configuration for the JWT settings was invalid. Audience is required.",
+                JwtSettingsConfigError.ExpirationInHours => "The configuration for the JWT settings was invalid. ExpirationInHours is required.",
+                JwtSettingsConfigError.Issuer => "The configuration for the JWT settings was invalid. Issuer is required.",
+                JwtSettingsConfigError.Key => "The configuration for the JWT settings was invalid. Key is required.",
+                _ => "An unknown error occurred while validating the configuration for the JWT settings."
+            };
+            throw new InvalidOperationException(errorMessage);
+        }
+
+        services.Configure<JwtSettings>(jwtSection);
+
         var submissionsDatabaseSection = Configuration.GetSection(ConfigurationKeys.SubmissionsDatabaseSection);
 
         var submissionsDatabase = submissionsDatabaseSection.Get<SubmissionsDatabase>() ??
@@ -81,7 +108,6 @@ public class Startup(IConfiguration configuration)
             submissionsDatabase.LoginDatabase,
             submissionsDatabase.Username,
             submissionsDatabase.Password);
-
 
         var mongoClientSettings = new MongoClientSettings
         {
@@ -141,6 +167,28 @@ public class Startup(IConfiguration configuration)
 
         services.AddSingleton<ICacheService, CacheService>();
 
+        // Add Authentication
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = jwtSettings.RequireHttpsMetadata;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key))
+                };
+            });
+
         // Add Validators
         services.AddScoped<IValidator<ProblemModel>, ProblemModelValidator>();
         services.AddScoped<IValidator<TeamModel>, TeamModelValidator>();
@@ -156,14 +204,37 @@ public class Startup(IConfiguration configuration)
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
             });
 
-        // Add Fluent Validation
-        services.AddFluentValidationAutoValidation();
-
         // Add Swagger
         services.AddSwaggerGen(options =>
         {
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description =
+                    "Enter 'Bearer' [space] and then your token in the text input below.\n\nExample: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
         });
     }
 }

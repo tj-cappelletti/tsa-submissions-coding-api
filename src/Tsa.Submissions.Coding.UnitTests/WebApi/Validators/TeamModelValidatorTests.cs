@@ -32,7 +32,7 @@ public class TeamModelValidatorTests
         }
         else
         {
-            testValidationResult.ShouldHaveAnyValidationError();
+            testValidationResult.ShouldHaveValidationErrors();
         }
 
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidCompetitionLevel))
