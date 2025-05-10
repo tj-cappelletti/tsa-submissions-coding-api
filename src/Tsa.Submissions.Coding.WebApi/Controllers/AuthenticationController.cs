@@ -61,7 +61,8 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
 
             var tokenExpiration = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationInHours);
 
-            var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
+            // JWT Settings are validated in Startup.cs
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.Key!);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
