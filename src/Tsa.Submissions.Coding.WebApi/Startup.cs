@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,6 +25,7 @@ using Tsa.Submissions.Coding.WebApi.Validators;
 
 namespace Tsa.Submissions.Coding.WebApi;
 
+[ExcludeFromCodeCoverage]
 public class Startup(IConfiguration configuration)
 {
     public IConfiguration Configuration { get; } = configuration;
@@ -32,6 +34,7 @@ public class Startup(IConfiguration configuration)
     {
         if (env.IsDevelopment())
         {
+            // app.ApplicationServices.CreateScope()
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI();
