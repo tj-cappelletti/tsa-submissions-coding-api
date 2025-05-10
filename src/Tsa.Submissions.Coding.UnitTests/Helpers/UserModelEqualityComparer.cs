@@ -17,13 +17,12 @@ public class UserModelEqualityComparer : IEqualityComparer<UserModel?>, IEqualit
         if (x is null) return false;
         if (y is null) return false;
 
-        var externalIdsMatch = x.ExternalId == y.ExternalId;
         var idsMatch = x.Id == y.Id;
         var rolesMatch = x.Role == y.Role;
         var teamsMatch = _teamModelEqualityComparer.Equals(x.Team, y.Team);
         var userNamesMatch = x.UserName == y.UserName;
 
-        return externalIdsMatch && idsMatch && rolesMatch && teamsMatch && userNamesMatch;
+        return idsMatch && rolesMatch && teamsMatch && userNamesMatch;
     }
 
     public bool Equals(IList<UserModel>? x, IList<UserModel>? y)

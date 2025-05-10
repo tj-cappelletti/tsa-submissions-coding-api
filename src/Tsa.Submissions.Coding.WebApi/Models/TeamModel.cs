@@ -6,10 +6,6 @@ public class TeamModel
 {
     public string? CompetitionLevel { get; set; }
 
-    public string? Id { get; set; }
-
-    public IList<ParticipantModel> Participants { get; set; } = [];
-
     public string? SchoolNumber { get; set; }
 
     public string? TeamId => string.IsNullOrWhiteSpace(SchoolNumber) || string.IsNullOrWhiteSpace(TeamNumber)

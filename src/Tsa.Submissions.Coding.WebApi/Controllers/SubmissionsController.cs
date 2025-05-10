@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -19,11 +19,13 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers;
 [Produces("application/json")]
 public class SubmissionsController : ControllerBase
 {
+    private readonly ILogger<SubmissionsController> _logger;
     private readonly ISubmissionsService _submissionsService;
     private readonly IUsersService _usersService;
 
-    public SubmissionsController(ISubmissionsService submissionsService, IUsersService usersService)
+    public SubmissionsController(ILogger<SubmissionsController> logger, ISubmissionsService submissionsService, IUsersService usersService)
     {
+        _logger = logger;
         _submissionsService = submissionsService;
         _usersService = usersService;
     }
@@ -42,22 +44,28 @@ public class SubmissionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SubmissionModel>> Get(string id, CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Fetching submission with ID {Id}", id);
         var submission = await _submissionsService.GetAsync(id, cancellationToken);
 
-        if (submission == null) return NotFound();
+        if (submission == null)
+        {
+            _logger.LogWarning("Submission with ID {Id} not found", id);
+            return NotFound();
+        }
 
-        if (User.IsInRole(SubmissionRoles.Judge)) return submission.ToModel();
+        _logger.LogInformation("Submission with ID {Id} found", id);
+
+        if (User.IsInRole(SubmissionRoles.Judge))
+        {
+            _logger.LogInformation("User is a judge, returning submission with ID {Id}", id);
+            return submission.ToModel();
+        }
+
+        _logger.LogInformation("User is not a judge, checking if they are the owner of the submission with ID {Id}", id);
 
         var user = await _usersService.GetByUserNameAsync(User.Identity!.Name!, cancellationToken);
 
-        var team = user?.Team;
-
-        if (team == null)
-        {
-            return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
-        }
-
-        return team.Id.AsString == submission.Team?.Id.AsString
+        return submission.User!.Id.AsString == user!.Id
             ? submission.ToModel()
             : NotFound();
     }
@@ -76,6 +84,7 @@ public class SubmissionsController : ControllerBase
         [FromQuery] string? problemId = null,
         CancellationToken cancellationToken = default)
     {
+        //TODO: Add pagination
         var submissions = string.IsNullOrEmpty(problemId)
             ? await _submissionsService.GetAsync(cancellationToken)
             : await _submissionsService.GetByProblemIdAsync(problemId, cancellationToken);
@@ -84,17 +93,9 @@ public class SubmissionsController : ControllerBase
 
         var user = await _usersService.GetByUserNameAsync(User.Identity!.Name!, cancellationToken);
 
-        var team = user?.Team;
-
-        if (team == null)
-        {
-            return StatusCode((int)HttpStatusCode.FailedDependency, ApiErrorResponseModel.UnexpectedMissingResource);
-        }
-
-
         return submissions
             // Team is required, if null, we are in a bad state
-            .Where(submission => submission.Team!.Id.AsString == team.Id.AsString)
+            .Where(submission => submission.User!.Id.AsString == user!.Id)
             .ToList()
             .ToModels();
     }

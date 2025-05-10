@@ -22,21 +22,12 @@ public class UsersController : ControllerBase
     private readonly TimeSpan _cacheExpiration = TimeSpan.FromHours(2);
 
     private readonly ICacheService _cacheService;
-    private readonly ITeamsService _teamsService;
     private readonly IUsersService _usersService;
 
-    public UsersController(ICacheService cacheService, ITeamsService teamsService, IUsersService usersService)
+    public UsersController(ICacheService cacheService, IUsersService usersService)
     {
         _cacheService = cacheService;
-        _teamsService = teamsService;
         _usersService = usersService;
-    }
-
-    private NotFoundObjectResult CreateTeamNotFoundError(TeamModel teamModel)
-    {
-        return teamModel.Id != null
-            ? NotFound(ApiErrorResponseModel.EntityNotFound(nameof(Team), teamModel.Id))
-            : NotFound(ApiErrorResponseModel.EntityNotFound(nameof(Team), $"{teamModel.SchoolNumber}-{teamModel.TeamNumber}"));
     }
 
     private NotFoundObjectResult CreateUserNotFoundError(string id)
@@ -71,25 +62,6 @@ public class UsersController : ControllerBase
         await _cacheService.RemoveAsync(UsersCacheKey, cancellationToken);
 
         return NoContent();
-    }
-
-    private async Task<UserState> EnsureTeamExists(UserModel userModel, CancellationToken cancellationToken)
-    {
-        if (userModel.Role != SubmissionRoles.Participant) return UserState.Ok;
-
-        var teamExists = userModel.Team!.Id != null
-            ? await _teamsService.ExistsAsync(userModel.Team.Id, cancellationToken)
-            : await _teamsService.ExistsAsync(userModel.Team.SchoolNumber, userModel.Team.TeamNumber, cancellationToken);
-
-        if (!teamExists) return UserState.TeamNotFound;
-
-        if (userModel.Team!.Id != null) return UserState.Ok;
-
-        var team = await _teamsService.GetAsync(userModel.Team!.SchoolNumber, userModel.Team.TeamNumber, cancellationToken);
-
-        userModel.Team.Id = team.Id;
-
-        return UserState.Ok;
     }
 
     private static string? ExtractErrorMessageFromActionResult(IActionResult actionResult)
@@ -207,10 +179,6 @@ public class UsersController : ControllerBase
 
         if (existingUser != null) return Conflict(ApiErrorResponseModel.EntityAlreadyExists(nameof(User), userModel.UserName!));
 
-        var userState = await EnsureTeamExists(userModel, cancellationToken);
-
-        if (userState == UserState.TeamNotFound) return CreateTeamNotFoundError(userModel.Team!);
-
         var passwordHash = BC.HashPassword(userModel.Password);
 
         var user = userModel.ToEntity();
@@ -305,10 +273,6 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Put(string id, UserModel updatedUserModel, CancellationToken cancellationToken = default)
     {
         // Team is required and is enforced in the model validation
-        var userState = await EnsureTeamExists(updatedUserModel, cancellationToken);
-
-        if (userState == UserState.TeamNotFound) return CreateTeamNotFoundError(updatedUserModel.Team!);
-
         var user = await _usersService.GetAsync(id, cancellationToken);
 
         if (user == null) return CreateUserNotFoundError(id);
@@ -328,11 +292,5 @@ public class UsersController : ControllerBase
 
         await _cacheService.SetAsync($"{UserIdCacheKey}:{user.Id}", user, _cacheExpiration, cancellationToken);
         await _cacheService.RemoveAsync(UsersCacheKey, cancellationToken);
-    }
-
-    internal enum UserState
-    {
-        Ok = 0,
-        TeamNotFound
     }
 }

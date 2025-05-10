@@ -8,8 +8,6 @@ namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 [ExcludeFromCodeCoverage]
 internal class TeamEqualityComparer : IEqualityComparer<Team?>, IEqualityComparer<IList<Team>?>
 {
-    private readonly ParticipantEqualityComparer _participantModelEqualityComparer = new();
-
     public bool Equals(Team? x, Team? y)
     {
         if (ReferenceEquals(x, y)) return true;
@@ -17,14 +15,10 @@ internal class TeamEqualityComparer : IEqualityComparer<Team?>, IEqualityCompare
         if (y is null) return false;
 
         var competitionLevelsMatch = x.CompetitionLevel == y.CompetitionLevel;
-        var idsMatch = x.Id == y.Id;
-        var participantsMatch = _participantModelEqualityComparer.Equals(x.Participants, y.Participants);
         var schoolNumbersMatch = x.SchoolNumber == y.SchoolNumber;
         var teamNumbersMatch = x.TeamNumber == y.TeamNumber;
 
         return competitionLevelsMatch &&
-               idsMatch &&
-               participantsMatch &&
                schoolNumbersMatch &&
                teamNumbersMatch;
     }
@@ -38,7 +32,7 @@ internal class TeamEqualityComparer : IEqualityComparer<Team?>, IEqualityCompare
 
         foreach (var leftTeamModel in x)
         {
-            var rightTeamModel = y.SingleOrDefault(_ => _.Id == leftTeamModel.Id);
+            var rightTeamModel = y.SingleOrDefault(team => team.SchoolNumber == leftTeamModel.SchoolNumber);
 
             if (!Equals(leftTeamModel, rightTeamModel)) return false;
         }

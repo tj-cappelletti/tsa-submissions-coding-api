@@ -18,7 +18,7 @@ public class Submission : IMongoDbEntity
 
     public DateTime? SubmittedOn { get; set; }
 
-    public MongoDBRef? Team { get; set; }
+    public MongoDBRef? User { get; set; }
 
     public IList<TestSetResult>? TestSetResults { get; set; }
 }

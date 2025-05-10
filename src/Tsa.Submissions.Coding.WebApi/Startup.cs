@@ -32,15 +32,14 @@ public class Startup(IConfiguration configuration)
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        app.UseRouting();
+
         if (env.IsDevelopment())
         {
-            // app.ApplicationServices.CreateScope()
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
-        app.UseRouting();
 
         app.UseAuthentication();
 
@@ -209,6 +208,10 @@ public class Startup(IConfiguration configuration)
         {
             var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Tsa.Submissions.Coding.WebApi", Version = "v1" });
+
+            options.EnableAnnotations();
 
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {

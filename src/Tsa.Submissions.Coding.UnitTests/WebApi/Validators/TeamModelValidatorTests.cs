@@ -44,15 +44,6 @@ public class TeamModelValidatorTests
             testValidationResult.ShouldNotHaveValidationErrorFor(model => model.CompetitionLevel);
         }
 
-        //if (teamDataIssues.HasFlag(TeamDataIssues.InvalidParticipants))
-        //{
-        //    testValidationResult.ShouldHaveValidationErrorFor(model => model.Participants);
-        //}
-        //else
-        //{
-        //    testValidationResult.ShouldNotHaveValidationErrorFor(model => model.Participants);
-        //}
-
         if (teamDataIssues.HasFlag(TeamDataIssues.InvalidSchoolNumber))
         {
             testValidationResult.ShouldHaveValidationErrorFor(model => model.SchoolNumber);

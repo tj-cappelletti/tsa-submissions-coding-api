@@ -12,8 +12,6 @@ public static partial class ModelExtensions
             // CompetitionLevel is required, if null, we are in a bad state
             // TeamModelValidator will ensure that this is not null
             CompetitionLevel = Enum.Parse<CompetitionLevel>(teamModel.CompetitionLevel!),
-            Id = teamModel.Id,
-            Participants = teamModel.Participants.ToEntities(),
             SchoolNumber = teamModel.SchoolNumber,
             TeamNumber = teamModel.TeamNumber
         };
