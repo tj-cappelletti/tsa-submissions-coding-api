@@ -10,7 +10,7 @@ public static class StringExtensions
     /// </summary>
     /// <param name="input">The input string to sanitize.</param>
     /// <returns>A sanitized version of the string.</returns>
-    public static string SanitizeForLogging(this string input)
+    public static string SanitizeForLogging(this string? input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
