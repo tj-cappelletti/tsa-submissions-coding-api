@@ -10,8 +10,6 @@ public class ServicesStatusModel
 
     public bool SubmissionsServiceIsAlive { get; set; }
 
-    public bool TeamsServiceIsAlive { get; set; }
-
     public bool TestSetsServiceIsAlive { get; set; }
 
     private bool EvaluateIsHealthy()
