@@ -441,7 +441,7 @@ public class UsersControllerTests
         var usersTestData = new UsersTestData();
 
         var expectedUsers = usersTestData
-            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None)
+            .Where(userTestData => (UserDataIssues)userTestData[1] == UserDataIssues.None && ((User)userTestData[0]).Team != null)
             .Select(userTestData => (User)userTestData[0])
             .ToList();
 
@@ -459,6 +459,12 @@ public class UsersControllerTests
             var userModel = user.ToModel();
             userModel.Id = null;
             userModel.Password = "user'spassword";
+            userModel.Team = new TeamModel
+            {
+                CompetitionLevel = user.Team!.CompetitionLevel.ToString(),
+                SchoolNumber = user.Team.SchoolNumber,
+                TeamNumber = user.Team.TeamNumber
+            };
             userModels.Add(userModel);
         }
 
@@ -543,6 +549,12 @@ public class UsersControllerTests
         var userModel = expectedUser.ToModel();
         userModel.Id = null;
         userModel.Password = "user'spassword";
+        userModel.Team = new TeamModel
+        {
+            CompetitionLevel = expectedUser.Team!.CompetitionLevel.ToString(),
+            SchoolNumber = expectedUser.Team.SchoolNumber,
+            TeamNumber = expectedUser.Team.TeamNumber
+        };
 
         var mockedCacheService = new Mock<ICacheService>();
 
@@ -582,6 +594,12 @@ public class UsersControllerTests
         var userModel = expectedUser.ToModel();
         userModel.Id = null;
         userModel.Password = "user'spassword";
+        userModel.Team = new TeamModel
+        {
+            CompetitionLevel = expectedUser.Team!.CompetitionLevel.ToString(),
+            SchoolNumber = expectedUser.Team.SchoolNumber,
+            TeamNumber = expectedUser.Team.TeamNumber
+        };
 
         var mockedCacheService = new Mock<ICacheService>();
 
