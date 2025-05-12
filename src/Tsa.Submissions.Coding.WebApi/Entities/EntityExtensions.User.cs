@@ -12,7 +12,8 @@ public static partial class EntityExtensions
         {
             Id = user.Id,
             Role = user.Role,
-            UserName = user.UserName
+            UserName = user.UserName,
+            Team = user.Team?.ToModel()
         };
 
         return userModel;
