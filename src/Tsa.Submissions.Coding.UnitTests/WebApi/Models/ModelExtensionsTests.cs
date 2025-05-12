@@ -153,7 +153,19 @@ public class ModelExtensions
                     RunDuration = new TimeSpan(0, 0, 5, 0),
                     TestSetId = "000000000000000000000011"
                 }
-            ]
+            ],
+            User = new UserModel
+            {
+                Id = "000000000000000000000002",
+                Role = "participant",
+                Team = new TeamModel
+                {
+                    CompetitionLevel = CompetitionLevel.HighSchool.ToString(),
+                    SchoolNumber = "9000",
+                    TeamNumber = "901"
+                },
+                UserName = "9000-901"
+            }
         };
 
         // Act
