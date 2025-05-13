@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MongoDB.Driver;
 using Tsa.Submissions.Coding.WebApi.Entities;
+using Tsa.Submissions.Coding.WebApi.Models;
 
 namespace Tsa.Submissions.Coding.UnitTests.Data;
 
@@ -21,7 +22,6 @@ public class UsersTestData : IEnumerable<object[]>
         [
             new User
             {
-                ExternalId = 1001,
                 Id = "000000000000000000000001",
                 Role = "judge",
                 UserName = "judge01"
@@ -33,10 +33,14 @@ public class UsersTestData : IEnumerable<object[]>
         [
             new User
             {
-                ExternalId = 1002,
                 Id = "000000000000000000000002",
                 Role = "participant",
-                Team = new MongoDBRef("teams", "000000000000000000000001"),
+                Team = new Team
+                {
+                    CompetitionLevel = CompetitionLevel.HighSchool,
+                    SchoolNumber = "9000",
+                    TeamNumber = "901"
+                },
                 UserName = "9000-901"
             },
             UserDataIssues.None

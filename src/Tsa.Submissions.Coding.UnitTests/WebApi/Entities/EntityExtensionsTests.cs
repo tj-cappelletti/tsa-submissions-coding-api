@@ -87,8 +87,8 @@ public class EntityExtensions
             ProblemId = submission.Problem?.Id.AsString,
             Solution = submission.Solution,
             SubmittedOn = submission.SubmittedOn,
-            TeamId = submission.Team?.Id.AsString,
-            TestSetResults = new List<TestSetResultModel>()
+            TestSetResults = new List<TestSetResultModel>(),
+            User = new UserModel { Id = submission.User?.Id.AsString }
         };
 
         submission.TestSetResults =
@@ -140,20 +140,9 @@ public class EntityExtensions
         var expectedTeamModel = new TeamModel
         {
             CompetitionLevel = team.CompetitionLevel.ToString(),
-            Id = team.Id,
-            Participants = [],
             SchoolNumber = team.SchoolNumber,
             TeamNumber = team.TeamNumber
         };
-
-        foreach (var teamParticipant in team.Participants)
-        {
-            expectedTeamModel.Participants.Add(new ParticipantModel
-            {
-                ParticipantNumber = teamParticipant.ParticipantNumber,
-                SchoolNumber = teamParticipant.SchoolNumber
-            });
-        }
 
         // Act
         var actualTeamModel = team.ToModel();
@@ -271,10 +260,16 @@ public class EntityExtensions
 
         var expectedUserModel = new UserModel
         {
-            ExternalId = user.ExternalId,
             Id = user.Id,
             Role = user.Role,
-            Team = user.Team != null ? new TeamModel { Id = user.Team.Id.AsString } : null,
+            Team = user.Team != null
+                ? new TeamModel
+                {
+                    CompetitionLevel = user.Team.CompetitionLevel.ToString(),
+                    SchoolNumber = user.Team.SchoolNumber,
+                    TeamNumber = user.Team.TeamNumber
+                }
+                : null,
             UserName = user.UserName
         };
 
@@ -310,8 +305,8 @@ public class EntityExtensions
                 ProblemId = submission.Problem?.Id.AsString,
                 Solution = submission.Solution,
                 SubmittedOn = submission.SubmittedOn,
-                TeamId = submission.Team?.Id.AsString,
-                TestSetResults = new List<TestSetResultModel>()
+                TestSetResults = new List<TestSetResultModel>(),
+                User = new UserModel { Id = submission.User?.Id.AsString }
             };
             foreach (var submissionTestSetResult in submission.TestSetResults!)
             {
@@ -322,11 +317,12 @@ public class EntityExtensions
                     TestSetId = submissionTestSetResult.TestSet?.Id.AsString
                 });
             }
+
             expectedSubmissionModels.Add(expectedSubmissionModel);
         }
 
         // Act
-        var actualSubmissionModels = submissions.ToModels();
+        var actualSubmissionModels = Coding.WebApi.Entities.EntityExtensions.ToModels(submissions);
 
         // Assert
         Assert.Equal(expectedSubmissionModels, actualSubmissionModels, new SubmissionModelEqualityComparer());
@@ -370,7 +366,7 @@ public class EntityExtensions
         };
 
         // Act
-        var actualTestSetResultModels = testSetResults.ToModels();
+        var actualTestSetResultModels = Coding.WebApi.Entities.EntityExtensions.ToModels(testSetResults);
 
         // Assert
         Assert.Equal(expectedTestSetResultModels, actualTestSetResultModels, new TestSetResultModelEqualityComparer());
@@ -429,7 +425,7 @@ public class EntityExtensions
         }
 
         // Act
-        var actualTestSetModels = testSets.ToModels();
+        var actualTestSetModels = Coding.WebApi.Entities.EntityExtensions.ToModels(testSets);
 
         // Assert
         Assert.Equal(expectedTestSetModels, actualTestSetModels, new TestSetModelEqualityComparer());
@@ -454,17 +450,23 @@ public class EntityExtensions
         {
             var expectedUserModel = new UserModel
             {
-                ExternalId = user.ExternalId,
                 Id = user.Id,
                 Role = user.Role,
-                Team = user.Team != null ? new TeamModel { Id = user.Team.Id.AsString } : null,
+                Team = user.Team != null
+                    ? new TeamModel
+                    {
+                        CompetitionLevel = user.Team.CompetitionLevel.ToString(),
+                        SchoolNumber = user.Team.SchoolNumber,
+                        TeamNumber = user.Team.TeamNumber
+                    }
+                    : null,
                 UserName = user.UserName
             };
             expectedUserModels.Add(expectedUserModel);
         }
 
         // Act
-        var actualUserModels = users.ToModels();
+        var actualUserModels = Coding.WebApi.Entities.EntityExtensions.ToModels(users);
 
         // Assert
         Assert.Equal(expectedUserModels, actualUserModels, new UserModelEqualityComparer());

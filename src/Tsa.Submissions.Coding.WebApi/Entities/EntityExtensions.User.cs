@@ -10,19 +10,11 @@ public static partial class EntityExtensions
     {
         var userModel = new UserModel
         {
-            ExternalId = user.ExternalId,
             Id = user.Id,
             Role = user.Role,
-            UserName = user.UserName
+            UserName = user.UserName,
+            Team = user.Team?.ToModel()
         };
-
-        if (user.Team != null)
-        {
-            userModel.Team = new TeamModel
-            {
-                Id = user.Team.Id.AsString
-            };
-        }
 
         return userModel;
     }

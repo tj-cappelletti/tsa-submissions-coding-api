@@ -32,8 +32,8 @@ internal class SubmissionEqualityComparer : IEqualityComparer<Submission?>, IEqu
         var problemsMatch = x.Problem?.Id.AsString == y.Problem?.Id.AsString;
         var solutionsMatch = x.Solution == y.Solution;
         var submittedOnsMatch = x.SubmittedOn == y.SubmittedOn;
-        var teamsMatch = x.Team?.Id.AsString == y.Team?.Id.AsString;
         var testSetResultsMatch = _testSetResultEqualityComparer.Equals(x.TestSetResults, y.TestSetResults);
+        var usersMatch = x.User?.Id.AsString == y.User?.Id.AsString;
 
 
         if (_ignoreDateTimes)
@@ -43,8 +43,8 @@ internal class SubmissionEqualityComparer : IEqualityComparer<Submission?>, IEqu
                    languagesMatch &&
                    problemsMatch &&
                    solutionsMatch &&
-                   teamsMatch &&
-                   testSetResultsMatch;
+                   testSetResultsMatch &&
+                   usersMatch;
         }
 
         return idsMatch &&
@@ -53,8 +53,8 @@ internal class SubmissionEqualityComparer : IEqualityComparer<Submission?>, IEqu
                problemsMatch &&
                solutionsMatch &&
                submittedOnsMatch &&
-               teamsMatch &&
-               testSetResultsMatch;
+               testSetResultsMatch &&
+               usersMatch;
     }
 
     public bool Equals(IList<Submission>? x, IList<Submission>? y)
@@ -66,7 +66,7 @@ internal class SubmissionEqualityComparer : IEqualityComparer<Submission?>, IEqu
 
         foreach (var leftSubmission in x)
         {
-            var rightSubmission = y.SingleOrDefault(_ => _.Id == leftSubmission.Id);
+            var rightSubmission = y.SingleOrDefault(submission => submission.Id == leftSubmission.Id);
 
             if (!Equals(leftSubmission, rightSubmission)) return false;
         }

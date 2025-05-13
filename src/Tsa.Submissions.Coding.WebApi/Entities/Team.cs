@@ -5,16 +5,9 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Tsa.Submissions.Coding.WebApi.Entities;
 
-public class Team : IMongoDbEntity
+public class Team
 {
     public CompetitionLevel? CompetitionLevel { get; set; }
-
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    [SwaggerSchema(ReadOnly = true)]
-    public string? Id { get; set; }
-
-    public IList<Participant> Participants { get; set; } = [];
 
     public string? SchoolNumber { get; set; }
 

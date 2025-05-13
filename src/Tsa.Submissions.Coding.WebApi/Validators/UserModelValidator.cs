@@ -9,11 +9,6 @@ public class UserModelValidator : AbstractValidator<UserModel>
 {
     public UserModelValidator()
     {
-        RuleFor(user => user.ExternalId)
-            .NotNull()
-            .GreaterThan(0)
-            .WithMessage("A user must have an external ID.");
-
         RuleFor(user => user.Role)
             .NotEmpty()
             .Must(role => string.Equals(role, SubmissionRoles.Judge, StringComparison.CurrentCultureIgnoreCase) ||

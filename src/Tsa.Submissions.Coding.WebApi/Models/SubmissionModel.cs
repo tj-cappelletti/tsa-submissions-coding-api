@@ -17,7 +17,7 @@ public class SubmissionModel
 
     public DateTime? SubmittedOn { get; set; }
 
-    public string? TeamId { get; set; }
-
     public IList<TestSetResultModel>? TestSetResults { get; set; }
+
+    public UserModel? User { get; set; }
 }

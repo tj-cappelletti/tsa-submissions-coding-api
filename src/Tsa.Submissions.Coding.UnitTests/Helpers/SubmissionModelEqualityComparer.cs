@@ -9,6 +9,7 @@ namespace Tsa.Submissions.Coding.UnitTests.Helpers;
 internal class SubmissionModelEqualityComparer : IEqualityComparer<SubmissionModel?>, IEqualityComparer<IList<SubmissionModel>?>
 {
     private readonly TestSetResultModelEqualityComparer _testSetResultModelEqualityComparer = new();
+    private readonly UserModelEqualityComparer _userModelEqualityComparer = new();
 
     public bool Equals(SubmissionModel? x, SubmissionModel? y)
     {
@@ -22,7 +23,8 @@ internal class SubmissionModelEqualityComparer : IEqualityComparer<SubmissionMod
         var problemsMatch = x.ProblemId == y.ProblemId;
         var solutionsMatch = x.Solution == y.Solution;
         var submittedOnsMatch = x.SubmittedOn == y.SubmittedOn;
-        var teamsMatch = x.TeamId == y.TeamId;
+        var testSetResultsMatch = _testSetResultModelEqualityComparer.Equals(x.TestSetResults, y.TestSetResults);
+        var usersMatch = _userModelEqualityComparer.Equals(x.User, y.User);
 
         return idsMatch &&
                isFinalSubmissionModelsMatch &&
@@ -30,8 +32,8 @@ internal class SubmissionModelEqualityComparer : IEqualityComparer<SubmissionMod
                problemsMatch &&
                solutionsMatch &&
                submittedOnsMatch &&
-               teamsMatch &&
-               _testSetResultModelEqualityComparer.Equals(x.TestSetResults, y.TestSetResults);
+               testSetResultsMatch &&
+               usersMatch;
     }
 
     public bool Equals(IList<SubmissionModel>? x, IList<SubmissionModel>? y)
@@ -43,7 +45,7 @@ internal class SubmissionModelEqualityComparer : IEqualityComparer<SubmissionMod
 
         foreach (var leftSubmissionModel in x)
         {
-            var rightSubmissionModel = y.SingleOrDefault(_ => _.Id == leftSubmissionModel.Id);
+            var rightSubmissionModel = y.SingleOrDefault(submissionModel => submissionModel.Id == leftSubmissionModel.Id);
 
             if (!Equals(leftSubmissionModel, rightSubmissionModel)) return false;
         }

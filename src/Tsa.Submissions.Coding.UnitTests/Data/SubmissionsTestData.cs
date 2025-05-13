@@ -18,8 +18,8 @@ internal class SubmissionsTestData : IEnumerable<object[]>
 
     public IEnumerator<object[]> GetEnumerator()
     {
-        yield return new object[]
-        {
+        yield return
+        [
             new Submission
             {
                 Id = "000000000000000000000001",
@@ -28,25 +28,25 @@ internal class SubmissionsTestData : IEnumerable<object[]>
                 Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, "000000000000000000000001"),
                 Solution = "The solution",
                 SubmittedOn = DateTime.Now,
-                Team = new MongoDBRef(TeamsService.MongoDbCollectionName, "000000000000000000000001"),
                 TestSetResults =
                 [
-                    new()
+                    new TestSetResult
                     {
                         Passed = true,
                         RunDuration = new TimeSpan(0, 0, 5, 30),
                         TestSet = new MongoDBRef(TestSetsService.MongoDbCollectionName, "000000000000000000000001")
                     },
-                    new()
+                    new TestSetResult
                     {
                         Passed = false,
                         RunDuration = new TimeSpan(0, 0, 1, 30),
                         TestSet = new MongoDBRef(TestSetsService.MongoDbCollectionName, "000000000000000000000002")
                     }
-                ]
+                ],
+                User = new MongoDBRef(UsersService.MongoDbCollectionName, "000000000000000000000001")
             },
             SubmissionDataIssues.None
-        };
+        ];
     }
 }
 

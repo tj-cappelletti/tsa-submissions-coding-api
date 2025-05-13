@@ -20,7 +20,6 @@ public class StatusControllerTests
     {
         Assert.Equal(servicesStatusModel.ProblemsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Problems));
         Assert.Equal(servicesStatusModel.SubmissionsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Submissions));
-        Assert.Equal(servicesStatusModel.TeamsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.Teams));
         Assert.Equal(servicesStatusModel.TestSetsServiceIsAlive, !pingableServiceFailures.HasFlag(PingableServiceFailures.TestSets));
     }
 
@@ -96,21 +95,12 @@ public class StatusControllerTests
     #region Inline Data
 
     // Generate each set here: https://planetcalc.com/3757/
-    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.Teams |
-                PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions)]
-    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems)]
     [InlineData(PingableServiceFailures.Submissions)]
-    [InlineData(PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.TestSets)]
 
     #endregion
@@ -148,21 +138,12 @@ public class StatusControllerTests
     #region Inline Data
 
     // Generate each set here: https://planetcalc.com/3757/
-    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.Teams |
-                PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions | PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Submissions)]
-    [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.Problems | PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.Submissions | PingableServiceFailures.TestSets)]
-    [InlineData(PingableServiceFailures.Teams | PingableServiceFailures.TestSets)]
     [InlineData(PingableServiceFailures.Problems)]
     [InlineData(PingableServiceFailures.Submissions)]
-    [InlineData(PingableServiceFailures.Teams)]
     [InlineData(PingableServiceFailures.TestSets)]
 
     #endregion
@@ -200,7 +181,6 @@ public class StatusControllerTests
     {
         yield return typeof(ProblemsService);
         yield return typeof(SubmissionsService);
-        yield return typeof(TeamsService);
         yield return typeof(TestSetsService);
     }
 
@@ -327,8 +307,6 @@ public class StatusControllerTests
 
         var servicesStatus = okObjectResult.Value as ServicesStatusModel;
         Assert.True(servicesStatus!.IsHealthy);
-        Assert.True(servicesStatus.ProblemsServiceIsAlive);
-        Assert.True(servicesStatus.TeamsServiceIsAlive);
     }
 
     [Fact]
@@ -366,7 +344,6 @@ public class StatusControllerTests
 
         var servicesStatus = okObjectResult.Value as ServicesStatusModel;
         Assert.True(servicesStatus!.IsHealthy);
-        Assert.True(servicesStatus.TeamsServiceIsAlive);
     }
 }
 
@@ -375,8 +352,7 @@ public enum PingableServiceFailures
 {
     Problems = 1 << 0,
     Submissions = 1 << 1,
-    Teams = 1 << 2,
-    TestSets = 1 << 3
+    TestSets = 1 << 2
 }
 
 public enum ServiceFailureType

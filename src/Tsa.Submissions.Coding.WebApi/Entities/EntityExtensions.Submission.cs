@@ -22,9 +22,9 @@ public static partial class EntityExtensions
             ProblemId = submission.Problem!.Id.AsString,
             Solution = submission.Solution,
             SubmittedOn = submission.SubmittedOn,
-            // Team is required, if null, we are in a bad state
-            TeamId = submission.Team!.Id.AsString,
-            TestSetResults = submission.TestSetResults?.ToModels()
+            TestSetResults = submission.TestSetResults?.ToModels(),
+            // User is required, if null, we are in a bad state
+            User = new UserModel { Id = submission.User!.Id.AsString }
         };
     }
 

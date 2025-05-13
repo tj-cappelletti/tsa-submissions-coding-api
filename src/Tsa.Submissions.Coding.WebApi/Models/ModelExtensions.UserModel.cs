@@ -10,16 +10,11 @@ public static partial class ModelExtensions
     {
         var user = new User
         {
-            ExternalId = userModel.ExternalId,
             Id = userModel.Id,
             Role = userModel.Role,
+            Team = userModel.Team?.ToEntity(),
             UserName = userModel.UserName
         };
-
-        if (userModel.Team != null)
-        {
-            user.Team = new MongoDBRef(TeamsService.MongoDbCollectionName, userModel.Team.Id);
-        }
 
         return user;
     }

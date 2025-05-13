@@ -16,8 +16,8 @@ public static partial class ModelExtensions
             Problem = new MongoDBRef(ProblemsService.MongoDbCollectionName, submissionModel.ProblemId),
             Solution = submissionModel.Solution,
             SubmittedOn = submissionModel.SubmittedOn,
-            Team = new MongoDBRef(TeamsService.MongoDbCollectionName, submissionModel.TeamId),
-            TestSetResults = submissionModel.TestSetResults.ToEntities()
+            TestSetResults = submissionModel.TestSetResults.ToEntities(),
+            User = new MongoDBRef(UsersService.MongoDbCollectionName, submissionModel.User!.Id)
         };
     }
 }

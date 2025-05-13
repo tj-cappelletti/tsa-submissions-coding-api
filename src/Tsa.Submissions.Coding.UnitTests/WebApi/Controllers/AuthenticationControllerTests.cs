@@ -133,7 +133,7 @@ public class AuthenticationControllerTests
         // Validate the token
         var tokenHandler = new JwtSecurityTokenHandler();
 
-        var key = Encoding.UTF8.GetBytes(_jwtSettings.Value.Key);
+        var key = Encoding.UTF8.GetBytes(_jwtSettings.Value.Key!);
 
         tokenHandler.ValidateToken(loginResponseModel.Token, new TokenValidationParameters
         {

@@ -66,17 +66,13 @@ public class ModelExtensions
 
         var userModel = new UserModel
         {
-            ExternalId = expectedUser.ExternalId,
             Id = expectedUser.Id,
             Role = expectedUser.Role,
             Team = new TeamModel
             {
-                Id = expectedUser.Team!.Id.AsString,
-                Participants = new List<ParticipantModel>
-                {
-                    new() { ParticipantNumber = "001", SchoolNumber = "1234" },
-                    new() { ParticipantNumber = "002", SchoolNumber = "1234" }
-                }
+                CompetitionLevel = expectedUser.Team!.CompetitionLevel.ToString(),
+                SchoolNumber = expectedUser.Team!.SchoolNumber,
+                TeamNumber = expectedUser.Team!.TeamNumber
             },
             UserName = expectedUser.UserName
         };
@@ -143,7 +139,6 @@ public class ModelExtensions
             ProblemId = "00000000000000000000000A",
             Solution = "The solution",
             SubmittedOn = DateTime.Now.AddHours(-5),
-            TeamId = "00000000000000000000000B",
             TestSetResults =
             [
                 new TestSetResultModel
@@ -158,7 +153,19 @@ public class ModelExtensions
                     RunDuration = new TimeSpan(0, 0, 5, 0),
                     TestSetId = "000000000000000000000011"
                 }
-            ]
+            ],
+            User = new UserModel
+            {
+                Id = "000000000000000000000002",
+                Role = "participant",
+                Team = new TeamModel
+                {
+                    CompetitionLevel = CompetitionLevel.HighSchool.ToString(),
+                    SchoolNumber = "9000",
+                    TeamNumber = "901"
+                },
+                UserName = "9000-901"
+            }
         };
 
         // Act
@@ -170,7 +177,6 @@ public class ModelExtensions
         Assert.Equal(submissionModel.ProblemId, submission.Problem?.Id.AsString);
         Assert.Equal(submissionModel.Solution, submission.Solution);
         Assert.Equal(submissionModel.SubmittedOn, submission.SubmittedOn);
-        Assert.Equal(submissionModel.TeamId, submission.Team?.Id.AsString);
         Assert.NotNull(submission.TestSetResults);
         Assert.Equal(submissionModel.TestSetResults.Count, submission.TestSetResults.Count);
 
@@ -193,20 +199,6 @@ public class ModelExtensions
         var teamModel = new TeamModel
         {
             CompetitionLevel = "MiddleSchool",
-            Id = "This is an ID",
-            Participants =
-            [
-                new ParticipantModel
-                {
-                    ParticipantNumber = "001",
-                    SchoolNumber = "1234"
-                },
-                new ParticipantModel
-                {
-                    ParticipantNumber = "002",
-                    SchoolNumber = "1234"
-                }
-            ],
             SchoolNumber = "1234",
             TeamNumber = "901"
         };
@@ -214,20 +206,6 @@ public class ModelExtensions
         var expectedTeam = new Team
         {
             CompetitionLevel = Enum.Parse<CompetitionLevel>(teamModel.CompetitionLevel),
-            Id = teamModel.Id,
-            Participants =
-            [
-                new Participant
-                {
-                    ParticipantNumber = teamModel.Participants[0].ParticipantNumber,
-                    SchoolNumber = teamModel.Participants[0].SchoolNumber
-                },
-                new Participant
-                {
-                    ParticipantNumber = teamModel.Participants[1].ParticipantNumber,
-                    SchoolNumber = teamModel.Participants[1].SchoolNumber
-                }
-            ],
             SchoolNumber = teamModel.SchoolNumber,
             TeamNumber = teamModel.TeamNumber
         };
