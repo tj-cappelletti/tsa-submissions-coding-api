@@ -10,6 +10,11 @@ public class ApiErrorResponseModel
 
     public string? Message { get; set; }
 
+    public static ApiErrorResponseModel InvalidId => new()
+    {
+        ErrorCode = (int)ErrorCodes.InvalidId,
+        Message = "The ID provided is not valid."
+    };
 
     public static ApiErrorResponseModel Unauthorized => new()
     {

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Entities;
+using Tsa.Submissions.Coding.WebApi.ExtensionMethods;
 using Tsa.Submissions.Coding.WebApi.Models;
 using Tsa.Submissions.Coding.WebApi.Services;
 
@@ -44,24 +45,32 @@ public class SubmissionsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SubmissionModel>> Get(string id, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Fetching submission with ID {Id}", id);
+        _logger.LogInformation("Fetching submission with ID {Id}", id.SanitizeForLogging());
+        var sanitizedId = id.SanitizeForLogging();
+
+        if(sanitizedId != id)
+        {
+            _logger.LogWarning("Submission ID {Id} is not valid", sanitizedId);
+            return BadRequest(ApiErrorResponseModel.InvalidId);
+        }
+
         var submission = await _submissionsService.GetAsync(id, cancellationToken);
 
         if (submission == null)
         {
-            _logger.LogWarning("Submission with ID {Id} not found", id);
+            _logger.LogWarning("Submission with ID {Id} not found", id.SanitizeForLogging());
             return NotFound();
         }
 
-        _logger.LogInformation("Submission with ID {Id} found", id);
+        _logger.LogInformation("Submission with ID {Id} found", id.SanitizeForLogging());
 
         if (User.IsInRole(SubmissionRoles.Judge))
         {
-            _logger.LogInformation("User is a judge, returning submission with ID {Id}", id);
+            _logger.LogInformation("User is a judge, returning submission with ID {Id}", id.SanitizeForLogging());
             return submission.ToModel();
         }
 
-        _logger.LogInformation("User is not a judge, checking if they are the owner of the submission with ID {Id}", id);
+        _logger.LogInformation("User is not a judge, checking if they are the owner of the submission with ID {Id}", id.SanitizeForLogging());
 
         var user = await _usersService.GetByUserNameAsync(User.Identity!.Name!, cancellationToken);
 
