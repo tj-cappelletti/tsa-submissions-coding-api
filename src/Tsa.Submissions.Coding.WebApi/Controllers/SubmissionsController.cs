@@ -48,7 +48,7 @@ public class SubmissionsController : ControllerBase
         _logger.LogInformation("Fetching submission with ID {Id}", id.SanitizeForLogging());
         var sanitizedId = id.SanitizeForLogging();
 
-        if(sanitizedId != id)
+        if (sanitizedId != id)
         {
             _logger.LogWarning("Submission ID {Id} is not valid", sanitizedId);
             return BadRequest(ApiErrorResponseModel.InvalidId);
