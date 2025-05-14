@@ -29,6 +29,7 @@ public class InitializationControllerTests
     }
 
     [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public async Task GetInitializationStatus_ReturnsOkWithStatusModel_WhenNotInitialized()
     {
         // Arrange
@@ -45,6 +46,7 @@ public class InitializationControllerTests
     }
 
     [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public async Task Initialize_ReturnsBadRequest_WhenAlreadyInitialized()
     {
         // Arrange
@@ -67,6 +69,7 @@ public class InitializationControllerTests
     }
 
     [Fact]
+    [Trait("TestCategory", "UnitTest")]
     public async Task Initialize_ReturnsOkWithUserModel_WhenNotInitialized()
     {
         // Arrange
