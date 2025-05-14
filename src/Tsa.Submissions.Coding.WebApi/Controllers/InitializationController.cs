@@ -42,7 +42,7 @@ public class InitializationController : ControllerBase
     [HttpPost("initialize")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserModel))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Initialize([FromBody]UserModel userModel, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Initialize([FromBody] UserModel userModel, CancellationToken cancellationToken = default)
     {
         var isInitialized = await IsInitialized(cancellationToken);
 
