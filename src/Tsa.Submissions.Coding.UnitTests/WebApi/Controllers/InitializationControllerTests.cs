@@ -41,7 +41,9 @@ public class InitializationControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
+
         var statusModel = Assert.IsType<InitializationStatusModel>(okResult.Value);
+
         Assert.False(statusModel.IsInitialized);
     }
 
@@ -64,6 +66,7 @@ public class InitializationControllerTests
 
         // Assert
         var badRequestResult = Assert.IsType<ObjectResult>(result);
+
         Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
         Assert.Equal("The application is already initialized", badRequestResult.Value);
     }
@@ -77,7 +80,8 @@ public class InitializationControllerTests
             .ReturnsAsync(new List<User>());
 
         _usersServiceMock.Setup(service => service.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
 
         var userModel = new UserModel
         {
@@ -90,7 +94,9 @@ public class InitializationControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
+
         var createdUser = Assert.IsType<UserModel>(okResult.Value);
+
         Assert.Equal(userModel.UserName, createdUser.UserName);
     }
 }
