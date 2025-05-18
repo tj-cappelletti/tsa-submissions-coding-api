@@ -2,6 +2,6 @@
 
 public enum CompetitionLevel
 {
-    MiddleSchool,
-    HighSchool
+    MiddleSchool = 1,
+    HighSchool = 2
 }
