@@ -9,11 +9,6 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tsa.Submissions.Coding.UnitTests", "Tsa.Submissions.Coding.UnitTests\Tsa.Submissions.Coding.UnitTests.csproj", "{B1A8DB68-9D8D-4EAF-B7F8-CBA4E291045A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data", "data", "{FFB38DC3-3703-48C7-AF68-76DB1FE87B08}"
-	ProjectSection(SolutionItems) = preProject
-		..\data\identity-server-seed-data.json = ..\data\identity-server-seed-data.json
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8B43357D-03BD-490F-B3BB-224C00DD4703}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
