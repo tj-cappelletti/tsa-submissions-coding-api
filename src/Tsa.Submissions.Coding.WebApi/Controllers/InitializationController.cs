@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.ExtensionMethods;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -58,7 +59,8 @@ public class InitializationController : ControllerBase
         var user = new User
         {
             UserName = userModel.UserName,
-            PasswordHash = passwordHash
+            PasswordHash = passwordHash,
+            Role = SubmissionRoles.Judge.ToString()
         };
 
         _logger.LogInformation("Initializing the application with user {UserName}", user.UserName.SanitizeForLogging());
