@@ -59,11 +59,15 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
+            _logger.LogInformation("Creating JWT token for user {UserName}", user.UserName.SanitizeForLogging());
+            _logger.LogInformation("Token expiration time: {TokenExpiration}", _jwtSettings.ExpirationInHours);
             var tokenExpiration = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationInHours);
 
+            _logger.LogInformation("Fetching JWT key");
             // JWT Settings are validated in Startup.cs
             var key = Encoding.UTF8.GetBytes(_jwtSettings.Key!);
 
+            _logger.LogInformation("Creating token descriptor");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Audience = _jwtSettings.Audience,
@@ -77,10 +81,13 @@ namespace Tsa.Submissions.Coding.WebApi.Controllers
                 }),
             };
 
+            _logger.LogInformation("Creating token");
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
+            _logger.LogInformation("Serializing token");
             var tokenString = tokenHandler.WriteToken(token);
 
+            _logger.LogInformation("Token created successfully");
             return Ok(new LoginResponseModel(tokenString, tokenExpiration));
         }
     }
