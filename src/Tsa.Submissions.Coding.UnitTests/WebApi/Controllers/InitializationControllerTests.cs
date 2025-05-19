@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Tsa.Submissions.Coding.WebApi.Authorization;
 using Tsa.Submissions.Coding.WebApi.Controllers;
 using Tsa.Submissions.Coding.WebApi.Entities;
 using Tsa.Submissions.Coding.WebApi.Models;
@@ -76,18 +78,22 @@ public class InitializationControllerTests
     public async Task Initialize_ReturnsOkWithUserModel_WhenNotInitialized()
     {
         // Arrange
-        _usersServiceMock.Setup(service => service.GetAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<User>());
-
-        _usersServiceMock.Setup(service => service.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable(Times.Once);
-
         var userModel = new UserModel
         {
             UserName = "testuser",
             Password = "password123"
         };
+
+        Func<User, bool> validateUser = user =>
+            user.UserName == userModel.UserName &&
+            user.Role == SubmissionRoles.Judge.ToString();
+
+        _usersServiceMock.Setup(service => service.GetAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<User>());
+
+        _usersServiceMock.Setup(service => service.CreateAsync(It.Is<User>(user => validateUser(user)), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable(Times.Once);
 
         // Act
         var result = await _controller.Initialize(userModel);
